@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace OpenGSCore
@@ -9,8 +10,10 @@ namespace OpenGSCore
         
         private string uuid;
 
+        public string DisplayName { get; }
 
-        public Guild()
+
+        public Guild(in string displayName)
         {
 
         }

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OpenGSCore
+namespace OpenGSCore.Stage
 {
-    class DryDays
+    class Ruin
     {
     }
 }

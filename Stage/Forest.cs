@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    class DryDays
+    class Forest
     {
     }
 }
