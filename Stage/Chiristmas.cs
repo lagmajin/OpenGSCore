@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OpenGSCore
+namespace OpenGSCore.Stage
 {
-    public class AbstractStage
+    public class Chiristmas
     {
-
     }
 }

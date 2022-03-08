@@ -4,8 +4,7 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    public class AbstractStage
+    class RobotFactory
     {
-
     }
 }
