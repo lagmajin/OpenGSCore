@@ -10,11 +10,10 @@ namespace OpenGSCore
     }
     public class AbstractGameEvent
     {
-        private DateTime timestamp = DateTime.Now;
         private DateTime timestampUtc = DateTime.UtcNow;
-        private String eventName;
-        public string EventName { get => eventName; set => eventName = value; }
-        public DateTime Timestamp { get => timestamp; set => timestamp = value; }
+        public string EventName { get; set; }
+
+        public DateTime Timestamp { get; set; } = DateTime.Now;
         public DateTime TimestampUts { get => timestampUtc; set => timestampUtc = value; }
 
         public AbstractGameEvent()
