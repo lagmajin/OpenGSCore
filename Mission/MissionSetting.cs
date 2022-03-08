@@ -6,7 +6,7 @@ namespace OpenGSCore
 {
     public class MissionSetting
     {
-        private bool lifeLimit = true;
+        public bool LifeLimit { get; } = true;
 
         public int LifeCount { get; } = 3;
 
