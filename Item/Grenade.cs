@@ -23,11 +23,11 @@ namespace OpenGSCore
         }
     }
 
-    class ClusterGranade : AbstractGrenade
+    public class ClusterGrenade : AbstractGrenade
     {
         int child = 3;
 
-        public ClusterGranade()
+        public ClusterGrenade()
         {
 
 
@@ -41,7 +41,7 @@ namespace OpenGSCore
         }
     }
 
-    class ChildClusterGrenade : AbstractGrenade
+    public class ChildClusterGrenade : AbstractGrenade
     {
         public ChildClusterGrenade()
         {

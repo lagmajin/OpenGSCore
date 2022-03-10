@@ -9,29 +9,68 @@ namespace OpenGSCore
 
     }
 
-    public class MatchInGameScore
+    public sealed class MatchInGameScore
     {
-        int death = 0;
-        int suicide = 0;
-        int totalDamage = 0;
 
-        int flagDefence = 0;
-        int flagReturn = 0;
-        int salvageFrag = 0;
+        public int Kill { get; private set; } = 0;
+        public int Death { get; private set; } = 0;
 
-        public int Kill { get; } = 0;
-        public int Death { get; } = 0;
+        public int Suicide { get; private set; } = 0;
 
-        public int Suicide { get; } = 0;
-        public int TotalDamage { get; } = 0;
-        public int FlagReturn { get; } = 0;
-        public int SalvageFrag { get; } = 0;
+        public int Killed { get; private set; } = 0;
+        public int TotalDamage { get; private set; } = 0;
 
-        public void AddKill()
+        public int FlagCarrierKill { get; private set; } = 0;
+        public int RecoverFlag { get; private set; } = 0;
+        public int FlagReturn { get; private set; } = 0;
+
+
+
+        public void AddKill(int kill)
+        {
+
+
+        }
+
+        public void MinusKill()
+        {
+
+
+
+        }
+
+        public void AddDeath(int death)
         {
 
         }
-        public void AddDeath()
+
+        public void AddSuicide()
+        {
+            MinusKill();
+
+
+
+
+        }
+
+        public void AddFlagCarrierKill()
+        {
+
+        }
+
+
+        public void AddTotalDamage(int damage)
+        {
+            if (damage < 0)
+            {
+                damage = 0;
+            }
+
+            TotalDamage += damage;
+
+        }
+
+        public void MinusTotalDamage(int damage)
         {
 
         }
