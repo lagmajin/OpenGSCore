@@ -28,26 +28,31 @@ namespace OpenGSCore
 
         public void AddKill(int kill)
         {
-
+            Kill += kill;
 
         }
 
         public void MinusKill()
         {
-
+            if (Kill > 0)
+            {
+                Kill--;
+            }
 
 
         }
 
-        public void AddDeath(int death)
+        public void AddDeath(int death = 1)
         {
+
+
 
         }
 
         public void AddSuicide()
         {
             MinusKill();
-
+            AddDeath();
 
 
 
@@ -55,6 +60,7 @@ namespace OpenGSCore
 
         public void AddFlagCarrierKill()
         {
+            FlagCarrierKill++;
 
         }
 
