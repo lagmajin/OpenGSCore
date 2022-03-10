@@ -15,11 +15,11 @@ namespace OpenGSCore
         //bool HasTimeLimit();
     }
 
-    abstract public class AbstractMatchRule:IMatchRule
+    public abstract class AbstractMatchRule : IMatchRule
     {
         private eGameMode mode = new eGameMode();
-        abstract public bool D(in MatchData d);
-        abstract public bool CanRespawn();
+        public abstract bool D(in MatchData d);
+        public abstract bool CanRespawn();
 
         private bool hasTimeLimit = false;
         private int matchTimeMsec = 3600;
@@ -29,7 +29,7 @@ namespace OpenGSCore
 
         }
 
-        public AbstractMatchRule(eGameMode mode,int matchTimeMsec)
+        public AbstractMatchRule(eGameMode mode, int matchTimeMsec)
         {
 
         }
