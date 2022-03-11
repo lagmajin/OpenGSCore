@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    public class MissionRule
+    public sealed class MissionRule
     {
         public bool CanRespawn { get; } = true;
 

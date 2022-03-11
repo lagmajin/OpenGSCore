@@ -3,7 +3,7 @@
 
 namespace OpenGSCore
 {
-    public class TDMMatchRule:AbstractMatchRule
+    public sealed class TDMMatchRule : AbstractMatchRule
     {
         public TDMMatchRule()
         {

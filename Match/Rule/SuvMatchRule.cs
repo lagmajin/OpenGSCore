@@ -3,9 +3,9 @@
 
 namespace OpenGSCore
 {
-    public class SuvMatchRule : AbstractMatchRule
+    public sealed class SuvMatchRule : AbstractMatchRule
     {
-        public SuvMatchRule(in SuvMatchSetting setting):base()
+        public SuvMatchRule(in SuvMatchSetting setting) : base()
         {
 
         }
@@ -15,7 +15,7 @@ namespace OpenGSCore
             return false;
         }
 
-        public override bool D(in MatchData d )
+        public override bool D(in MatchData d)
         {
             return false;
         }

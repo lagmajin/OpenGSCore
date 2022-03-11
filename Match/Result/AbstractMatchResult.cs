@@ -15,6 +15,15 @@ namespace OpenGSCore
     {
         List<PlayerInfo> scoreList;
 
+        public bool Won { get; } = false;
+        public bool Lost { get; } = false;
+
+        public AbstractMatchResult()
+        {
+
+        }
+
+
 
 
     }

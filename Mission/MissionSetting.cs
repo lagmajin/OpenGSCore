@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    public class MissionSetting
+    public sealed class MissionSetting
     {
         public bool LifeLimit { get; } = true;
 

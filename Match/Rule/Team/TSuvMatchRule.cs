@@ -1,9 +1,9 @@
 ﻿
 namespace OpenGSCore
 {
-    public class TSuvMatchRule:AbstractMatchRule
+    public sealed class TSuvMatchRule : AbstractMatchRule
     {
-        public TSuvMatchRule():base(eGameMode.TeamSurvival,0)
+        public TSuvMatchRule() : base(eGameMode.TeamSurvival, 0)
         {
 
         }

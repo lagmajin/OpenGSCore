@@ -5,14 +5,14 @@ namespace OpenGSCore
 {
 
 
-    public class DeathMatchRule : AbstractMatchRule
+    public sealed class DeathMatchRule : AbstractMatchRule
     {
-        public DeathMatchRule(int killCondition = 20, int matchTimeMsec = 1000):base(eGameMode.DeathMatch,matchTimeMsec)
+        public DeathMatchRule(int killCondition = 20, int matchTimeMsec = 1000) : base(eGameMode.DeathMatch, matchTimeMsec)
         {
 
         }
 
-        public DeathMatchRule(in DMMatchSetting setting):base()
+        public DeathMatchRule(in DMMatchSetting setting) : base()
         {
 
         }
@@ -24,7 +24,7 @@ namespace OpenGSCore
 
         public override bool D(in MatchData data)
         {
-            
+
 
 
             return false;

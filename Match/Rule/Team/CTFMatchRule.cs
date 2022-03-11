@@ -4,10 +4,10 @@ using System;
 
 namespace OpenGSCore
 {
-    public class CTFMatchRule : AbstractMatchRule
+    public sealed class CTFMatchRule : AbstractMatchRule
     {
 
-        public CTFMatchRule(CTFMatchSetting setting):base()
+        public CTFMatchRule(CTFMatchSetting setting) : base()
         {
 
         }
