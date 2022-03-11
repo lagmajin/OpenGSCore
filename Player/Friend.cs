@@ -6,6 +6,12 @@ using System.Text;
 
 namespace OpenGSCore
 {
+    public interface IFriend
+    {
+
+    }
+
+
     public class Friend
     {
         public string lv="0";
@@ -13,7 +19,7 @@ namespace OpenGSCore
 
         public string displayName;
 
-        Friend()
+        public Friend()
         {
 
         }

@@ -4,22 +4,22 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    public class MatchPlayerInfo
+    public sealed class MatchPlayerInfo
     {
         private string name_;
         private string guid_;
         private eTeam? team_;
 
-        MatchPlayerInfo(in string name,in string guid,in eTeam? team)
+        MatchPlayerInfo(in string name, in string guid, in eTeam? team)
         {
             name_ = name;
             guid_ = guid;
-            
+
         }
 
         private bool HasTeam()
         {
-            if(team_==null)
+            if (team_ == null)
             {
                 return false;
             }

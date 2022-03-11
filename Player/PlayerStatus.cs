@@ -11,7 +11,9 @@ namespace OpenGSCore
         OtherPlayer,
         AI
     }
-    public class PlayerStatus
+
+
+    public sealed class PlayerStatus
     {
         ePlayerType playerType = ePlayerType.Unknown;
 
@@ -19,7 +21,7 @@ namespace OpenGSCore
         private eTeam? team;
 
 
-        private float maxHp = 500;
+
         private float hp = 500;
 
         private float booster = 100;
@@ -27,7 +29,7 @@ namespace OpenGSCore
 
         private float boosterPower = 3.0f;
 
-        public float MaxHp { get => maxHp; }
+        public float MaxHp { get; private set; } = 500;
         public float Hp { get => hp; set => hp = value; }
         public float MaxBooster { get => booster; }
         public float Booster { get => booster; set => booster = value; }

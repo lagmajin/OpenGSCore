@@ -5,11 +5,11 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    enum eGenerateType 
-    { 
+    enum eGenerateType
+    {
     }
 
-    public class PlayerID
+    public sealed class PlayerID
     {
         private string playerID;
 

@@ -34,7 +34,6 @@
     <Folder Include="Match\Score\" />
     <Folder Include="Constants\" />
     <Folder Include="AI\" />
-    <Folder Include="UserAccount\" />
   </ItemGroup>
 
 </Project>
