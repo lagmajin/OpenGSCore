@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    public class MatchScore
+    public class MatchFinalScore
     {
         private int _kill;
 
@@ -13,11 +13,11 @@ namespace OpenGSCore
         private int _suicide = 0;
 
 
-        int rank;
+        public int Rank { get; private set; } = 0;
 
-        int totalPoint;
+        public int TotalPoint { get; private set; } = 0;
 
-        public MatchScore()
+        public MatchFinalScore()
         {
 
         }

@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace OpenGSCore
 {
+    public class SuvMatchFinalScore
+    {
+
+    }
+
     public class SuvMatchResult : AbstractMatchResult
     {
 

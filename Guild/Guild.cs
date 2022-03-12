@@ -7,10 +7,10 @@ namespace OpenGSCore
 {
     public class Guild
     {
-        
-        private string uuid;
 
-        public string DisplayName { get; }
+        private string _uuid;
+
+        public string DisplayName { get; private set; }
 
 
         public Guild(in string displayName)

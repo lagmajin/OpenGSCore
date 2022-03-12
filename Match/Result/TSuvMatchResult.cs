@@ -7,6 +7,11 @@ using OpenGSCore;
 
 namespace OpenGSCore
 {
+    public class TSuvMatchFinalScore
+    {
+
+    }
+
     public class TSuvMatchResult : AbstractMatchResult
     {
 

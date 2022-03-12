@@ -10,7 +10,7 @@ namespace OpenGSCore
         private string guid_;
         private eTeam? team_;
 
-        MatchPlayerInfo(in string name, in string guid, in eTeam? team)
+        public MatchPlayerInfo(in string name, in string guid, in eTeam? team)
         {
             name_ = name;
             guid_ = guid;
