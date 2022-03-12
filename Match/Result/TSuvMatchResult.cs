@@ -3,10 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenGSCore;
 
-namespace OpenGSServer
+namespace OpenGSCore
 {
-    public class TSuvMatchResult
+    public class TSuvMatchResult : AbstractMatchResult
     {
+
+        public TSuvMatchResult() : base(true)
+        {
+
+        }
+
     }
 }

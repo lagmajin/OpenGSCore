@@ -8,5 +8,11 @@ namespace OpenGSCore
 {
     public class SuvMatchResult : AbstractMatchResult
     {
+
+        public SuvMatchResult(bool win) : base(win)
+        {
+
+        }
+
     }
 }

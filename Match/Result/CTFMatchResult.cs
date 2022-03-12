@@ -6,9 +6,13 @@ using System.Threading.Tasks;
 
 namespace OpenGSCore
 {
-    public class CTFMatchResult:AbstractMatchResult
+    public class CTFMatchResult : AbstractMatchResult
     {
 
+        public CTFMatchResult(bool win) : base(win)
+        {
+
+        }
 
     }
 }
