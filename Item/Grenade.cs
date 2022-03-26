@@ -6,6 +6,16 @@
 
 namespace OpenGSCore
 {
+    public enum eGrenadeType
+    {
+        Empty,
+        Normal,
+        Power,
+        Magnetic,
+        Mine,
+        Cluster
+    }
+
 
 
     public class PowerGrenade : AbstractGrenade
