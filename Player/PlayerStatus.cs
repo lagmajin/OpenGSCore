@@ -38,7 +38,7 @@ namespace OpenGSCore
         public float MaxBooster { get => booster; }
         public float Booster { get => booster; set => booster = value; }
 
-        public float BoosterPowerGround { get; set; } = 4.0f;
+        public float BoosterPowerGround { get; set; } = 3.0f;
         public float BoosterPower { get => boosterPower; set => boosterPower = value; }
         public eTeam? Team { get => team; set => team = value; }
     }
