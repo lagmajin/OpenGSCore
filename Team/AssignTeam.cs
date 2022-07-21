@@ -17,9 +17,23 @@ namespace OpenGSCore
 
     public class AssignTeam
     {
-        public static void AssignTeamC(List<string> idList)
+        public static AssignTeamResult? Random(List<string> idList)
         {
+            if (idList.Count == 0)
+            {
 
+                return null;
+            }
+
+
+            var redTeam = new List<string>();
+
+            var blueTeam = new List<string>();
+
+            var result = new AssignTeamResult(redTeam,blueTeam);
+
+
+            return result;
 
         }
 

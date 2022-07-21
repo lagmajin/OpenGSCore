@@ -3,7 +3,8 @@ namespace OpenGSCore
 {
     public sealed class TSuvMatchRule : AbstractMatchRule
     {
-        public TSuvMatchRule() : base(eGameMode.TeamSurvival, 0)
+
+        public TSuvMatchRule(bool teamBalance = true) : base(eGameMode.TeamSurvival, 0)
         {
 
         }
@@ -19,7 +20,7 @@ namespace OpenGSCore
             return false;
         }
 
-        override public bool CanRespawn()
+        public override bool CanRespawn()
         {
 
             return false;

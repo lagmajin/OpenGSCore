@@ -41,6 +41,14 @@ namespace OpenGSCore
         public float BoosterPowerGround { get; set; } = 3.0f;
         public float BoosterPower { get => boosterPower; set => boosterPower = value; }
         public eTeam? Team { get => team; set => team = value; }
+
+
+        public PlayerStatus()
+        {
+
+        }
+
+
     }
 
 

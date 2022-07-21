@@ -9,9 +9,9 @@ namespace OpenGSCore
     {
 
         bool D(in MatchData d);
-        bool CanRespawn();
+        bool CanReSpawn();
 
-        public int MatchTimeMsec();
+        public int MatchTimeMSec();
         //bool HasTimeLimit();
     }
 
@@ -19,7 +19,7 @@ namespace OpenGSCore
     {
         private eGameMode mode = new eGameMode();
         public abstract bool D(in MatchData d);
-        public abstract bool CanRespawn();
+        public abstract bool CanReSpawn();
 
         private bool hasTimeLimit = false;
         private int matchTimeMsec = 3600;
@@ -34,7 +34,7 @@ namespace OpenGSCore
 
         }
 
-        public int MatchTimeMsec()
+        public int MatchTimeMSec()
         {
             return matchTimeMsec;
         }

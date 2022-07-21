@@ -4,9 +4,16 @@ using System.Text;
 
 namespace OpenGSCore
 {
+    public interface IChatMacro
+    {
+
+    }
+
     public class ChatMacro
     {
         //private array
+
+        public int num;
 
         public ChatMacro()
         {
@@ -15,4 +22,12 @@ namespace OpenGSCore
 
 
     }
+
+    public interface IChatMacros{}
+    public class ChatMacros
+    {
+
+    }
+
+
 }

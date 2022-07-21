@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Des;
 
-namespace OepnGSCore
+namespace OpenGSCore
 {
     public enum eStage
     {
+        Unknown,
         AuroraClassic,
         Alps,
         DryDays,
@@ -35,6 +37,9 @@ namespace OepnGSCore
     {
         private int boostLevel = 0;
 
+        public eGameMode GameMode { get; set; }
+
+        public eStage Stage { get; set; }
 
     }
 }

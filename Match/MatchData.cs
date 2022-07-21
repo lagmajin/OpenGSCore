@@ -30,13 +30,13 @@ namespace OpenGSCore
 
         public int AlivePlayer { get; set; }
 
-        public int TotalKill { get; set; }
-        public int TotalDeath { get; set; }
+        public int TotalKill { get; set; } = 0;
+        public int TotalDeath { get; set; } = 0;
         public int RedTeamKill { get; set; } = 0;
         public int BlueTeamKill { get; set; } = 0;
-        public int RedTeamFlagReturn { get; set; }
-        public int BlueTeamFlagReturn { get; set; }
-        public int MaxPlayerKillCount { get; set; }
+        public int RedTeamFlagReturn { get; set; } = 0;
+        public int BlueTeamFlagReturn { get; set; } = 0;
+        public int MaxPlayerKillCount { get; set; } = 0;
 
         public void UpdateTime(in int elapsedTime)
         {
