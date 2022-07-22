@@ -14,19 +14,11 @@ namespace OpenGSCore
     }
     public class AbstractMatchSetting:IAbstractMatchSetting
     {
-        private eGameMode gameMode_=eGameMode.Unknown;
 
-        private bool teamBalance_ = true;
-
-        private int maxPlayerCount_;
-
-        public bool hasTimeLimit_=false;
-
-        private int matchTimeMSec_ = 1000;
-        public bool TeamBalance { get => teamBalance_; }
-        public int MaxPlayerCount { get => maxPlayerCount_; }
-        public eGameMode Mode { get => gameMode_; }
-        public int MatchTimeMSec { get => matchTimeMSec_;}
+        public bool TeamBalance { get; set; } = true;
+        public int MaxPlayerCount { get; set; } = 0;
+        public eGameMode Mode { get; set; } = eGameMode.Unknown;
+        public int MatchTimeMSec { get; set; } = 0;
 
         public AbstractMatchSetting(eGameMode gamemode, int maxplayerCount, bool teamBalance = true, bool hasTimeLimit_ = false)
         {
@@ -36,10 +28,10 @@ namespace OpenGSCore
         public AbstractMatchSetting(in eGameMode gamemode, int maxplayerCount, bool teamBalance = true, bool hasTimeLimit_ = false,int timeLimit=1000)
         {
 
-            gameMode_ = gamemode;
-            maxPlayerCount_ = maxplayerCount;
+            //gameMode_ = gamemode;
+            //maxPlayerCount_ = maxplayerCount;
 
-            matchTimeMSec_ = 600000;
+            //matchTimeMSec_ = 600000;
 
 
 
@@ -50,6 +42,8 @@ namespace OpenGSCore
             var result = new JObject();
 
             IDictionary<string, JToken> dictionary = result;
+            
+
 
 
             return result;

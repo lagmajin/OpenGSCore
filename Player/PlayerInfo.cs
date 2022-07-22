@@ -14,15 +14,17 @@ namespace OpenGSCore
         string ip;
 
         List<string> ipList;
-        public string Id { get => id; set => id = value; }
-        public string Name { get => name; set => name = value; }
-        public string CurrentIp { get => ip; set => ip = value; }
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string? CurrentIp { get; set; } = null;
 
-        public PlayerInfo(in string id,in string name,in string currentIp)
+        public PlayerInfo(in string id,in string name,in string? currentIp)
         {
             Id = id;
 
             Name = name;
+
+
             CurrentIp = currentIp;
 
         }

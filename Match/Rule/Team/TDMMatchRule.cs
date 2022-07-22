@@ -15,13 +15,13 @@ namespace OpenGSCore
 
         }
 
-        override public bool D(in MatchData d)
+        public override bool D(in MatchData d)
         {
 
             return false;
         }
 
-        override public bool CanRespawn()
+        public override bool CanReSpawn()
         {
             return true;
         }

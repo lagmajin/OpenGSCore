@@ -10,7 +10,7 @@ namespace OpenGSCore
 
         }
 
-        public override bool CanRespawn()
+        public override bool CanReSpawn()
         {
             return false;
         }

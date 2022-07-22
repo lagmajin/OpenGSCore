@@ -21,6 +21,9 @@ namespace OpenGSCore
         {
             var result = new JObject();
 
+            result["GameMode"] = "TeamSurvival";
+            result["TeamBalance"] = "On";
+
             return result;
 
         }
