@@ -11,7 +11,11 @@ namespace OpenGSCore
 
         public int Capacity { get; set; } = 0;
 
-        public List<PlayerInfo> Players { get; set; }
+        
+        public List<PlayerInfo> OldPlayers { get; set; }
+        
+        public Dictionary<string,PlayerInfo> Players { get; set; }
+
         private Object lockObject = new Object();
         public WaitRoom(in string name,in string id,int capacity)
         {
@@ -27,6 +31,9 @@ namespace OpenGSCore
         {
             lock (lockObject)
             {
+
+
+
 
             }
 

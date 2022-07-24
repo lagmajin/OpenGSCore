@@ -5,6 +5,12 @@ using System.Collections.Generic;
 
 namespace OpenGSCore
 {
+    public class PlayerNetworkStatus
+    {
+
+    }
+
+
     public class PlayerInfo
     {
         string id;
@@ -43,4 +49,8 @@ namespace OpenGSCore
         }
 
     }
+
+
+
+
 }
