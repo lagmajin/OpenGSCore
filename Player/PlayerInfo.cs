@@ -3,12 +3,11 @@ using System.Collections.Generic;
 //using System.Text.Json;
 //using System.Text.Json.Serialization;
 
+//using NodaTime;
+
 namespace OpenGSCore
 {
-    public class PlayerNetworkStatus
-    {
-
-    }
+    
 
 
     public class PlayerInfo
@@ -24,7 +23,10 @@ namespace OpenGSCore
         public string Name { get; set; }
         public string? CurrentIp { get; set; } = null;
 
-        public PlayerInfo(in string id,in string name,in string? currentIp)
+        public int Ping { get; set; }
+
+        //public ZonedDateTime LastAckTime { get; set; }
+        public PlayerInfo(in string id,in string name,in string? currentIp=null)
         {
             Id = id;
 
@@ -43,6 +45,7 @@ namespace OpenGSCore
             result["Id"]=id;
 
             result["Name"] = name;
+            result["CurrentIP"] = "";
 
 
             return result;

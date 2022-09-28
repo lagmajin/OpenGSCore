@@ -47,6 +47,11 @@ namespace OpenGSCore
             return null;
         }
 
+        public void AddPlayer(string id,string displayName)
+        {
+
+        }
+
 
 
 

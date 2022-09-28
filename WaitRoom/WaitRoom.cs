@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
+
+
+
 namespace OpenGSCore
 {
     public  class WaitRoom
@@ -17,6 +20,10 @@ namespace OpenGSCore
         public Dictionary<string,PlayerInfo> Players { get; set; }
 
         private Object lockObject = new Object();
+
+
+        public AbstractMatchRule MatchRule { get; set; } = null;
+
         public WaitRoom(in string name,in string id,int capacity)
         {
             RoomName = name;
@@ -24,6 +31,11 @@ namespace OpenGSCore
             ID = id;
 
             Capacity=capacity;
+
+        }
+
+        public void ChangeGameMode(eGameMode mode)
+        {
 
         }
 
@@ -40,15 +52,42 @@ namespace OpenGSCore
 
         }
 
+        public void AddPlayer(in string id, in string displayName)
+        {
+            lock (lockObject)
+            {
+                //var playerInfo = new PlayerInfo(id,displayName);
+
+                //Players.Add(id,);
+
+                var info = new PlayerInfo(id, displayName);
+
+
+                Players.Add(id,info);
+
+
+            }
+
+        }
+
         public void AddPlayers()
         {
 
         }
 
+        public void AddBotPlayer()
+        {
+
+        }
+
+
         public void RemovePlayer(in string id)
         {
             lock (lockObject)
             {
+                Players.Remove(id);
+
+
 
             }
 
@@ -56,9 +95,39 @@ namespace OpenGSCore
 
         public void RemoveAllPlayers()
         {
+            lock(lockObject)
+            {
+                Players.Clear();
+
+            }
 
         }
 
+        public void RemoveAllBotPlayer()
+        {
+
+        }
+
+
+        public List<PlayerInfo> AllPlayers()
+        {
+            lock (lockObject)
+            {
+
+                var players = new List<PlayerInfo>();
+
+
+                foreach (var info in Players)
+                {
+                    players.Add(info.Value);
+
+
+                }
+
+
+                return players;
+            }
+        }
 
 
     }

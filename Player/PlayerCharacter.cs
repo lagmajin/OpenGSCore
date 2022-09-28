@@ -17,7 +17,9 @@ namespace OpenGSCore
         Wyburn,
         Seoul,
         LittleJ,
-        Shue
+        Shue,
+        Swaltz,
+
     }
 
 

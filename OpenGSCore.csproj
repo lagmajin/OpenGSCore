@@ -35,6 +35,7 @@
     <Folder Include="Match\Score\" />
     <Folder Include="Constants\" />
     <Folder Include="AI\" />
+    <Folder Include="新しいフォルダー\" />
   </ItemGroup>
 
 </Project>
