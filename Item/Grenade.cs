@@ -13,7 +13,9 @@ namespace OpenGSCore
         Power,
         Magnetic,
         Mine,
-        Cluster
+        Cluster,
+        ClusterChild,
+        Fire,
     }
 
 

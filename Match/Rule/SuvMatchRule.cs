@@ -15,7 +15,7 @@ namespace OpenGSCore
             return false;
         }
 
-        public override bool D(in MatchData d)
+        public override bool D(in AbstractMatchSituation d)
         {
             return false;
         }

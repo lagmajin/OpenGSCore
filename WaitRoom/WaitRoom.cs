@@ -7,7 +7,10 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    public  class WaitRoom
+    //public interface IWaitRoom { }
+
+
+    public class WaitRoom
     {
         public string RoomName { get; set; } = "";
         public string ID { get; set; }
@@ -19,12 +22,14 @@ namespace OpenGSCore
         
         public Dictionary<string,PlayerInfo> Players { get; set; }
 
-        private Object lockObject = new Object();
+        private readonly  Object lockObject = new Object();
 
 
         public AbstractMatchRule MatchRule { get; set; } = null;
 
-        public WaitRoom(in string name,in string id,int capacity)
+        public AbstractMatchSetting setting = null;
+
+        public WaitRoom(in string name,in string id,int capacity=8)
         {
             RoomName = name;
 

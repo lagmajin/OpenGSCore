@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OpenGSCore
+namespace OpenGSCore.Utility
 {
-    public class SuvGameEvent
+    public class MakeTimeStamp
     {
+
+
+
     }
-
-
-
 }

@@ -12,7 +12,7 @@ namespace OpenGSCore
         FAMAS,
         F2000,
         Scorpion,
-        FN_P90,
+        FnP90,
         Scout,
         Dragunov,
         PSG1,
@@ -20,16 +20,16 @@ namespace OpenGSCore
         Uzi,
         MG42,
         M60,
-        FNMinimi_SAW,
+        FNMinimiSaw,
 
         LaserGun,
         BubbleGun,
-        ChirstmasGun,
+        ChristmasGun,
 
-        SteyAug,
+        SteyrAug,
 
         Glock,
-        DE,
+        DesertEagle,
         MP5
     }
 

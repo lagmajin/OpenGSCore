@@ -10,7 +10,9 @@ namespace OpenGSCore
 {
     public class AllMatchPlayer
     {
-        public SortedDictionary<string, PlayerStatus> AllPlayers { get;set; } = new();
+        //public SortedDictionary<string, PlayerStatus> AllPlayers { get;set; } = new();
+
+        private List<PlayerStatus> players = new();
 
 
         public AllMatchPlayer()
@@ -37,6 +39,8 @@ namespace OpenGSCore
 
             return null;
         }
+
+        
 
         public List<PlayerStatus>? SearchTeamPlayers(eTeam team)
         {

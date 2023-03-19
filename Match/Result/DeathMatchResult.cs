@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 namespace OpenGSServer
 {
 
-    public class DMFinalScore
+    public class DeathMatchFinalScore
     {
 
 
     }
-    public class DMMatchResult
+    public class DeathMatchResult
     {
 
-        public DMFinalScore FinalScore()
+        public DeathMatchFinalScore FinalScore()
         {
-            var result = new DMFinalScore();
+            var result = new DeathMatchFinalScore();
 
             return result;
         }

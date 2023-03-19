@@ -5,7 +5,7 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    enum eGenerateType
+    enum EGenerateType
     {
     }
 
@@ -15,7 +15,7 @@ namespace OpenGSCore
 
         public PlayerID()
         {
-
+            DateTime.Now.ToString("");
         }
 
         public override string ToString()

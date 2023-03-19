@@ -8,7 +8,7 @@ namespace OpenGSCore
     public interface IMatchRule
     {
 
-        bool D(in MatchData d);
+        bool D(in AbstractMatchSituation situation);
         bool CanReSpawn();
 
         public int MatchTimeMSec();
@@ -17,9 +17,19 @@ namespace OpenGSCore
 
     public abstract class AbstractMatchRule : IMatchRule
     {
-        private eGameMode mode = new eGameMode();
-        public abstract bool D(in MatchData d);
-        public abstract bool CanReSpawn();
+        private EGameMode mode = new EGameMode();
+        
+        
+        
+        public abstract bool D(in AbstractMatchSituation d);
+
+        private bool canRespawn = true;
+        public virtual bool CanReSpawn()
+        {
+            return canRespawn;
+        }
+
+        
 
         private bool hasTimeLimit = false;
         private int matchTimeMsec = 3600;
@@ -29,7 +39,7 @@ namespace OpenGSCore
 
         }
 
-        public AbstractMatchRule(eGameMode mode, int matchTimeMsec)
+        public AbstractMatchRule(EGameMode mode, int matchTimeMsec)
         {
 
         }

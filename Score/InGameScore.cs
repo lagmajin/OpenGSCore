@@ -10,5 +10,9 @@ namespace OpenGSCore.Score
     }
     public class AbstractInGameScore : IAbstractInGameScore
     {
+
+
+
+
     }
 }

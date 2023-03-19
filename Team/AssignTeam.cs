@@ -6,8 +6,8 @@ namespace OpenGSCore
 {
     public class AssignTeamResult
     {
-        public List<string> RedTeam { get; private set; }
-        public List<string> BlueTeam { get; private set; }
+        public List<string> RedTeam { get; private set; } = new();
+        public List<string> BlueTeam { get; private set; } = new();
 
         public AssignTeamResult(List<string> redTeam, List<string> blueTeam)
         {
@@ -30,7 +30,7 @@ namespace OpenGSCore
 
             var blueTeam = new List<string>();
 
-            var result = new AssignTeamResult(redTeam,blueTeam);
+            var result = new AssignTeamResult(redTeam, blueTeam);
 
 
             return result;

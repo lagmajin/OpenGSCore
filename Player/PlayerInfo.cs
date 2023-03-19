@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace OpenGSCore
 {
-    
+
 
 
     public class PlayerInfo
@@ -23,10 +23,10 @@ namespace OpenGSCore
         public string Name { get; set; }
         public string? CurrentIp { get; set; } = null;
 
-        public int Ping { get; set; }
+        public int Ping { get; set; } = 0;
 
         //public ZonedDateTime LastAckTime { get; set; }
-        public PlayerInfo(in string id,in string name,in string? currentIp=null)
+        public PlayerInfo(in string? id = null, in string name = null, in string? currentIp = null)
         {
             Id = id;
 
@@ -40,9 +40,9 @@ namespace OpenGSCore
 
         public JObject ToJson()
         {
-            var result= new JObject();
+            var result = new JObject();
 
-            result["Id"]=id;
+            result["Id"] = id;
 
             result["Name"] = name;
             result["CurrentIP"] = "";

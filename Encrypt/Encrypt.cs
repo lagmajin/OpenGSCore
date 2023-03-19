@@ -26,6 +26,14 @@ namespace OpenGSCore
             return result;
         }
 
+        static string DecryptAES(string text)
+        {
+            string result = "";
+
+
+            return result;
+        }
+
 
     }
 }

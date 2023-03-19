@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    public enum ePlayerType
+    public enum EPlayerType
     {
         Unknown,
         MyPlayer,
@@ -15,38 +15,44 @@ namespace OpenGSCore
 
     public sealed class PlayerStatus
     {
-        ePlayerType playerType = ePlayerType.Unknown;
+        //EPlayerType playerType = EPlayerType.Unknown;
 
 
-        private eTeam? team;
+        private ETeam Team { get; set; }=ETeam.NoTeam;
 
-
-
-        private float hp = 500;
-
-        private float booster = 100;
-        private float maxBooster = 100;
-
-        //private float boosterPowerOnGround = 4.0f;
-
-        private float boosterPower = 1.0f;
-
-
-
+        //private readonly object lockObject = new();
         public float MaxHp { get; private set; } = 500;
-        public float Hp { get => hp; set => hp = value; }
-        public float MaxBooster { get => booster; }
-        public float Booster { get => booster; set => booster = value; }
+        public float Hp { get; set; } = 500;
+        public float MaxBooster { get; private set; } = 100;
+        public float Booster { get; set; } = 100;
 
         public float BoosterPowerGround { get; set; } = 3.0f;
-        public float BoosterPower { get => boosterPower; set => boosterPower = value; }
-        public eTeam? Team { get => team; set => team = value; }
-
+        public float BoosterPower { get; set; } = 1.0f;
 
         public PlayerStatus()
         {
 
+
+
+
         }
+
+        public PlayerStatus(int maxHP=500, float maxBooster=100.0f, float boosterPower=1.0f)
+        {
+            MaxHp = maxHP;
+            MaxBooster = maxBooster;
+            BoosterPower = boosterPower;
+
+        }
+
+        public PlayerStatus(ETeam team = ETeam.NoTeam,EPlayerType type=EPlayerType.Unknown, int maxHP = 550,float maxBooster=100.0f)
+        {
+            Team = team;
+
+
+        }
+
+        //public PlayerStatus()
 
 
     }

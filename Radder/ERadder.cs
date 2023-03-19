@@ -4,10 +4,11 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    public class SuvGameEvent
+    public enum ERadder
     {
+        Silver1,
+        Silver2,
+        Gold1,
+        Gold2,
     }
-
-
-
 }

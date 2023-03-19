@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OpenGSCore
+namespace OpenGSCore.Match.Situation
 {
-    public class SuvGameEvent
+    public class TeamSurvivalMatchSituation
     {
     }
-
-
-
 }

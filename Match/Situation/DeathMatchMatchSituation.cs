@@ -4,10 +4,7 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    public class SuvGameEvent
+    public class DeathMatchMatchSituation : AbstractMatchSituation
     {
     }
-
-
-
 }

@@ -4,17 +4,17 @@ namespace OpenGSCore
     public sealed class TSuvMatchRule : AbstractMatchRule
     {
 
-        public TSuvMatchRule(bool teamBalance = true) : base(eGameMode.TeamSurvival, 0)
+        public TSuvMatchRule(bool teamBalance = true) : base(EGameMode.TeamSurvival, 0)
         {
 
         }
 
-        public TSuvMatchRule(in TSuvMatchSetting setting)
+        public TSuvMatchRule(in TeamSurvival setting)
         {
 
         }
 
-        public override bool D(in MatchData d)
+        public override bool D(in AbstractMatchSituation d)
         {
 
             return false;

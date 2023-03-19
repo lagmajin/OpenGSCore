@@ -12,4 +12,12 @@ namespace OpenGSCore
         NoTeam
     }
 
+    public enum ETeam
+    {
+        Red,
+        Blue,
+        Green,
+        NoTeam
+    }
+
 }

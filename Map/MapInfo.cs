@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Des;
+﻿
 
 namespace OpenGSCore
 {
 
 
-    public enum eMap
+    public enum EMap
     {
         Unknown,
         AuroraClassic,
+        ArchLoadOfGunster,
         IceValley,
         DryDays,
         GreenHillSide1,
@@ -32,7 +30,7 @@ namespace OpenGSCore
         TheParkCTF,
         RuinOfWarSide1,
         RuinOfWarSide2,
-        Nocturn,
+        Nocturne,
         Waterfall,
         SkyHigh,
         SkyHighCTF,
@@ -57,6 +55,6 @@ namespace OpenGSCore
         //public eStage Stage { get; set; }
 
 
-        public eMap Map { get; set; }
+        public EMap Map { get; set; }
     }
 }

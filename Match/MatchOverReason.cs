@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    public enum eMatchOverReason
+    public enum EMatchOverReason
     {
         TimeOver,
         FlagReturn,
@@ -16,7 +16,7 @@ namespace OpenGSCore
 
 
 
-    public enum eMatchStatus
+    public enum EMatchStatus
     {
         WaitingMatch,
         Playing,

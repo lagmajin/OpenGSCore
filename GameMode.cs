@@ -5,29 +5,46 @@ using System.Text;
 namespace OpenGSCore
 {
 
+    public enum EGameMode
+    {
+        DeathMatch = 0,
+        TeamDeathMatch,
+        Practice,
+        FreeStyle,
+        OneShotKill,
+        Sniper,
+        TowerMatch,
+        Survival,
+        TeamSurvival,
+        CaptureTheFlag,
+ 
+        ArmsRace,
+        Unknown,
 
+    }
 
 
     public enum eGameMode : byte
     {
-        DeathMatch=0,
+        DeathMatch = 0,
+        TeamDeathMatch,
         Practice,
         FreeStyle,
-        TDM,
         OneShotKill,
         Sniper,
         TowerMatch,
         Survival,
         TeamSurvival,
         CTF,
+ 
+        ArmsRace,
         Unknown,
-        ArmsRace
 
     }
 
     public class GameMode
     {
-       private  eGameMode mode=eGameMode.Unknown;
+        private eGameMode mode = eGameMode.Unknown;
 
         private string str = "";
 
@@ -36,7 +53,7 @@ namespace OpenGSCore
             var result = new List<eGameMode>();
 
             result.Add(eGameMode.DeathMatch);
-            result.Add(eGameMode.TDM);
+            result.Add(eGameMode.TeamDeathMatch);
             result.Add(eGameMode.Survival);
             result.Add(eGameMode.TeamSurvival);
             result.Add(eGameMode.CTF);
@@ -55,9 +72,9 @@ namespace OpenGSCore
             var temp = mode.ToLower();
             str = "unkonown";
 
-            
 
-            if(temp=="DeathMatch" || temp=="DM")
+
+            if (temp == "DeathMatch" || temp == "DM")
             {
                 str = "dm";
             }
@@ -67,7 +84,7 @@ namespace OpenGSCore
                 str = "tdm";
             }
 
-            if (temp=="Survival"|| temp=="SUV")
+            if (temp == "Survival" || temp == "SUV")
             {
                 str = "suv";
             }
@@ -76,12 +93,12 @@ namespace OpenGSCore
                 str = "tsuv";
             }
 
-            if(temp=="CaptureTheFlag" || temp=="CTF")
+            if (temp == "CaptureTheFlag" || temp == "CTF")
             {
                 str = "ctf";
             }
 
-            
+
 
         }
 

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    public enum ePlayerCharacter
+    public enum EPlayerCharacter
     {
         Ami,
         Yumi,
@@ -14,7 +14,7 @@ namespace OpenGSCore
         Liu,
         Mary,
         Wolf,
-        Wyburn,
+        Wyvern,
         Seoul,
         LittleJ,
         Shue,

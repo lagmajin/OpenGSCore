@@ -15,9 +15,9 @@ namespace OpenGSCore
     public class Friend
     {
         public string lv="0";
-        public string accountName;
+        public string accountName="";
 
-        public string displayName;
+        public string displayName="";
 
         public Friend()
         {
