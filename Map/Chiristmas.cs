@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OpenGSCore.Stage
+namespace OpenGSCore
 {
     public class Christmas
     {
+
+
+
     }
 }
