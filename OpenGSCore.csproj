@@ -38,6 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Friend\" />
     <Folder Include="Item\Weapon\" />
     <Folder Include="Match\Score\" />
     <Folder Include="Constants\" />

@@ -15,7 +15,7 @@ namespace OpenGSCore
     public class Friend
     {
         public string lv="0";
-        public string accountName="";
+        public string accountID="";
 
         public string displayName="";
 
@@ -24,5 +24,22 @@ namespace OpenGSCore
 
         }
 
+        public Friend(string lv, string accountID, string displayName)
+        {
+            
+            this.lv = lv;
+                
+            this.accountID = accountID;
+            this.displayName = displayName;
+
+
+        }
+
     }
+
+    public class FriendList
+    {
+
+    }
+
 }
