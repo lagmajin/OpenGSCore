@@ -6,15 +6,6 @@ namespace OpenGSCore
 {
     public class SuvGameEvent
     {
-
-        public SuvGameEvent()
-        {
-            var test = 20;
-
-
-
-        }
-
     }
 
 
