@@ -22,7 +22,7 @@ namespace OpenGSCore
 
         public float DamageRate { get; set; } = 1.0f;
         public float BoosterRate { get; set; } = 1.0f;
-
+        public bool TimeLimit { get; set; } = false;
         public AbstractMatchSetting(EGameMode gamemode, int maxplayerCount, bool teamBalance = true, bool hasTimeLimit_ = false)
         {
 

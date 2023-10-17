@@ -4,10 +4,11 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    public class Christmas
+    public class OneOnOneChat
     {
-
-
+        string senderID;
+        string recieverID;
+        string message;
 
     }
 }

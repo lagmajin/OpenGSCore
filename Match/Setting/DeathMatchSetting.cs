@@ -8,7 +8,7 @@ namespace OpenGSCore
     public class DeathMatchSetting : AbstractMatchSetting
     {
         private int winConditionKill_ = 10;
-        public DeathMatchSetting(int winConditionKill, bool teamBalance = true) : base(EGameMode.DeathMatch, 0, teamBalance)
+        public DeathMatchSetting(int winConditionKill = 20, bool teamBalance = true) : base(EGameMode.DeathMatch, 0, teamBalance)
         {
             winConditionKill_ = 20;
 
@@ -18,8 +18,9 @@ namespace OpenGSCore
         {
             var result = base.ToJson();
 
-            result["WinConditionKill"] = "";
-
+            result["MatchType"] = "DeathMatch";
+            result["WinConditionKill"] = winConditionKill_;
+            result["TeamBalance"] = "true";
 
             return result;
 
