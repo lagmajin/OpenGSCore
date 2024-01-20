@@ -11,4 +11,10 @@ namespace OpenGSCore
         Gold1,
         Gold2,
     }
+
+    class Radder
+    {
+
+    }
+
 }

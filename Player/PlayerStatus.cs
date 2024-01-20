@@ -15,12 +15,11 @@ namespace OpenGSCore
 
     public sealed class PlayerStatus
     {
-        //EPlayerType playerType = EPlayerType.Unknown;
-
+        private readonly object lockObject = new();
 
         private ETeam Team { get; set; }=ETeam.NoTeam;
 
-        //private readonly object lockObject = new();
+     
         public float MaxHp { get; private set; } = 500;
         public float Hp { get; set; } = 500;
         public float MaxBooster { get; private set; } = 100;

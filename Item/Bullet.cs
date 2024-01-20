@@ -6,26 +6,25 @@ namespace OpenGSCore
 {
     public abstract class AbstractBullet:AbstractGameObject
     {
-        int damage = 0;
 
-        private int angle = 0;
-        private int speed = 0;
-        private int power = 0;
-        private int stoppingPower = 0;
+        public float Damage { get; set; }
+        public float Angle { get; set; }
+        public float Speed { get; set; }
+        public float StoppingPower { get; set; }
+        
+        public float PosX { get; set; }
+        public float PosY { get; set; }
+  
 
-        public int Damage { get => damage; set => damage = value; }
-        public int Angle { get => angle; set => angle = value; }
-        public int Speed { get => speed; set => speed = value; }
-        public int Power { get => power; set => power = value; }
-        public int StoppingPower { get => stoppingPower; set => stoppingPower = value; }
+        
     }
 
-    public class Bullet :AbstractBullet
+    public class BulletGameObject :AbstractBullet
     {
 
 
 
-        Bullet(int angle, int speed=1)
+        public BulletGameObject(float x, float y, float damage)
         {
 
         }
