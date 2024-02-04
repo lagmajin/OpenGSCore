@@ -71,6 +71,21 @@ namespace OpenGSCore
 
         }
 
+        public PlayerData Player(string id)
+        {
+            foreach (PlayerData temp in data)
+            {
+                if(id==temp.info.Id)
+                {
+                    return temp;
+                }
+
+            }
+
+
+            return null;
+        }
+
         public List<string> AllID()
         {
 
@@ -80,12 +95,6 @@ namespace OpenGSCore
         public List<PlayerData> AllPlayer()
         {
             return data;
-        }
-
-        public void Test()
-        {
-
-
         }
 
         public void Clear()
