@@ -29,7 +29,7 @@ namespace OpenGSCore
     {
         public PlayerInfo info;
         public PlayerStatus status;
-        public PlayerData(PlayerInfo info)
+        public PlayerData(PlayerInfo info,PlayerStatus status)
         {
 
         }
@@ -50,17 +50,6 @@ namespace OpenGSCore
 
         public PlayerDatabase()
         {
-
-        }
-
-        public void AddPlayer(SearchInfo searchInfo,PlayerInfo info)
-        {
-
-        }
-
-        public void AddPlayer(PlayerInfo info)
-        {
-            
 
         }
 
@@ -97,7 +86,7 @@ namespace OpenGSCore
             return data;
         }
 
-        public void Clear()
+        public void RemoveAll()
         {
             data.Clear ();
 
