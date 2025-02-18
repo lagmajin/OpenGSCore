@@ -7,7 +7,7 @@ namespace OpenGSCore
     public static class FamousQuotes
     {
         public const string OneShotOneKill = "";
-
+        public const string LiveLiveLive = "";
 
     }
 }
