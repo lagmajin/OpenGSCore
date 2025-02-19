@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OpenGSCore.Event
+namespace OpenGSCore
 {
     class DeathMatchEvent
     {
