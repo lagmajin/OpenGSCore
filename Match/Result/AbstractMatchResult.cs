@@ -13,7 +13,7 @@ namespace OpenGSCore
 
     public abstract class AbstractMatchResult
     {
-        List<PlayerInfo> scoreList;
+        //List<PlayerInfo> scoreList;
 
         public bool Won { get; private set; } = false;
         public bool Lost { get; private set; } = false;

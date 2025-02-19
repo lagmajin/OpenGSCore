@@ -4,23 +4,26 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    public class MatchFinalScore
+    public abstract class AbstractPlayerMatchFinalScore
     {
-        private int _kill;
+        public String playerName{ get; private set; }
 
-        private int _flagDefence = 0;
+        public int Kill{get;private set;}
 
-        private int _suicide = 0;
+        public int Death { get; private set; } = 0;
 
+        public int Suicide { get; private set; } = 0;
 
-        public int Rank { get; private set; } = 0;
+        public int? Rank { get; private set; } = null;
+        
+        
 
-        public int TotalPoint { get; private set; } = 0;
+    }
+    
+    
+    public class PlayerMatchFinalScore
+    {
 
-        public MatchFinalScore()
-        {
-
-        }
 
     }
 }
