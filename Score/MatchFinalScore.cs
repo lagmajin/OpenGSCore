@@ -6,7 +6,8 @@ namespace OpenGSCore
 {
     public abstract class AbstractPlayerMatchFinalScore
     {
-        public String playerName{ get; private set; }
+        //public 
+        public string playerName{ get; private set; }
 
         public int Kill{get;private set;}
 
@@ -15,15 +16,24 @@ namespace OpenGSCore
         public int Suicide { get; private set; } = 0;
 
         public int? Rank { get; private set; } = null;
-        
+
+        public AbstractPlayerMatchFinalScore()
+        {
+            
+        }
         
 
     }
     
     
-    public class PlayerMatchFinalScore
+    public class PlayerDeathMatchFinalScore
     {
 
 
+    }
+
+    public class PlayerCTFMatchFinalScore
+    {
+        
     }
 }
