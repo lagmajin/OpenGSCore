@@ -3,7 +3,7 @@
 
 namespace OpenGSCore
 {
-    public enum eGranadeType : int
+    public enum EGranadeType : int
     {
         Normal = 0,
         Power,
@@ -15,9 +15,9 @@ namespace OpenGSCore
 
     public class GranadeType
     {
-        eGranadeType type_ = eGranadeType.Unknown;
+        EGranadeType type_ = EGranadeType.Unknown;
 
-        GranadeType(eGranadeType type=eGranadeType.Unknown)
+        GranadeType(EGranadeType type=EGranadeType.Unknown)
         {
             type = type_;
 
@@ -31,24 +31,24 @@ namespace OpenGSCore
 
             switch(type_)
             {
-                case eGranadeType.Normal:
+                case EGranadeType.Normal:
 
                     result = "Normal";
 
                     break;
 
-                case eGranadeType.Fire:
+                case EGranadeType.Fire:
 
                     result = "Fire";
 
                     break;
 
-                case eGranadeType.Power:
+                case EGranadeType.Power:
                     result = "Power";
                     break;
 
 
-                case eGranadeType.Cluster:
+                case EGranadeType.Cluster:
                     result = "Cluster";
                     break;
 
@@ -67,24 +67,24 @@ namespace OpenGSCore
             switch(str)
             {
                 case "Normal":
-                    type_ = eGranadeType.Normal;
+                    type_ = EGranadeType.Normal;
                     break;
 
 
                 case "Fire":
-                    type_ = eGranadeType.Fire;
+                    type_ = EGranadeType.Fire;
                     break;
 
                 case "Power":
-                    type_ = eGranadeType.Power;
+                    type_ = EGranadeType.Power;
                     break;
 
                 case "Cluster":
-                    type_ = eGranadeType.Cluster;
+                    type_ = EGranadeType.Cluster;
                     break;
 
                 default:
-                    type_ = eGranadeType.Unknown;
+                    type_ = EGranadeType.Unknown;
                     break;
 
             }

@@ -6,7 +6,7 @@
 
 namespace OpenGSCore
 {
-    public enum eGrenadeType
+    public enum EGrenadeType
     {
         Empty,
         Normal,
