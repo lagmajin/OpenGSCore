@@ -26,7 +26,13 @@ namespace OpenGSCore
     }
     
     
-    public class PlayerDeathMatchFinalScore
+    public class PlayerDeathMatchFinalScore:AbstractPlayerMatchFinalScore
+    {
+
+
+    }
+    
+    public class PlayerTeamDeathMatchFinalScore:AbstractPlayerMatchFinalScore
     {
 
 
