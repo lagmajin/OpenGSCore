@@ -10,6 +10,8 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
+
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>C:\Users\81908\OneDrive\Documents\OpenGS\Unity\OpenGS\Assets\Plugins</OutputPath>
     <WarningsAsErrors>;NU1605</WarningsAsErrors>
@@ -24,7 +26,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LiteDB" Version="5.0.11" />
+    <PackageReference Include="Autofac" Version="8.2.0" />
+    <PackageReference Include="LiteDB" Version="5.0.21" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NodaTime" Version="3.1.0" />
     <PackageReference Include="NUlid" Version="1.7.1" />
