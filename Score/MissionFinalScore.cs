@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OpenGSCore.Score
+namespace OpenGSCore
 {
-    class MissionFinalScore
+    public class MissionFinalScore
     {
+
     }
+
+
 }
