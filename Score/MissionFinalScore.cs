@@ -4,6 +4,10 @@ using System.Text;
 
 namespace OpenGSCore
 {
+    public class IMissionFinalScore
+    {
+
+    }
     public class MissionFinalScore
     {
 

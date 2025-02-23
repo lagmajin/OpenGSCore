@@ -6,7 +6,7 @@ namespace OpenGSCore
 {
     public interface IPlayerMatchFinalScore
     {
-        public float CalcTotalPoint();
+        public float CalcTotalPoint()=>0;
     }
 
     public abstract class AbstractPlayerMatchFinalScore
@@ -45,7 +45,7 @@ namespace OpenGSCore
 
     }
 
-    public class PlayerCTFMatchFinalScore
+    public class PlayerCTFMatchFinalScore: AbstractPlayerMatchFinalScore
     {
         
     }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OpenGSCore.Score
 {
-    public class MissionScore
+    public class MissionResultScore
     {
     }
 }
