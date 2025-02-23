@@ -49,6 +49,11 @@ namespace OpenGSCore
 
         }
 
+        public void MinusDeath()
+        {
+
+        }
+
         public void AddSuicide()
         {
             MinusKill();

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OpenGSCore.Score
+namespace OpenGSCore
 {
     public interface IAbstractInGameScore
     {

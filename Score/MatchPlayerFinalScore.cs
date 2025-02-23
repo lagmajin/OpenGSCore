@@ -4,6 +4,11 @@ using System.Text;
 
 namespace OpenGSCore
 {
+    public interface IPlayerMatchFinalScore
+    {
+        public float CalcTotalPoint();
+    }
+
     public abstract class AbstractPlayerMatchFinalScore
     {
         //public 
@@ -16,6 +21,8 @@ namespace OpenGSCore
         public int Suicide { get; private set; } = 0;
 
         public int? Rank { get; private set; } = null;
+
+        public float TotalPoint { get; private set; } = 0;
 
         public AbstractPlayerMatchFinalScore()
         {
