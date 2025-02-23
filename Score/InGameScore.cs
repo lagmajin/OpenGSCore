@@ -15,4 +15,9 @@ namespace OpenGSCore
 
 
     }
+
+    public class CTFInGameScore : IAbstractInGameScore
+    {
+
+    }
 }

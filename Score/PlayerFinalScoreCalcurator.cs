@@ -23,7 +23,7 @@ namespace OpenGSCore
         public PlayerFinalScoreCalcurator() { }
 
     
-        public static MatchResultScore calcScore(AbstractPlayerMatchFinalScore finalScore)
+        public static void calcScore(AbstractPlayerMatchFinalScore finalScore)
         {
 
             switch (finalScore.Mode)
@@ -52,7 +52,7 @@ namespace OpenGSCore
             }
 
 
-            return null;
+            //return null;
         }
 
 

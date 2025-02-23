@@ -9,8 +9,8 @@ namespace OpenGSCore
     public interface IMatchResult
     {
 
-        List<PlayerID> winnersList();
-        List<PlayerID> losersList();
+        List<PlayerID> winnersList()=>null;
+        List<PlayerID> losersList()=>null;
 
 
     }
