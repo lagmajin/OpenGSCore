@@ -33,14 +33,20 @@ namespace OpenGSCore
                     {
 
 
+                        
+
                     }
 
                         break;
 
                 case EGameMode.TeamDeathMatch:
-                    
 
-                    
+                    if (finalScore is PlayerTeamDeathMatchFinalScore teamDeathMatchScore)
+                    {
+
+
+                    }
+
                     break;
 
             }

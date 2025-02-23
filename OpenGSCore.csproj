@@ -26,6 +26,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Player\PlayerIDList.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Autofac" Version="8.2.0" />
     <PackageReference Include="LiteDB" Version="5.0.21" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
@@ -41,6 +45,10 @@
     <Folder Include="Match\Score\" />
     <Folder Include="AI\" />
     <Folder Include="Command\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Player\PlayerIDList.cs" />
   </ItemGroup>
 
 </Project>

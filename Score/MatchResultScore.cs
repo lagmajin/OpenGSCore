@@ -4,7 +4,23 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    public class MatchResultScore
+    public class AbstractMatchResultScore
+    {
+
+    }
+
+
+    public class  DeathMatchResultScore
+    {
+        
+    }
+
+    public class TeamDeathMatchResultScore
+    {
+
+    }
+
+    public class SurvivalDeathMatchScore
     {
 
     }
