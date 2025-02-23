@@ -23,7 +23,27 @@ namespace OpenGSCore
         public PlayerFinalScoreCalcurator() { }
 
     
-        public static MatchResultScore calcScore(AbstractPlayerMatchFinalScore finalScore)        {
+        public static MatchResultScore calcScore(AbstractPlayerMatchFinalScore finalScore)
+        {
+
+            switch (finalScore.Mode)
+            {
+                case EGameMode.DeathMatch:
+                    if (finalScore is PlayerDeathMatchFinalScore deathMatchScore)
+                    {
+
+
+                    }
+
+                        break;
+
+                case EGameMode.TeamDeathMatch:
+                    
+
+                    
+                    break;
+
+            }
 
 
             return null;

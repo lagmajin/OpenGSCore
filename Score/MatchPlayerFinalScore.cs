@@ -24,6 +24,8 @@ namespace OpenGSCore
 
         public float TotalPoint { get; private set; } = 0;
 
+        public EGameMode Mode { get; private set; }
+
         public AbstractPlayerMatchFinalScore()
         {
             
