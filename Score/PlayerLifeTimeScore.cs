@@ -29,7 +29,7 @@ namespace OpenGSCore
 
         public void IncrementTeamDeathMatchWinCount()
         {
-
+            TeamDeathMatchWinCount++;
             
         }
 
@@ -38,6 +38,10 @@ namespace OpenGSCore
             SurvivalWinCount++;
         }
 
+        public void IncrementTeamSurvivalWinCount()
+        {
+            TeamSurvivalWinCount++;
+        }
         
         
         

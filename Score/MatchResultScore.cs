@@ -10,12 +10,12 @@ namespace OpenGSCore
     }
 
 
-    public class  DeathMatchResultScore
+    public class  DeathMatchResultScore:AbstractMatchResultScore
     {
         
     }
 
-    public class TeamDeathMatchResultScore
+    public class TeamDeathMatchResultScore:AbstractMatchResultScore
     {
 
     }
