@@ -28,7 +28,11 @@
   <ItemGroup>
     <Compile Remove="Player\PlayerIDList.cs" />
   </ItemGroup>
-
+  <ItemGroup>
+    <None Remove="**\package.json" />
+    <None Remove="**\*.asmdef" />
+    <None Remove="**\*.meta" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac" Version="8.2.0" />
     <PackageReference Include="LiteDB" Version="5.0.21" />
