@@ -9,7 +9,7 @@ namespace OpenGSCore
     {
         public EGameMode Mode { get; private set; }
 
-        public List<AbstractPlayerMatchFinalScore> FinalScores { get; private set; }
+        //public List<AbstractPlayerMatchFinalScore> FinalScores { get; private set; }
 
     }
 

@@ -10,7 +10,7 @@ namespace OpenGSCore
 
         public AbstractMatchResult createMatchResult(AbstractMatchFinalScore score)
         {
-            var playerFinalScore=score.FinalScores;
+            //var playerFinalScore=score.FinalScores;
 
             switch(score)
             {

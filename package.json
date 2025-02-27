@@ -1,0 +1,11 @@
+{
+  "name": "com.OpenGS.logic",
+  "version": "0.0.1",
+  "displayName": "OpenGS",
+  "unity": "2020.3",
+  "author": {
+    "name": "mattun",
+    "email": "hogehoge.fuga@mail.com",
+    "url": "https://hoge.com"
+  }
+}
