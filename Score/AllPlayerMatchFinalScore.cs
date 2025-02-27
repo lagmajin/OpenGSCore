@@ -24,4 +24,9 @@ namespace OpenGSCore.Score
 
     }
 
+    public class AllCaptureTheFlagMatchPlayerFinalScore
+    {
+
+    }
+
 }
