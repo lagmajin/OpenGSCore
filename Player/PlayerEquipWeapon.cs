@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    public enum ePlayerEquipWeapon
+    public enum EPlayerEquipWeapon
     {
         Unknown,
         MainWeapon,

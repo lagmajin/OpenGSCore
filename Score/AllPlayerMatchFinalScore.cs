@@ -7,7 +7,10 @@ using System.Text;
 
 namespace OpenGSCore.Score
 {
+    public interface IAllPlayerMatchFinalScore
+    {
 
+    }
 
     public class AbstractAllPlayerMatchFinalScore
     {
@@ -24,7 +27,7 @@ namespace OpenGSCore.Score
 
     }
 
-    public class AllCaptureTheFlagMatchPlayerFinalScore
+    public class AllCaptureTheFlagMatchPlayerFinalScore : AbstractAllPlayerMatchFinalScore
     {
 
     }
