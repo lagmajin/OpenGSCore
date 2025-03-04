@@ -16,7 +16,17 @@ namespace OpenGSCore
 
     }
 
-    public class CTFInGameScore : IAbstractInGameScore
+    public class DeathMatchInGameScore : AbstractInGameScore
+    {
+
+    }
+
+    public class CaptureTheFlagInGameScore : AbstractInGameScore
+    {
+
+    }
+
+    public class CTFInGameScore : AbstractInGameScore
     {
 
     }

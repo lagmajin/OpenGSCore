@@ -22,10 +22,8 @@ namespace OpenGSCore
         public bool Won { get; private set; } = false;
         public bool Lost { get; private set; } = false;
 
-        public AbstractMatchResult(bool won)
+        public AbstractMatchResult()
         {
-            Won = won;
-            Lost = !won;
 
 
         }

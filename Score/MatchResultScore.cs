@@ -20,7 +20,7 @@ namespace OpenGSCore
 
     }
 
-    public class SurvivalDeathMatchScore
+    public class SurvivalDeathMatchScore : AbstractMatchResultScore
     {
 
     }

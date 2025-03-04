@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenGSCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace OpenGSServer
 
 
     }
-    public class DeathMatchResult
+    public class DeathMatchResult:AbstractMatchResult
     {
 
         public DeathMatchFinalScore FinalScore()
