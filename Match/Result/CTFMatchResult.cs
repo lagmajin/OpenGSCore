@@ -9,7 +9,7 @@ namespace OpenGSCore
     public class CTFMatchResult : AbstractMatchResult
     {
 
-        public CTFMatchResult(bool win) : base(win)
+        public CTFMatchResult()
         {
 
         }

@@ -24,4 +24,10 @@ namespace OpenGSCore
     {
 
     }
+
+    public class CaptureTheFlagMatchScore : AbstractMatchResultScore
+    {
+
+    }
+
 }

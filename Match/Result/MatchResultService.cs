@@ -26,14 +26,17 @@ namespace OpenGSCore
                     break;
 
                 case TeamDeathMatchFinalScore teamDeathMatchScore:
+                    var teamDeathMatchResult=new TeamDeathMatchResult();
 
+
+                    return null;
                     break;
 
-                case SurvivalDeathMatchScore survivalDeathMatchScore:
 
-                break;
 
                 case CTFMatchFinalScore cTFMatchFinalScore:
+
+                    return null;
 
                     break;
 

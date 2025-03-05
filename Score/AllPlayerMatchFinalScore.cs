@@ -25,7 +25,7 @@ namespace OpenGSCore.Score
         public List<AbstractPlayerMatchFinalScore> AllPlayerFinalScore() { return scores.Cast<AbstractPlayerMatchFinalScore>().ToList(); }
     }
 
-    public class AllTeamDeathMatchPlayerMatchFinalScore:AbstractAllPlayerMatchFinalScore
+    public class AllPlayerTeamDeathMatchPlayerMatchFinalScore:AbstractAllPlayerMatchFinalScore
     {
         public List<PlayerTeamDeathMatchFinalScore> scores = new();
 

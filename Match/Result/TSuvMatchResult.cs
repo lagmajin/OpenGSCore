@@ -15,7 +15,7 @@ namespace OpenGSCore
     public class TSuvMatchResult : AbstractMatchResult
     {
 
-        public TSuvMatchResult() : base(true)
+        public TSuvMatchResult()
         {
 
         }

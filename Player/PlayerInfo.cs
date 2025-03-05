@@ -7,7 +7,20 @@ using System.Collections.Generic;
 
 namespace OpenGSCore
 {
+    public class PlayerInfoLite
+    {
+        public string Id { get; }
+        public string Name { get; }
+        public string? CurrentIp { get; }
 
+        public PlayerInfoLite(string id, string name, string? currentIp = null)
+        {
+            Id = id;
+            Name = name;
+            CurrentIp = currentIp;
+        }
+
+    }
 
 
     public class PlayerInfo
@@ -26,7 +39,7 @@ namespace OpenGSCore
         public int Ping { get; set; } = 0;
 
         //public ZonedDateTime LastAckTime { get; set; }
-        public PlayerInfo(in string? id = null, in string name = null, in string? currentIp = null)
+        public PlayerInfo(string? id = null,string name = null, in string? currentIp = null)
         {
             Id = id;
 
