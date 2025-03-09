@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace OpenGSCore { 
-    class CircularLinkedList<T>
+    public class CircularLinkedList<T>
     {
         private readonly LinkedList<T> list = new();
         private LinkedListNode<T>? current;

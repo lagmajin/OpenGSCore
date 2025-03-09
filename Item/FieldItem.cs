@@ -10,6 +10,12 @@ namespace OpenGSCore
         FlameThrower,
         PowerUpItem,
         DefenceUpItem,
-
+        GrenadePack
     }
+
+
+
+
+
+
 }
