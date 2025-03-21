@@ -4,13 +4,15 @@ using System.Numerics;
 using System.Text;
 
 using MessagePack;
+using MemoryPack;
 
 namespace OpenGSCore
 {
 
     //#core
+    [MemoryPackable]
     [MessagePackObject]
-    public class PlayerFireEvent
+    public partial class PlayerFireEvent
     {
         [Key(0)]
         public int PlayerID { get; set; }
