@@ -13,11 +13,19 @@ namespace OpenGSCore
         public string Name { get; }
         public string? CurrentIp { get; }
 
+
+
         public PlayerInfoLite(string id, string name, string? currentIp = null)
         {
             Id = id;
             Name = name;
             CurrentIp = currentIp;
+        }
+
+        public JObject ToJson()
+        {
+
+            return null;          
         }
 
     }
@@ -39,6 +47,8 @@ namespace OpenGSCore
         public int Ping { get; set; } = 0;
 
         //public ZonedDateTime LastAckTime { get; set; }
+
+        public EPlayerCharacter playerCharacter { get; }
         public PlayerInfo(string? id = null,string name = null, in string? currentIp = null)
         {
             Id = id;
