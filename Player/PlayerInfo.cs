@@ -68,7 +68,7 @@ namespace OpenGSCore
             result["Id"] = id;
 
             result["Name"] = name;
-            result["CurrentIP"] = "";
+            result["CurrentIP"] = CurrentIp;
 
 
             return result;
