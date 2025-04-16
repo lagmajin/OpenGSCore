@@ -4,14 +4,6 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    public enum EDeadReason
-    {
-        Unknown,
-        Burst,
-        KilledByOtherPeople,
-        FireSuicide
-
-    }
 
     public class PlayerDeadEvent : AbstractGameEvent
     {
