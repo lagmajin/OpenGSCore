@@ -11,6 +11,7 @@ namespace OpenGSCore
         KilledByOtherPeople,
         FireSuicide
 
+
     }
 
 }
