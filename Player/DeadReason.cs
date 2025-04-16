@@ -10,7 +10,7 @@ namespace OpenGSCore
         Burst,
         KilledByOtherPeople,
         FireSuicide
-
+             
 
     }
 
