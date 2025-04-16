@@ -12,6 +12,7 @@ namespace OpenGSCore
         FireSuicide
              
 
+
     }
 
 }
