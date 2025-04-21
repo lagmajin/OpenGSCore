@@ -28,6 +28,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="AI\**" />
+    <Compile Remove="Bullet\**" />
+    <Compile Remove="Command\**" />
+    <Compile Remove="Match\Score\**" />
+    <EmbeddedResource Remove="AI\**" />
+    <EmbeddedResource Remove="Bullet\**" />
+    <EmbeddedResource Remove="Command\**" />
+    <EmbeddedResource Remove="Match\Score\**" />
+    <None Remove="AI\**" />
+    <None Remove="Bullet\**" />
+    <None Remove="Command\**" />
+    <None Remove="Match\Score\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Player\PlayerIDList.cs" />
   </ItemGroup>
 
@@ -44,11 +59,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Bullet\" />
     <Folder Include="Item\Weapon\" />
-    <Folder Include="Match\Score\" />
-    <Folder Include="AI\" />
-    <Folder Include="Command\" />
   </ItemGroup>
 
   <ItemGroup>

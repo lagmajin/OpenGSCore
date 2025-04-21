@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    internal class GameObjectType
+    public class GameObjectType
     {
     }
 }
