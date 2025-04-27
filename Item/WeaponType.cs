@@ -5,6 +5,7 @@ using System.Text;
 namespace OpenGSCore
 {
 
+    //[System.Flags]
     public enum EWeaponType
     {
         None,
