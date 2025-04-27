@@ -5,8 +5,9 @@ using System.Text;
 namespace OpenGSCore
 {
 
-    public enum eWeaponType
+    public enum EWeaponType
     {
+        None,
         AK47,
         M16,
         FAMAS,
@@ -32,6 +33,7 @@ namespace OpenGSCore
         DesertEagle,
         MP5
     }
+
 
 
 
