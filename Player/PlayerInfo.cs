@@ -48,7 +48,7 @@ namespace OpenGSCore
 
         //public ZonedDateTime LastAckTime { get; set; }
 
-        public EPlayerCharacter playerCharacter { get; }
+        public EPlayerCharacter playerCharacter { get; set; }
         public PlayerInfo(string? id = null,string name = null, in string? currentIp = null)
         {
             Id = id;

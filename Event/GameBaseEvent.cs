@@ -10,9 +10,9 @@ namespace OpenGSCore
         private EDeadReason reason_ = EDeadReason.Unknown;
         private string playerName_;
         private string playerID_;
-        private eTeam playerTeam_;
+        private ETeam playerTeam_;
 
-        public PlayerDeadEvent(EDeadReason reason, string playerName, string playerID, eTeam team)
+        public PlayerDeadEvent(EDeadReason reason, string playerName, string playerID, ETeam team)
         {
             reason_ = reason;
 
@@ -23,7 +23,7 @@ namespace OpenGSCore
             return playerName_;
         }
 
-        public eTeam PlayerTeam()
+        public ETeam PlayerTeam()
         {
             return playerTeam_;
         }

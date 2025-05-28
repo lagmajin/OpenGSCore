@@ -4,16 +4,22 @@ using System.Text;
 
 namespace OpenGSCore
 {
+
+    //試合中のプレイヤーデータ
     public sealed class MatchPlayerInfo
     {
         private string name_;
         private string guid_;
-        private eTeam? team_;
+        private ETeam? team_;
 
-        public MatchPlayerInfo(in string name, in string guid, in eTeam? team)
+        public PlayerStatus status { get; set; } = new PlayerStatus();
+
+
+        public MatchPlayerInfo(in string name, in string guid, in ETeam? team)
         {
             name_ = name;
             guid_ = guid;
+            team_ = team;
 
         }
 

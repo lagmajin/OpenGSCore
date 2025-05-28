@@ -60,6 +60,7 @@
 
   <ItemGroup>
     <Folder Include="Item\Weapon\" />
+    <Folder Include="Json\" />
   </ItemGroup>
 
   <ItemGroup>
