@@ -30,7 +30,7 @@ namespace OpenGSCore
 
     }
 
-
+    //#PlayerInfo
     public class PlayerInfo
     {
         string id;

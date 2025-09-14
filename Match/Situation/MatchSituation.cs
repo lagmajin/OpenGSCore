@@ -11,7 +11,7 @@ namespace OpenGSCore
     }
     public class AbstractMatchSituation : IAbstractMatchSituation
     {
-        public eGameMode mode;
+        public EGameMode mode;
 
         public int AlivePlayers { get; set; } = 0;
 

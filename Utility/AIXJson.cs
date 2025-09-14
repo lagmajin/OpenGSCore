@@ -205,9 +205,44 @@ namespace OpenGSCore
         }
     }
 
-    public static class AIXJsonObjectExtend
+    public static class AIXJsonObjectExtensions
     {
+        /// <summary>
+        /// キーが存在する場合は値を返し、存在しない場合はデフォルト値を返す
+        /// </summary>
+        public static AIXJsonValue GetValueOrDefault(this AIXJsonObject obj, string key, AIXJsonValue defaultValue = default)
+        {
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            if (key == null) throw new ArgumentNullException(nameof(key));
 
+            return obj[key].Type == AIXJsonType.Null ? defaultValue : obj[key];
+        }
+
+        /// <summary>
+        /// 指定キーの値を文字列として取得、存在しない場合は空文字
+        /// </summary>
+        public static string GetString(this AIXJsonObject obj, string key, string defaultValue = "")
+        {
+            var val = obj.GetValueOrDefault(key);
+            return val.Type == AIXJsonType.String ? (string)val.Value! : defaultValue;
+        }
+
+        /// <summary>
+        /// 指定キーの値をboolとして取得、存在しない場合はfalse
+        /// </summary>
+        public static bool GetBool(this AIXJsonObject obj, string key, bool defaultValue = false)
+        {
+            var val = obj.GetValueOrDefault(key);
+            return val.Type == AIXJsonType.Boolean ? (bool)val.Value! : defaultValue;
+        }
+
+        /// <summary>
+        /// 指定キーの値を数値として取得、存在しない場合は0
+        /// </summary>
+        public static double GetNumber(this AIXJsonObject obj, string key, double defaultValue = 0)
+        {
+            var val = obj.GetValueOrDefault(key);
+            return val.Type == AIXJsonType.Number ? Convert.ToDouble(val.Value!) : defaultValue;
+        }
     }
-
 }

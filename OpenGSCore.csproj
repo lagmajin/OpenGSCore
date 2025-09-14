@@ -31,14 +31,17 @@
     <Compile Remove="AI\**" />
     <Compile Remove="Bullet\**" />
     <Compile Remove="Command\**" />
+    <Compile Remove="Item\Weapon\**" />
     <Compile Remove="Match\Score\**" />
     <EmbeddedResource Remove="AI\**" />
     <EmbeddedResource Remove="Bullet\**" />
     <EmbeddedResource Remove="Command\**" />
+    <EmbeddedResource Remove="Item\Weapon\**" />
     <EmbeddedResource Remove="Match\Score\**" />
     <None Remove="AI\**" />
     <None Remove="Bullet\**" />
     <None Remove="Command\**" />
+    <None Remove="Item\Weapon\**" />
     <None Remove="Match\Score\**" />
   </ItemGroup>
 
@@ -54,12 +57,12 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="NodaTime" Version="3.1.0" />
     <PackageReference Include="NUlid" Version="1.7.1" />
+    <PackageReference Include="System.Reactive" Version="6.0.2" />
     <PackageReference Include="System.Text.Json" Version="9.0.2" />
     <PackageReference Include="UniTask" Version="2.5.10" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Item\Weapon\" />
     <Folder Include="Json\" />
   </ItemGroup>
 

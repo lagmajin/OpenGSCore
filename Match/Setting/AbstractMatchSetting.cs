@@ -23,6 +23,12 @@ namespace OpenGSCore
         public float DamageRate { get; set; } = 1.0f;
         public float BoosterRate { get; set; } = 1.0f;
         public bool TimeLimit { get; set; } = false;
+
+        public bool AllowOvertime { get; set; } = false;
+
+
+        private bool isLocked = false;
+
         public AbstractMatchSetting(EGameMode gamemode, int maxplayerCount, bool teamBalance = true, bool hasTimeLimit_ = false)
         {
 
@@ -47,7 +53,7 @@ namespace OpenGSCore
             //result["TeamBalance"] = TeamBalance.ToString();
             result["GameMode"] = Mode.ToString();
             result["MaxPlayerCount"] = MaxPlayerCount.ToString();
-
+            result["AllowOvertime"] = AllowOvertime;
 
 
             //Dictionary<string, JToken> dictionary = result;

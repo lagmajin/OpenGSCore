@@ -6,6 +6,7 @@ namespace OpenGSCore
 {
 
     //試合中のプレイヤーデータ
+    //#MatchPlayerInfo
     public sealed class MatchPlayerInfo
     {
         private string name_;

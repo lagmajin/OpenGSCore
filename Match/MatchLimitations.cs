@@ -13,13 +13,18 @@ namespace OpenGSCore
         public bool CanEquipInstantItem { get; private set; } = true;
 
 
-        public MatchLimitations()
+        public MatchLimitations(bool canUseFieldItem, bool canEquipBooster, bool canEquipInstantItem)
         {
-
+            CanUseFieldItem = canUseFieldItem;
+            CanEquipBooster = canEquipBooster;
+            CanEquipInstantItem = canEquipInstantItem;
         }
 
-
+        public static MatchLimitations Default() => new MatchLimitations(true, true, true);
+        public static MatchLimitations NoItems() => new MatchLimitations(false, false, false);
+        public static MatchLimitations BoosterOnly() => new MatchLimitations(true, true, false);
     }
-
-
 }
+
+
+
