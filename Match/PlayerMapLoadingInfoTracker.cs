@@ -1,22 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
+//using System.Reactive;
+//using System.Reactive.Linq;
+//using System.Reactive.Subjects;
 using System.Text;
+using UniRx;
+using Unit = UniRx.Unit;
 
 namespace OpenGSCore{
 
     public sealed class MatchLoadingTracker
     {
         private readonly Dictionary<PlayerID, PlayerLoadingInfo> _statuses = new();
-        private readonly Subject<PlayerLoadingInfo> _progressChanged = new();
-        public IObservable<PlayerLoadingInfo> ProgressChanged => _progressChanged.AsObservable();
+        private readonly UniRx.Subject<PlayerLoadingInfo> _progressChanged = new();
+        public UniRx.IObservable<PlayerLoadingInfo> ProgressChanged => _progressChanged.AsObservable();
 
         // 全員完了を流すストリーム
         private readonly Subject<Unit> _allCompleted = new();
-        public IObservable<Unit> AllCompleted => _allCompleted.AsObservable();
+        public UniRx.IObservable<Unit> AllCompleted => _allCompleted.AsObservable();
 
         public void AddPlayer(PlayerID playerId)
         {

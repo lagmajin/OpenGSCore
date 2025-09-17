@@ -121,6 +121,26 @@ namespace OpenGSCore
                     ((AIXJsonObject)Value!).WriteTo(writer); break;
             }
         }
+
+        public bool IsNull => Type == AIXJsonType.Null;
+
+        public AIXJsonValue this[int index]
+        {
+            get
+            {
+                if (Type == AIXJsonType.Array)
+                    return ((AIXJsonArray)Value!)[index];
+                throw new InvalidOperationException("Value is not an array");
+            }
+            set
+            {
+                if (Type == AIXJsonType.Array)
+                    ((AIXJsonArray)Value!)[index] = value;
+                else
+                    throw new InvalidOperationException("Value is not an array");
+            }
+        }
+
     }
 
     public sealed class AIXJsonArray : List<AIXJsonValue>
@@ -174,7 +194,7 @@ namespace OpenGSCore
         {
             _dict.Clear();
         }
-
+        public bool ContainsKey(string key) => _dict.ContainsKey(key);
     }
 
     public static class AIXJsonSerializer
@@ -245,4 +265,48 @@ namespace OpenGSCore
             return val.Type == AIXJsonType.Number ? Convert.ToDouble(val.Value!) : defaultValue;
         }
     }
+
+    public static class AIXJsonArrayExtensions
+    {
+        /// <summary>
+        /// インデックスが範囲外ならデフォルト値を返す
+        /// </summary>
+        public static AIXJsonValue GetValueOrDefault(this AIXJsonArray arr, int index, AIXJsonValue defaultValue = default)
+        {
+            if (arr == null) throw new ArgumentNullException(nameof(arr));
+            return index >= 0 && index < arr.Count ? arr[index] : defaultValue;
+        }
+
+        public static string GetString(this AIXJsonArray arr, int index, string defaultValue = "")
+        {
+            var val = arr.GetValueOrDefault(index);
+            return val.Type == AIXJsonType.String ? (string)val.Value! : defaultValue;
+        }
+
+        public static bool GetBool(this AIXJsonArray arr, int index, bool defaultValue = false)
+        {
+            var val = arr.GetValueOrDefault(index);
+            return val.Type == AIXJsonType.Boolean ? (bool)val.Value! : defaultValue;
+        }
+
+        public static double GetNumber(this AIXJsonArray arr, int index, double defaultValue = 0)
+        {
+            var val = arr.GetValueOrDefault(index);
+            return val.Type == AIXJsonType.Number ? Convert.ToDouble(val.Value!) : defaultValue;
+        }
+
+        public static AIXJsonObject? GetObject(this AIXJsonArray arr, int index)
+        {
+            var val = arr.GetValueOrDefault(index);
+            return val.Type == AIXJsonType.Object ? (AIXJsonObject)val.Value! : null;
+        }
+
+        public static AIXJsonArray? GetArray(this AIXJsonArray arr, int index)
+        {
+            var val = arr.GetValueOrDefault(index);
+            return val.Type == AIXJsonType.Array ? (AIXJsonArray)val.Value! : null;
+        }
+    }
+
+
 }
