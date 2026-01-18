@@ -29,6 +29,8 @@ namespace OpenGSCore
 
         private bool isLocked = false;
 
+        public void LockSettings() => isLocked = true;
+
         public AbstractMatchSetting(EGameMode gamemode, int maxplayerCount, bool teamBalance = true, bool hasTimeLimit_ = false)
         {
 

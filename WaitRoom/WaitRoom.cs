@@ -1,20 +1,20 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Text;
-
-
 
 
 namespace OpenGSCore
 {
     //public interface IWaitRoom { }
 
-
-    public class WaitRoom
+    //#new
+    public partial class WaitRoom
     {
+        public MatchRoom? MatchRoomLink { get; set; } = null;
         public string RoomName { get; set; } = "";
-        public string ID { get; set; }
-
+        public string RoomId { get; set; }
+        public bool NowPlaying { get; private set; } = false;
         public int Capacity { get; set; } = 0;
 
         
@@ -28,12 +28,17 @@ namespace OpenGSCore
         public AbstractMatchRule MatchRule { get; set; } = null;
 
         public AbstractMatchSetting setting = null;
+        public WaitRoom(in string roomName, int capacity = 8)
+        {
+            RoomName = roomName;
+            Capacity = capacity;
 
+        }
         public WaitRoom(in string name,in string id,int capacity=8)
         {
             RoomName = name;
 
-            ID = id;
+            RoomId = id;
 
             Capacity=capacity;
 
@@ -134,6 +139,29 @@ namespace OpenGSCore
             }
         }
 
+        public void GameStart()
+        {
+            NowPlaying = true;
 
+        }
+
+        public void GameIsOver()
+        {
+            NowPlaying = false;
+            MatchRoomLink = null;
+
+
+        }
+
+        public JObject ToJson()
+        {
+            var result = new JObject();
+
+            var array = new JArray();
+
+
+
+            return result;
+        }
     }
 }

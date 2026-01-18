@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -28,16 +29,40 @@ namespace OpenGSCore
         public string Id { get => id; set => id = value; }
         public bool Updated { get => updated; }
 
-        public virtual void update()
+        public virtual void Update()
         {
 
 
         }
 
+        public virtual JObject ToJson()
+        {
+            var json = new JObject();
 
+            return json;
+        }
 
     }
 
+    public class PlayerGameObject : AbstractGameObject
+    {
+        PlayerStatus status;
+
+        public PlayerGameObject(String name, float x, float y) 
+            //: base(x, y)
+        {
+
+        }
+
+        public override JObject ToJson()
+        {
+            JObject json = new JObject();
+
+
+            return json;
+        }
+
+    }
 
 
     public class Character : AbstractGameObject

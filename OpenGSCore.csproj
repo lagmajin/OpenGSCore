@@ -17,14 +17,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>X:\Unity\Project\OpenGS\Assets\Plugins</OutputPath>
     <WarningsAsErrors>;NU1605</WarningsAsErrors>
-    <NoWarn>1701;1702;0414;0169</NoWarn>
+    <NoWarn>1701;1702;0414;0169;NU1701</NoWarn>
     <WarningLevel>0</WarningLevel>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>X:\Unity\Project\OpenGS\Assets\Plugins</OutputPath>
     <WarningsAsErrors>;NU1605</WarningsAsErrors>
-    <NoWarn>1701;1702;0414;0169</NoWarn>
+    <NoWarn>1701;1702;0414;0169;NU1701</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -64,6 +64,7 @@
 
   <ItemGroup>
     <Folder Include="Json\" />
+    <Folder Include="新しいフォルダー\" />
   </ItemGroup>
 
   <ItemGroup>

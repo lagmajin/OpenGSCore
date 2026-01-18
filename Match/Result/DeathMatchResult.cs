@@ -5,14 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenGSServer
+namespace OpenGSCore
 {
 
-    public class DeathMatchFinalScore
-    {
-
-
-    }
     public class DeathMatchResult:AbstractMatchResult
     {
 
