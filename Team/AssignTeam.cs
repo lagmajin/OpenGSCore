@@ -11,7 +11,8 @@ namespace OpenGSCore
 
         public AssignTeamResult(List<string> redTeam, List<string> blueTeam)
         {
-
+            RedTeam = redTeam;
+            BlueTeam = blueTeam;
         }
     }
 
@@ -21,20 +22,28 @@ namespace OpenGSCore
         {
             if (idList.Count == 0)
             {
-
                 return null;
             }
 
+            // シャッフル用のコピーを作成
+            var shuffled = new List<string>(idList);
+            var random = new Random();
 
-            var redTeam = new List<string>();
+            // Fisher-Yatesシャッフル
+            for (int i = shuffled.Count - 1; i > 0; i--)
+            {
+                int j = random.Next(i + 1);
+                (shuffled[i], shuffled[j]) = (shuffled[j], shuffled[i]);
+            }
 
-            var blueTeam = new List<string>();
+            // 前半をRedTeam、後半をBlueTeamに分ける
+            int mid = shuffled.Count / 2;
+            var redTeam = shuffled.GetRange(0, mid);
+            var blueTeam = shuffled.GetRange(mid, shuffled.Count - mid);
 
             var result = new AssignTeamResult(redTeam, blueTeam);
 
-
             return result;
-
         }
 
     }

@@ -4,20 +4,35 @@ using System.Text;
 
 namespace OpenGSCore
 {
+    public enum ChatType
+    {
+        All,        // 全体チャット
+        Team,       // チームチャット
+        Whisper,    // ささやき（1対1）
+        System      // システムメッセージ
+    }
+
     public class Chat
     {
-        private string id = Guid.NewGuid().ToString("N");
-        private string playerName = "";
-        private string message = "";
+        public string Id { get; set; } = Guid.NewGuid().ToString("N");
+        public string PlayerId { get; set; } = "";
+        public string PlayerName { get; set; } = "";
+        public string Message { get; set; } = "";
+        public ChatType Type { get; set; } = ChatType.All;
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public string? TargetId { get; set; }  // Whisper先のプレイヤーID
 
-        public string Id { get => id; set => id = value; }
-        public Chat(in string playerName, in string message)
+        public Chat()
         {
-            //playerName = playerName;
-
         }
 
-
-
+        public Chat(string playerId, string playerName, string message, ChatType type = ChatType.All)
+        {
+            PlayerId = playerId;
+            PlayerName = playerName;
+            Message = message;
+            Type = type;
+            Timestamp = DateTime.UtcNow;
+        }
     }
 }
