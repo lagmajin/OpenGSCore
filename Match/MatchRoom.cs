@@ -40,6 +40,7 @@ namespace OpenGSCore
         private AbstractMatchSetting Setting { get; set; }
         
         private AbstractMatchSituation Situation { get; set; } = null;
+        private readonly object playerSyncLock = new();
 
 
         public GameScene GameScene { get; set; } = new();
@@ -129,23 +130,27 @@ namespace OpenGSCore
 
         public void AddNewPlayer(PlayerInfo info)
         {
-
             if (Playing)
             {
-
+                // 途中参加の処理は未実装
+                return;
             }
-            else
+
+            lock (playerSyncLock)
             {
-
+                if (!Players.Exists(p => p.Id == info.Id))
+                {
+                    Players.Add(info);
+                }
             }
-
-
-
         }
 
         public void AddNewPlayers(List<PlayerInfo> list)
         {
-
+            foreach (var info in list)
+            {
+                AddNewPlayer(info);
+            }
         }
 
         public void OnGameUpdateFromClient()

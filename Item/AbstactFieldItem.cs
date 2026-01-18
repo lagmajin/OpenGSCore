@@ -66,9 +66,9 @@ namespace OpenGSCore
         /// <summary>
         /// アイテムの状態をJSON形式で取得します。
         /// </summary>
-        public override JObject ToJson()
+        public override JObject ToJSon()
         {
-            var json = base.ToJson();
+            var json = base.ToJSon();
             json["lifetime"] = lifetimeMsec;
             json["elapsed"] = (DateTime.Now - createdTime).TotalMilliseconds;
             json["destroyed"] = destroyed;

@@ -98,9 +98,9 @@ namespace OpenGSCore
         /// <summary>
         /// オブジェクトの状態をJSON形式で取得します。
         /// </summary>
-        public virtual JObject ToJson()
+        public virtual Newtonsoft.Json.Linq.JObject ToJSon()
         {
-            var json = new JObject();
+            var json = new Newtonsoft.Json.Linq.JObject();
             json["id"] = Id;
             json["name"] = Name;
             json["posx"] = Posx;
@@ -154,9 +154,9 @@ namespace OpenGSCore
             // プレイヤー固有の更新処理（ブースター減少など）をここに追加
         }
 
-        public override JObject ToJson()
+        public override JObject ToJSon()
         {
-            var json = base.ToJson();
+            var json = base.ToJSon();
             json["playerId"] = PlayerId;
             json["hp"] = Status?.Hp ?? 0;
             json["maxHp"] = Status?.MaxHp ?? 0;
@@ -230,9 +230,9 @@ namespace OpenGSCore
             ObjectType = eGameObjectType.Grenade;
         }
 
-        public override JObject ToJson()
+        public override JObject ToJSon()
         {
-            var json = base.ToJson();
+            var json = base.ToJSon();
             json["velocityX"] = VelocityX;
             json["velocityY"] = VelocityY;
             json["lifeTime"] = LifeTime;
