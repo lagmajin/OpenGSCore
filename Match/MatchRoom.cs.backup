@@ -1,0 +1,359 @@
+﻿using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Diagnostics;
+using OpenGSServer; // IMatchLogicを使用するため
+
+
+
+namespace OpenGSCore
+{
+    /*
+    public enum EMatchRoomEventType2
+    {
+        Unknown,
+        MatchStarted,
+        MathEnded,
+
+    }
+
+    */
+
+    public interface IMatchRoom
+    {
+
+        string RoomName { get; set; }
+        //IObservable<int >
+
+    }
+
+    //#bookmark
+    public partial class MatchRoom : AbstractGameRoom, IMatchRoom
+    {
+
+        private readonly MatchRoomEventBus eventBus;
+
+        AbstractMatchRule? rule;
+
+        private IMatchLogic? gameLogic; // ゲームロジック統合
+
+        private AbstractMatchSetting Setting { get; set; }
+        
+        private AbstractMatchSituation Situation { get; set; } = null;
+        private readonly object playerSyncLock = new();
+
+
+        public GameScene GameScene { get; set; } = new();
+
+        //[CanBeNull]
+        public WaitRoom? WaitRoomLink { get; private set; } = null;
+        public string RoomName { get; set; }
+
+        
+
+        public bool MatchEnd { get; } = false;
+        public bool IsSuddenDeathModeNow { get; private set; } = false;
+
+        public int PlayerCount { get; } = 0;
+
+        public int Capacity { get; } = 20;
+
+        
+
+        public bool Playing { get; private set; } = false;
+        public bool Finished { get; } = false;
+
+        
+        
+        //PlayerLifeTimeScore LifeTimeScore { get; set; } = new PlayerLifeTimeScore();
+
+
+        private Stopwatch sw = new();
+
+        private HighPrecisionGameTimer timer;
+        
+        private IMatchLogic logic { get; set; }
+
+        private IPlayerFinalScoreCalcurator    calcurator { get; set; }
+        public MatchRoom(int roomNumber, in string roomName, in string roomOwnerId,AbstractMatchSetting setting, MatchRoomEventBus bus) : base(roomNumber, roomOwnerId)
+        {
+            
+            Setting = setting;  
+            
+            eventBus = bus;
+
+
+            switch (setting.Mode)
+            {
+                case EGameMode.DeathMatch:
+                    if (setting is DeathMatchSetting deathMatchSetting)
+                    {
+                        
+                    }
+
+                    break;
+                    
+                case EGameMode.TeamDeathMatch:
+                    if (setting is TDMMatchSetting teamDeathMatchSetting)
+                    {
+
+                    }
+
+                    break;
+                    
+         
+            }
+        }
+
+
+
+
+        public bool ChangeOwnerRandom()
+        {
+            if (Players.Count < 1)
+            {
+                return false;
+            }
+
+            
+
+            return false;
+        }
+
+        /// <summary>
+        /// ゲームモードに応じて適切なゲームロジックを初期化
+        /// </summary>
+        private void InitializeGameLogic(EGameMode gameMode)
+        {
+            gameLogic = gameMode switch
+            {
+                EGameMode.DeathMatch => new DeathMatchMode(),
+                EGameMode.TeamDeathMatch => new TeamDeathMatchMode(),
+                EGameMode.Survival => new SurvivalMode(),
+                EGameMode.CaptureTheFlag => new CaptureTheFlagMode(),
+                EGameMode.OneShotKill => new DeathMatchMode(), // OneShotKillはDeathMatchとして扱う
+                EGameMode.ArmsRace => new DeathMatchMode(),   // ArmsRaceはDeathMatchとして扱う
+                _ => new DeathMatchMode()
+            };
+
+            // 既存プレイヤーをゲームロジックに追加
+            foreach (var player in Players)
+            {
+                gameLogic.AddPlayer(player.Id);
+            }
+        }
+
+        /// <summary>
+        /// プレイヤーを追加し、ゲームロジックにも登録
+        /// </summary>
+        public void AddNewPlayer(PlayerInfo info)
+        {
+            if (Playing)
+            {
+                // 途中参加の処理は未実装
+                return;
+            }
+
+            lock (playerSyncLock)
+            {
+                if (!Players.Exists(p => p.Id == info.Id))
+                {
+                    Players.Add(info);
+                    // ゲームロジックにも追加
+                    gameLogic?.AddPlayer(info.Id);
+                }
+            }
+        }
+
+        public void AddNewPlayers(List<PlayerInfo> list)
+        {
+            foreach (var info in list)
+            {
+                AddNewPlayer(info);
+            }
+        }
+
+        public void OnGameUpdateFromClient()
+        {
+            
+        }
+        public override void GameUpdate()
+        {
+
+            
+            
+            if (!Finished)
+            {
+                GameScene.UpdateFrame();
+
+                // 勝利条件をチェック
+                if (Playing && CheckWinCondition())
+                {
+                    Finish();
+                }
+            }
+
+        }
+
+        private System.Timers.Timer? statusUpdateTimer;
+
+        public void StartStatusUpdates()
+        {
+            statusUpdateTimer = new System.Timers.Timer(1000); // 1秒ごとに更新
+            statusUpdateTimer.Elapsed += (sender, e) => SendPeriodicStatusUpdate();
+            statusUpdateTimer.Start();
+        }
+
+        public void StopStatusUpdates()
+        {
+            statusUpdateTimer?.Stop();
+            statusUpdateTimer?.Dispose();
+        }
+
+        private void SendPeriodicStatusUpdate()
+        {
+            if (Playing && gameLogic != null)
+            {
+                var status = gameLogic.GetMatchStatus();
+                // ネットワーク送信処理（未実装）
+                Console.WriteLine($"Match status: {status}");
+            }
+        }
+
+        public void GameStart()
+        {
+            sw.Start();
+
+            
+            if (Setting.TimeLimit)
+            {
+                //setting.MatchTime;
+
+            }
+            
+            // ゲームロジックを開始
+            gameLogic?.StartMatch();
+
+            // ステータス更新を開始
+            StartStatusUpdates();
+
+            Playing = true;
+            eventBus.PublishGameStart();
+        }
+
+        public void Finish()
+        {
+            // ステータス更新を停止
+            StopStatusUpdates();
+
+            // 勝者を決定
+            var winners = gameLogic?.GetWinners() ?? new List<string>();
+            if (winners.Any())
+            {
+                Console.WriteLine($"Match winners: {string.Join(", ", winners)}");
+            }
+
+            // マッチ終了イベントを発行
+            eventBus.PublishGameEnd();
+
+            Playing = false;
+        }
+        
+        public JObject ToJson()
+        {
+            var json = new JObject();
+
+            json["RoomName"] = RoomName;
+            json["RoomID"] = Id.ToString();
+            json["MaxCapacity"] = 8;
+            json["PlayerCount"] = PlayerCount;
+
+
+            return json;
+
+        }
+
+        public void Dispose()
+        {
+
+
+
+        }
+        #region ゲームイベント処理メソッド
+
+        /// <summary>
+        /// プレイヤースコア更新
+        /// </summary>
+        public void UpdatePlayerScore(string playerId, int score)
+        {
+            gameLogic?.UpdateScore(playerId, score);
+        }
+
+        /// <summary>
+        /// プレイヤー排除（Survivalモード用）
+        /// </summary>
+        public void PlayerEliminated(string playerId)
+        {
+            if (gameLogic is SurvivalMode survivalMode)
+            {
+                survivalMode.PlayerEliminated(playerId);
+            }
+        }
+
+        /// <summary>
+        /// ダメージ適用
+        /// </summary>
+        public void ApplyDamage(string playerId, int damage)
+        {
+            // ダメージ処理（必要に応じて実装）
+            Console.WriteLine($"Player {playerId} took {damage} damage");
+        }
+
+        /// <summary>
+        /// フラッグキャプチャー
+        /// </summary>
+        public void FlagCaptured(string capturingTeam)
+        {
+            if (gameLogic is CaptureTheFlagMode ctfMode)
+            {
+                ctfMode.FlagCaptured(capturingTeam);
+            }
+        }
+
+        /// <summary>
+        /// 勝利条件チェック
+        /// </summary>
+        public bool CheckWinCondition()
+        {
+            return gameLogic?.CheckWinCondition() ?? false;
+        }
+
+        /// <summary>
+        /// マッチ終了
+        /// </summary>
+        public void EndMatch()
+        {
+            gameLogic?.EndMatch();
+            eventBus.PublishGameEnd();
+        }
+
+        /// <summary>
+        /// マッチ状態取得
+        /// </summary>
+        public string GetMatchStatus()
+        {
+            return gameLogic?.GetMatchStatus() ?? "No active match";
+        }
+
+        #endregion
+
+        /// <summary>
+        /// プレイヤーリスポーン
+        /// </summary>
+        public void RespawnPlayer(string playerId)
+        {
+            Console.WriteLine($"Player {playerId} respawned");
+        }
+    }
+}

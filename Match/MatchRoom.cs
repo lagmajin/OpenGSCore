@@ -1,55 +1,31 @@
-Ôªøusing System;
+using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-
-
 namespace OpenGSCore
 {
-    /*
-    public enum EMatchRoomEventType2
-    {
-        Unknown,
-        MatchStarted,
-        MathEnded,
-
-    }
-
-    */
-
     public interface IMatchRoom
     {
-
         string RoomName { get; set; }
-        //IObservable<int >
-
     }
 
-    //#bookmark
     public partial class MatchRoom : AbstractGameRoom, IMatchRoom
     {
-
         private readonly MatchRoomEventBus eventBus;
-
 
         AbstractMatchRule? rule;
 
-
         private AbstractMatchSetting Setting { get; set; }
-        
+
         private AbstractMatchSituation Situation { get; set; } = null;
         private readonly object playerSyncLock = new();
 
-
         public GameScene GameScene { get; set; } = new();
 
-        //[CanBeNull]
         public WaitRoom? WaitRoomLink { get; private set; } = null;
         public string RoomName { get; set; }
-
-
 
         public bool MatchEnd { get; } = false;
         public bool IsSuddenDeathModeNow { get; private set; } = false;
@@ -58,61 +34,35 @@ namespace OpenGSCore
 
         public int Capacity { get; } = 20;
 
-        
-
         public bool Playing { get; private set; } = false;
         public bool Finished { get; } = false;
-
-        
-        
-        //PlayerLifeTimeScore LifeTimeScore { get; set; } = new PlayerLifeTimeScore();
-
 
         private Stopwatch sw = new();
 
         private HighPrecisionGameTimer timer;
-        
-        private IMatchLogic logic { get; set; }
 
-        private IPlayerFinalScoreCalcurator    calcurator { get; set; }
-        public MatchRoom(int roomNumber, in string roomName, in string roomOwnerId,AbstractMatchSetting setting, MatchRoomEventBus bus) : base(roomNumber, roomOwnerId)
+        public MatchRoom(int roomNumber, in string roomName, in string roomOwnerId, AbstractMatchSetting setting, MatchRoomEventBus bus) : base(roomNumber, roomOwnerId)
         {
-            
-            Setting = setting;  
-            
+            Setting = setting;
             eventBus = bus;
-
-
 
             switch (setting.Mode)
             {
                 case EGameMode.DeathMatch:
                     if (setting is DeathMatchSetting deathMatchSetting)
                     {
-                        
-                    }
 
+                    }
                     break;
-                    
+
                 case EGameMode.TeamDeathMatch:
                     if (setting is TDMMatchSetting teamDeathMatchSetting)
                     {
 
                     }
-
                     break;
-                    
-         
             }
-            
-            
-
-            //setting.Mode
-
         }
-
-
-
 
         public bool ChangeOwnerRandom()
         {
@@ -121,10 +71,6 @@ namespace OpenGSCore
                 return false;
             }
 
-            
-
-
-
             return false;
         }
 
@@ -132,7 +78,7 @@ namespace OpenGSCore
         {
             if (Playing)
             {
-                // ÈÄî‰∏≠ÂèÇÂä†„ÅÆÂá¶ÁêÜ„ÅØÊú™ÂÆüË£Ö
+                // ìríÜéQâ¡ÇÃèàóùÇÕñ¢é¿ëï
                 return;
             }
 
@@ -155,71 +101,69 @@ namespace OpenGSCore
 
         public void OnGameUpdateFromClient()
         {
-            
+
         }
+
         public override void GameUpdate()
         {
-
-            
-            
             if (!Finished)
             {
                 GameScene.UpdateFrame();
             }
+        }
 
+        private System.Timers.Timer? statusUpdateTimer;
+
+        public void StartStatusUpdates()
+        {
+            statusUpdateTimer = new System.Timers.Timer(1000); // 1ïbÇ≤Ç∆Ç…çXêV
+            statusUpdateTimer.Elapsed += (sender, e) => SendPeriodicStatusUpdate();
+            statusUpdateTimer.Start();
+        }
+
+        public void StopStatusUpdates()
+        {
+            statusUpdateTimer?.Stop();
+            statusUpdateTimer?.Dispose();
+        }
+
+        private void SendPeriodicStatusUpdate()
+        {
+            if (Playing)
+            {
+                // äÓñ{ìIÇ»ÉXÉeÅ[É^ÉXèÓïÒÇëóêM
+                var status = $"Match Active - Players: {Players.Count}";
+                // ÉlÉbÉgÉèÅ[ÉNëóêMèàóùÅiñ¢é¿ëïÅj
+            }
         }
 
         public void GameStart()
         {
             sw.Start();
 
-            
             if (Setting.TimeLimit)
             {
                 //setting.MatchTime;
-
             }
-            
-            logic.StartMatch();
 
-            var timer = new HighPrecisionGameTimer(100);
-
-            timer.OnTick += () => GameUpdate();
+            // ÉXÉeÅ[É^ÉXçXêVÇäJén
+            StartStatusUpdates();
 
             Playing = true;
-
             eventBus.PublishGameStart();
-
-            
-
-            
         }
 
         public void Finish()
         {
+            // ÉXÉeÅ[É^ÉXçXêVÇí‚é~
+            StopStatusUpdates();
 
-            timer.Stop();
-
-            logic.EndMatch();
-            
+            // É}ÉbÉ`èIóπÉCÉxÉìÉgÇî≠çs
             eventBus.PublishGameEnd();
-            
-            
-            
-            
+
             Playing = false;
-
-
-            var matchResultService= new MatchResultService();
-
-
-            
-
-            
-            
-
         }
-        
+
         public JObject ToJson()
         {
             var json = new JObject();
@@ -229,17 +173,11 @@ namespace OpenGSCore
             json["MaxCapacity"] = 8;
             json["PlayerCount"] = PlayerCount;
 
-
             return json;
-
         }
 
         public void Dispose()
         {
-
-
-
         }
-        
     }
 }
