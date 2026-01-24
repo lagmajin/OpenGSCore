@@ -33,16 +33,19 @@
     <Compile Remove="Command\**" />
     <Compile Remove="Item\Weapon\**" />
     <Compile Remove="Match\Score\**" />
+    <Compile Remove="新しいフォルダー\**" />
     <EmbeddedResource Remove="AI\**" />
     <EmbeddedResource Remove="Bullet\**" />
     <EmbeddedResource Remove="Command\**" />
     <EmbeddedResource Remove="Item\Weapon\**" />
     <EmbeddedResource Remove="Match\Score\**" />
+    <EmbeddedResource Remove="新しいフォルダー\**" />
     <None Remove="AI\**" />
     <None Remove="Bullet\**" />
     <None Remove="Command\**" />
     <None Remove="Item\Weapon\**" />
     <None Remove="Match\Score\**" />
+    <None Remove="新しいフォルダー\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -64,7 +67,6 @@
 
   <ItemGroup>
     <Folder Include="Json\" />
-    <Folder Include="新しいフォルダー\" />
   </ItemGroup>
 
   <ItemGroup>
