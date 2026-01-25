@@ -7,13 +7,12 @@ using System.Collections.Generic;
 
 namespace OpenGSCore
 {
+
     public class PlayerInfoLite
     {
         public string Id { get; }
         public string Name { get; }
         public string? CurrentIp { get; }
-
-
 
         public PlayerInfoLite(string id, string name, string? currentIp = null)
         {
@@ -24,8 +23,11 @@ namespace OpenGSCore
 
         public JObject ToJson()
         {
-
-            return null;          
+            var result = new JObject();
+            result["Id"] = Id;
+            result["Name"] = Name;
+            if (CurrentIp != null) result["CurrentIP"] = CurrentIp;
+            return result;
         }
 
     }
@@ -33,44 +35,31 @@ namespace OpenGSCore
     //#PlayerInfo
     public class PlayerInfo
     {
-        string id;
-
-        string name;
-
-        string ip;
-
-        List<string> ipList;
+        // public-facing properties
         public string Id { get; set; }
         public string Name { get; set; }
         public string? CurrentIp { get; set; } = null;
-
         public int Ping { get; set; } = 0;
-
-        //public ZonedDateTime LastAckTime { get; set; }
-
         public EPlayerCharacter playerCharacter { get; set; }
-        public PlayerInfo(string? id = null,string name = null, in string? currentIp = null)
+
+        // Indicates whether this entry represents a bot
+        public bool IsBot { get; set; } = false;
+
+        public PlayerInfo(string? id = null, string name = null, in string? currentIp = null)
         {
             Id = id;
-
             Name = name;
-
-
             CurrentIp = currentIp;
-
         }
-
 
         public JObject ToJson()
         {
             var result = new JObject();
-
-            result["Id"] = id;
-
-            result["Name"] = name;
-            result["CurrentIP"] = CurrentIp;
-
-
+            result["Id"] = Id;
+            result["Name"] = Name;
+            if (CurrentIp != null) result["CurrentIP"] = CurrentIp;
+            result["Ping"] = Ping;
+            result["IsBot"] = IsBot;
             return result;
         }
 

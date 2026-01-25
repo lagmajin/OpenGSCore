@@ -20,9 +20,9 @@ namespace OpenGSCore
         private ETeam Team { get; set; }=ETeam.NoTeam;
 
      
-        public float MaxHp { get; private set; } = 500;
+        public float MaxHp { get; set; } = 500;
         public float Hp { get; set; } = 500;
-        public float MaxBooster { get; private set; } = 100;
+        public float MaxBooster { get;set; } = 100;
         public float Booster { get; set; } = 100;
 
         public float BoosterPowerGround { get; set; } = 3.0f;
