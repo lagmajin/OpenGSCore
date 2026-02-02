@@ -48,6 +48,17 @@ namespace OpenGSCore
 
         }
 
+        public AbstractMatchSetting()
+        {
+
+        }
+
+        public AbstractMatchSetting(EGameMode gamemode, int maxplayerCount)
+        {
+            Mode = gamemode;
+            MaxPlayerCount = maxplayerCount;
+        }
+
         public virtual JObject ToJson()
         {
             var result = new JObject();

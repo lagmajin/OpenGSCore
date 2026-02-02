@@ -4,38 +4,29 @@ using System.Text;
 
 namespace OpenGSCore
 {
-    public class MatchRuleFactory
+    public static class MatchRuleFactory
     {
-        AbstractMatchRule CreateMatchRule(AbstractMatchSetting setting)
+        public static AbstractMatchRule? CreateMatchRule(AbstractMatchSetting setting)
         {
+            if (setting == null) return null;
+
             switch (setting.Mode)
             {
                 case EGameMode.DeathMatch:
-
-                    var dmSetting = setting as DeathMatchSetting;
-
-                    //dmSetting.
-
-                    break;
-                case EGameMode.Practice:
-                    break;
-                case EGameMode.FreeStyle:
-                    break;
-                case EGameMode.TowerMatch:
-                    break;
+                    return new DeathMatchRule();
+                case EGameMode.TeamDeathMatch:
+                    return new TDMMatchRule();
+                case EGameMode.Survival:
+                    return new SuvMatchRule();
+                case EGameMode.TeamSurvival:
+                    if (setting is TeamSurvivalMatchSetting teamSetting)
+                        return new TSuvMatchRule(teamSetting.TeamBalance);
+                    return new TSuvMatchRule();
                 case EGameMode.CaptureTheFlag:
-                    break;
-                case EGameMode.Unknown:
-                    break;
+                    return new CaptureTheFlagMatchRule();
                 default:
-                    break;
-
+                    return null;
             }
-
-            //setting.Mode
-
-            return null;
         }
-
     }
 }

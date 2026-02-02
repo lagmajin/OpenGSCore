@@ -24,7 +24,7 @@ namespace OpenGSCore
 
         public GameScene GameScene { get; set; } = new();
 
-        public WaitRoom? WaitRoomLink { get; private set; } = null;
+        public WaitRoom? WaitRoomLink { get; set; } = null;
         public string RoomName { get; set; }
 
         public bool MatchEnd { get; } = false;
@@ -45,6 +45,9 @@ namespace OpenGSCore
         {
             Setting = setting;
             eventBus = bus;
+
+            // create appropriate rule using factory
+            rule = MatchRuleFactory.CreateMatchRule(setting);
 
             switch (setting.Mode)
             {
@@ -162,6 +165,13 @@ namespace OpenGSCore
             eventBus.PublishGameEnd();
 
             Playing = false;
+
+            // WaitRoomÇ…èIóπÇí ím
+            if (WaitRoomLink != null)
+            {
+                WaitRoomLink.GameIsOver();
+                WaitRoomLink = null;
+            }
         }
 
         public JObject ToJson()

@@ -66,7 +66,7 @@ namespace OpenGSCore
                         setting = new CaptureTheFlagMatchSetting();
                         break;
                     case EGameMode.Survival:
-                        //setting = new SuvMatchSetting();
+                        setting = new SuvMatchSetting(Capacity, false);
                         break;
                     case EGameMode.TeamSurvival:
                         setting = new TeamSurvivalMatchSetting();
@@ -89,27 +89,33 @@ namespace OpenGSCore
         {
             lock (lockObject)
             {
+                if (info == null) return;
 
+                // initialize collections if necessary
+                if (Players == null) Players = new Dictionary<string, PlayerInfo>();
+                if (OldPlayers == null) OldPlayers = new List<PlayerInfo>();
 
+                // enforce capacity if set (> 0)
+                if (Capacity > 0 && Players.Count >= Capacity && !Players.ContainsKey(info.Id))
+                {
+                    // room full - ignore
+                    return;
+                }
 
+                // add or replace
+                Players[info.Id] = info;
 
+                // keep a simple history
+                OldPlayers.Add(info);
             }
-
-
         }
 
         public void AddPlayer(in string id, in string displayName)
         {
             lock (lockObject)
             {
-                //var playerInfo = new PlayerInfo(id,displayName);
-
-                //Players.Add(id,);
-
                 var info = new PlayerInfo(id, displayName);
-
-
-                Players.Add(id,info);
+                AddPlayer(info);
 
 
             }
@@ -227,8 +233,69 @@ namespace OpenGSCore
 
         public void GameStart()
         {
-            NowPlaying = true;
+            lock (lockObject)
+            {
+                if (NowPlaying) return; // already playing
+                if (Players == null || Players.Count == 0) return; // no players
 
+                NowPlaying = true;
+            }
+        }
+
+        /// <summary>
+        /// MatchRoom とリンクする（サーバ側から呼ばれる）
+        /// </summary>
+        public void LinkMatchRoom(MatchRoom matchRoom)
+        {
+            lock (lockObject)
+            {
+                MatchRoomLink = matchRoom;
+                matchRoom.WaitRoomLink = this;
+                NowPlaying = true;
+            }
+        }
+
+        /// <summary>
+        /// ゲーム開始可能かチェック
+        /// </summary>
+        public bool CanStartMatch()
+        {
+            lock (lockObject)
+            {
+                if (NowPlaying) return false;
+                if (Players == null || Players.Count == 0) return false;
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// 設定を取得（未設定ならデフォルト）
+        /// </summary>
+        public AbstractMatchSetting GetOrCreateSetting()
+        {
+            lock (lockObject)
+            {
+                if (setting == null)
+                {
+                    setting = new DeathMatchSetting();
+                }
+                return setting;
+            }
+        }
+
+        /// <summary>
+        /// 最初のプレイヤーIDを取得（オーナー用）
+        /// </summary>
+        public string GetFirstPlayerId()
+        {
+            lock (lockObject)
+            {
+                foreach (var kv in Players)
+                {
+                    return kv.Key;
+                }
+                return "";
+            }
         }
 
         public void GameIsOver()

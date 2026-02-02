@@ -5,6 +5,10 @@ namespace OpenGSCore
 {
     public sealed class SuvMatchRule : AbstractMatchRule
     {
+        public SuvMatchRule()
+        {
+        }
+
         public SuvMatchRule(in SuvMatchSetting setting) : base()
         {
 

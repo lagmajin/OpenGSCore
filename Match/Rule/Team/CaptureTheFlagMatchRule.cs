@@ -8,6 +8,10 @@ namespace OpenGSCore
     {
         private CaptureTheFlagMatchRule rule = null;
 
+        public CaptureTheFlagMatchRule()
+        {
+        }
+
         public CaptureTheFlagMatchRule(CaptureTheFlagMatchSetting setting) : base()
         {
 
