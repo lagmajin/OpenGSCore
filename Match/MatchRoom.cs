@@ -17,7 +17,7 @@ namespace OpenGSCore
 
         AbstractMatchRule? rule;
 
-        private AbstractMatchSetting Setting { get; set; }
+        public AbstractMatchSetting Setting { get; set; }
 
         private AbstractMatchSituation Situation { get; set; } = null;
         private readonly object playerSyncLock = new();
@@ -40,6 +40,17 @@ namespace OpenGSCore
         private Stopwatch sw = new();
 
         private HighPrecisionGameTimer timer;
+
+        /// <summary>
+        /// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’ãƒ«ãƒ¼ãƒ ã‹ã‚‰å‰Šé™¤ã™ã‚‹
+        /// </summary>
+        public void RemovePlayer(string playerId)
+        {
+            lock (playerSyncLock)
+            {
+                Players.RemoveAll(p => p.Id == playerId);
+            }
+        }
 
         public MatchRoom(int roomNumber, in string roomName, in string roomOwnerId, AbstractMatchSetting setting, MatchRoomEventBus bus) : base(roomNumber, roomOwnerId)
         {
@@ -81,7 +92,7 @@ namespace OpenGSCore
         {
             if (Playing)
             {
-                // “r’†Q‰Á‚Ìˆ—‚Í–¢À‘•
+                // é€”ä¸­å‚åŠ ã®å‡¦ç†ã¯æœªå®Ÿè£…
                 return;
             }
 
@@ -119,7 +130,7 @@ namespace OpenGSCore
 
         public void StartStatusUpdates()
         {
-            statusUpdateTimer = new System.Timers.Timer(1000); // 1•b‚²‚Æ‚ÉXV
+            statusUpdateTimer = new System.Timers.Timer(1000); // 1ç§’ã”ã¨ã«æ›´æ–°
             statusUpdateTimer.Elapsed += (sender, e) => SendPeriodicStatusUpdate();
             statusUpdateTimer.Start();
         }
@@ -134,9 +145,9 @@ namespace OpenGSCore
         {
             if (Playing)
             {
-                // Šî–{“I‚ÈƒXƒe[ƒ^ƒXî•ñ‚ğ‘—M
+                // åŸºæœ¬çš„ãªã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹æƒ…å ±ã‚’é€ä¿¡
                 var status = $"Match Active - Players: {Players.Count}";
-                // ƒlƒbƒgƒ[ƒN‘—Mˆ—i–¢À‘•j
+                // ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯é€ä¿¡å‡¦ç†ï¼ˆæœªå®Ÿè£…ï¼‰
             }
         }
 
@@ -149,7 +160,7 @@ namespace OpenGSCore
                 //setting.MatchTime;
             }
 
-            // ƒXƒe[ƒ^ƒXXV‚ğŠJn
+            // ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹æ›´æ–°ã‚’é–‹å§‹
             StartStatusUpdates();
 
             Playing = true;
@@ -158,15 +169,15 @@ namespace OpenGSCore
 
         public void Finish()
         {
-            // ƒXƒe[ƒ^ƒXXV‚ğ’â~
+            // ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹æ›´æ–°ã‚’åœæ­¢
             StopStatusUpdates();
 
-            // ƒ}ƒbƒ`I—¹ƒCƒxƒ“ƒg‚ğ”­s
+            // ãƒãƒƒãƒçµ‚äº†ã‚¤ãƒ™ãƒ³ãƒˆã‚’ç™ºè¡Œ
             eventBus.PublishGameEnd();
 
             Playing = false;
 
-            // WaitRoom‚ÉI—¹‚ğ’Ê’m
+            // WaitRoomã«çµ‚äº†ã‚’é€šçŸ¥
             if (WaitRoomLink != null)
             {
                 WaitRoomLink.GameIsOver();
