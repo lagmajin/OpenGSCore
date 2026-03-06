@@ -12,7 +12,7 @@ namespace OpenGSCore
     //#core
     [MemoryPackable]
     [MessagePackObject]
-    public partial class PlayerFireEvent
+    public partial class PlayerShotEvent
     {
         [Key(0)]
         public int PlayerID { get; set; }

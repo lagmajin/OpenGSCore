@@ -28,7 +28,7 @@ namespace OpenGSCore
 
         
 
-        public List<WaitRoom> SearchRoomByGameMode(eGameMode mode)
+        public List<WaitRoom> SearchRoomByGameMode(EGameMode mode)
         {
             var list = new List<WaitRoom>();
 

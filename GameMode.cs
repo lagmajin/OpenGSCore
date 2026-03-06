@@ -4,8 +4,7 @@ using System.Text;
 
 namespace OpenGSCore
 {
-
-    public enum EGameMode
+    public enum EGameMode : byte
     {
         DeathMatch = 0,
         TeamDeathMatch,
@@ -17,103 +16,80 @@ namespace OpenGSCore
         Survival,
         TeamSurvival,
         CaptureTheFlag,
- 
         ArmsRace,
         Unknown,
-
-    }
-
-
-    public enum eGameMode : byte
-    {
-        DeathMatch = 0,
-        TeamDeathMatch,
-        Practice,
-        FreeStyle,
-        OneShotKill,
-        Sniper,
-        TowerMatch,
-        Survival,
-        TeamSurvival,
-        CTF,
- 
-        ArmsRace,
-        Unknown,
-
     }
 
     public class GameMode
     {
-        private eGameMode mode = eGameMode.Unknown;
+        private EGameMode mode = EGameMode.Unknown;
+        private string str = "unknown";
 
-        private string str = "";
-
-        public static List<eGameMode> AllGameMode()
+        public static List<EGameMode> AllGameMode()
         {
-            var result = new List<eGameMode>();
-
-            result.Add(eGameMode.DeathMatch);
-            result.Add(eGameMode.TeamDeathMatch);
-            result.Add(eGameMode.Survival);
-            result.Add(eGameMode.TeamSurvival);
-            result.Add(eGameMode.CTF);
-            result.Add(eGameMode.OneShotKill);
-            result.Add(eGameMode.ArmsRace);
-
-            return result;
-        }
-        public GameMode(eGameMode mode)
-        {
-
-        }
-
-        public GameMode(in string mode)
-        {
-            var temp = mode.ToLower();
-            str = "unkonown";
-
-
-
-            if (temp == "DeathMatch" || temp == "DM")
+            return new List<EGameMode>
             {
+                EGameMode.DeathMatch,
+                EGameMode.TeamDeathMatch,
+                EGameMode.Survival,
+                EGameMode.TeamSurvival,
+                EGameMode.CaptureTheFlag,
+                EGameMode.OneShotKill,
+                EGameMode.ArmsRace
+            };
+        }
+
+        public GameMode(EGameMode mode)
+        {
+            this.mode = mode;
+            this.str = mode.ToString().ToLower();
+        }
+
+        public GameMode(string modeStr)
+        {
+            if (string.IsNullOrWhiteSpace(modeStr)) return;
+
+            var temp = modeStr.Trim().ToLower();
+
+            if (temp == "deathmatch" || temp == "dm")
+            {
+                mode = EGameMode.DeathMatch;
                 str = "dm";
             }
-
-            if (temp == "TeamDeathMatch" || temp == "TDM")
+            else if (temp == "teamdeathmatch" || temp == "tdm")
             {
+                mode = EGameMode.TeamDeathMatch;
                 str = "tdm";
             }
-
-            if (temp == "Survival" || temp == "SUV")
+            else if (temp == "survival" || temp == "suv")
             {
+                mode = EGameMode.Survival;
                 str = "suv";
             }
-            if (temp == "TeamSurvival" || temp == "TSUV")
+            else if (temp == "teamsurvival" || temp == "tsuv")
             {
+                mode = EGameMode.TeamSurvival;
                 str = "tsuv";
             }
-
-            if (temp == "CaptureTheFlag" || temp == "CTF")
+            else if (temp == "capturetheflag" || temp == "ctf")
             {
+                mode = EGameMode.CaptureTheFlag;
                 str = "ctf";
             }
-
-
-
+            else
+            {
+                if (Enum.TryParse<EGameMode>(modeStr, true, out var result))
+                {
+                    mode = result;
+                    str = mode.ToString().ToLower();
+                }
+            }
         }
 
-        public string Name()
-        {
-            return str;
-        }
+        public string Name() => str;
 
-        public bool Valid()
-        {
-            return false;
-        }
+        public bool Valid() => mode != EGameMode.Unknown;
 
-        internal eGameMode Mode { get => mode; set => mode = value; }
+        public EGameMode Mode { get => mode; set => mode = value; }
     }
-
-
 }

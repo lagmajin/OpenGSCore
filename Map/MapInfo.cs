@@ -50,7 +50,7 @@ namespace OpenGSCore
     {
         private int boostLevel = 0;
 
-        public eGameMode GameMode { get; set; }
+        public EGameMode GameMode { get; set; }
 
         //public eStage Stage { get; set; }
 

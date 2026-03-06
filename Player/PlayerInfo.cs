@@ -45,9 +45,9 @@ namespace OpenGSCore
         // Indicates whether this entry represents a bot
         public bool IsBot { get; set; } = false;
 
-        public PlayerInfo(string? id = null, string name = null, in string? currentIp = null)
+        public PlayerInfo(string? id = null, string name = "", string? currentIp = null)
         {
-            Id = id;
+            Id = id ?? string.Empty;
             Name = name;
             CurrentIp = currentIp;
         }

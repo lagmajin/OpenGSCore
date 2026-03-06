@@ -7,12 +7,12 @@ namespace OpenGSCore
 
     public class PlayerDeadEvent : AbstractGameEvent
     {
-        private EDeadReason reason_ = EDeadReason.Unknown;
+        private DeadReason reason_ = DeadReason.Unknown;
         private string playerName_;
         private string playerID_;
         private ETeam playerTeam_;
 
-        public PlayerDeadEvent(EDeadReason reason, string playerName, string playerID, ETeam team)
+        public PlayerDeadEvent(DeadReason reason, string playerName, string playerID, ETeam team)
         {
             reason_ = reason;
 

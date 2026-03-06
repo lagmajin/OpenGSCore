@@ -27,15 +27,24 @@ namespace OpenGSCore
         public WaitRoom? WaitRoomLink { get; set; } = null;
         public string RoomName { get; set; }
 
-        public bool MatchEnd { get; } = false;
+        public bool MatchEnd { get; private set; } = false;
         public bool IsSuddenDeathModeNow { get; private set; } = false;
 
-        public int PlayerCount { get; } = 0;
+        public int PlayerCount 
+        { 
+            get 
+            { 
+                lock (playerSyncLock)
+                {
+                    return Players.Count;
+                }
+            } 
+        }
 
         public int Capacity { get; } = 20;
 
         public bool Playing { get; private set; } = false;
-        public bool Finished { get; } = false;
+        public bool Finished { get; private set; } = false;
 
         private Stopwatch sw = new();
 
@@ -80,12 +89,21 @@ namespace OpenGSCore
 
         public bool ChangeOwnerRandom()
         {
-            if (Players.Count < 1)
+            lock (playerSyncLock)
             {
-                return false;
-            }
+                if (Players.Count < 1)
+                {
+                    return false;
+                }
 
-            return false;
+                var random = new Random();
+                var randomIndex = random.Next(Players.Count);
+                var newOwner = Players[randomIndex];
+                
+                // 新しいオーナーを設定
+                OwnerId = newOwner.Id;
+                return true;
+            }
         }
 
         public void AddNewPlayer(PlayerInfo info)

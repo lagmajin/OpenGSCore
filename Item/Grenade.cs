@@ -31,7 +31,10 @@ namespace OpenGSCore
 
         public override void Hit()
         {
-            throw new NotImplementedException();
+            // _powergrenade_hit_event_publish
+            // 爆発エフェクト再生
+            // ダメージ適用
+            Console.WriteLine($"PowerGrenade hit!");
         }
     }
 
@@ -49,7 +52,8 @@ namespace OpenGSCore
 
         public override void Hit()
         {
-            throw new NotImplementedException();
+            // クラスター爆発時に子grenadeを生成
+            Console.WriteLine($"ClusterGrenade hit! Spawning {Child} child grenades");
         }
     }
 
@@ -63,7 +67,8 @@ namespace OpenGSCore
 
         public override void Hit()
         {
-            //throw new NotImplementedException();
+            // 子grenadeの爆発処理
+            Console.WriteLine("ChildClusterGrenade hit!");
         }
     }
 }

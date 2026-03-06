@@ -72,6 +72,32 @@ namespace OpenGSCore
             var list = gunType.ToList();
             return string.Join(", ", list);
         }
+
+        public static int GetDamage(this EGunType gunType)
+        {
+            return gunType switch
+            {
+                EGunType.AssaultRifle => 35,
+                EGunType.SubMachineGun => 25,
+                EGunType.SniperRifle => 100,
+                EGunType.Shotgun => 15, // 1粒あたりのダメージなど、本来は複雑
+                EGunType.HandGun => 20,
+                _ => 30
+            };
+        }
+
+        public static EGunType FromString(string type)
+        {
+            return type.ToLower() switch
+            {
+                "rifle" or "assaultrifle" => EGunType.AssaultRifle,
+                "smg" or "submachinegun" => EGunType.SubMachineGun,
+                "sr" or "sniperrifle" => EGunType.SniperRifle,
+                "shotgun" => EGunType.Shotgun,
+                "hg" or "handgun" => EGunType.HandGun,
+                _ => EGunType.None
+            };
+        }
     }
 
 

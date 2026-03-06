@@ -19,10 +19,7 @@ namespace OpenGSCore
 
         GranadeType(EGranadeType type=EGranadeType.Unknown)
         {
-            type = type_;
-
-
-
+            type_ = type;
         }
 
         public string ToString()
@@ -100,10 +97,10 @@ namespace OpenGSCore
                    type_ == type.type_;
         }
 
-        public static bool operator==(GranadeType a,GranadeType b)
+        public static bool operator==(GranadeType a, GranadeType b)
         {
-
-            return true;
+            if (a is null || b is null) return false;
+            return a.type_ == b.type_;
         }
 
         public static bool operator !=(GranadeType a, GranadeType b)
