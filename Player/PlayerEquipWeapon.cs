@@ -21,6 +21,11 @@ namespace OpenGSCore
     {
         private WeaponData[] weapons = new WeaponData[6];
 
+        // 特殊武器の状態
+        public bool HasSpecialWeapon { get; set; } = false;
+        public ESpecialWeapon CurrentSpecialWeapon { get; set; }
+        public int SpecialWeaponAmmo { get; set; } = 0;
+
         public FavoriteWeapon()
         {
             SetDefault();
