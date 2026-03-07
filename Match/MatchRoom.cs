@@ -73,15 +73,16 @@ namespace OpenGSCore
             rule = MatchRuleFactory.CreateMatchRule(setting);
             
             // モードに応じて適切な Situation を作成
-            if (setting.Mode == EGameMode.TeamDeathMatch || setting.Mode == EGameMode.CaptureTheFlag)
+            situation = setting.Mode switch
             {
-                situation = new AbstractTeamMatchSituation();
-            }
-            else
-            {
-                situation = new AbstractMatchSituation();
-            }
+                EGameMode.TeamDeathMatch => new AbstractTeamMatchSituation(),
+                EGameMode.CaptureTheFlag => new CaptureTheFlagMatchSituation(),
+                EGameMode.TeamSurvival => new TeamSurvivalMatchSituation(),
+                EGameMode.DeathMatch => new AbstractMatchSituation(),
+                _ => new AbstractMatchSituation()
+            };
             
+            situation.mode = setting.Mode;
             situation.RemainingTimeSec = (rule != null) ? rule.MatchTimeMSec() / 1000f : 300f;
 
             switch (setting.Mode)
