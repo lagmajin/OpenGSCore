@@ -32,6 +32,8 @@ namespace OpenGSCore
         public const string PlayerReadyRequest = "PlayerReadyRequest";
         public const string PlayerReadyNotification = "PlayerReadyNotification";
         public const string GameStartNotification = "GameStartNotification";
+        public const string ItemSpawnNotification = "ItemSpawnNotification";
+        public const string ItemDespawnNotification = "ItemDespawnNotification";
 
         // --- リアルタイムゲームプレイ関連 (UDP/RUDP) ---
         public const string WelcomeMessage = "WelcomeMessage";

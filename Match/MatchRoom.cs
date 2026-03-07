@@ -50,6 +50,8 @@ namespace OpenGSCore
 
         private HighPrecisionGameTimer timer;
 
+        private FieldItemService itemServiceA = new FieldItemService();
+
         /// <summary>
         /// プレイヤーをルームから削除する
         /// </summary>
@@ -163,6 +165,21 @@ namespace OpenGSCore
         {
             if (Playing)
             {
+                // アイテムAグループの更新 (1秒おき)
+                EFieldItemType? spawnedItem;
+                var stateChange = itemServiceA.Update(1.0f, out spawnedItem);
+
+                if (stateChange == FieldItemService.ESpawnState.Active && spawnedItem.HasValue)
+                {
+                    // アイテム出現を通知
+                    eventBus.PublishItemSpawn(spawnedItem.Value, 0); // スポーンポイントIDは暫定で0
+                }
+                else if (stateChange == FieldItemService.ESpawnState.Waiting)
+                {
+                    // アイテム消滅を通知
+                    eventBus.PublishItemDespawn();
+                }
+
                 // 基本的なステータス情報を送信
                 var status = $"Match Active - Players: {Players.Count}";
                 // ネットワーク送信処理（未実装）

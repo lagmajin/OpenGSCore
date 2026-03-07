@@ -35,7 +35,9 @@ namespace OpenGSCore
     public class MatchRoomEventBus : AbstractEventBus
     {
         private MatchRoom room;
-        //private MatchRoomManager roomManager;
+
+        public event Action<EFieldItemType, int>? OnItemSpawned;
+        public event Action? OnItemDespawned;
         
         public MatchRoomEventBus()
         {
@@ -90,6 +92,16 @@ namespace OpenGSCore
         public void PublishGameUpdateFromClient()
         {
             
+        }
+
+        public void PublishItemSpawn(EFieldItemType type, int spawnPointId)
+        {
+            OnItemSpawned?.Invoke(type, spawnPointId);
+        }
+
+        public void PublishItemDespawn()
+        {
+            OnItemDespawned?.Invoke();
         }
         
         
