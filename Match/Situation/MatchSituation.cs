@@ -14,26 +14,18 @@ namespace OpenGSCore
         public EGameMode mode;
 
         public int AlivePlayers { get; set; } = 0;
-
-
+        public float RemainingTimeSec { get; set; } = 3600; // デフォルト 1時間
 
         public int TotalKill { get; set; } = 0;
         public int TotalDeath { get; set; } = 0;
 
-
-
         public int MaxPlayerKillCount { get; set; } = 0;
 
-
-
-
-        public void UpdateTime(in int elapsedTime)
+        public void UpdateTime(float deltaTime)
         {
-            //elapsedTime_ += elapsedTime;
+            RemainingTimeSec -= deltaTime;
+            if (RemainingTimeSec < 0) RemainingTimeSec = 0;
         }
-
-
-
     }
 
 

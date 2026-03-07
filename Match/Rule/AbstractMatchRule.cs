@@ -7,50 +7,27 @@ namespace OpenGSCore
 {
     public interface IMatchRule
     {
-
-        bool D(in AbstractMatchSituation situation);
+        bool IsMatchFinished(AbstractMatchSituation situation);
         bool CanReSpawn();
-
-        public int MatchTimeMSec();
-        //bool HasTimeLimit();
+        int MatchTimeMSec();
     }
 
     public abstract class AbstractMatchRule : IMatchRule
     {
-        private EGameMode mode = new EGameMode();
-        
-        
-        
-        public abstract bool D(in AbstractMatchSituation d);
+        public EGameMode Mode { get; protected set; }
+        public int MatchTimeLimitMsec { get; protected set; } = 300000; // デフォルト 5分
 
-        private bool canRespawn = true;
-        public virtual bool CanReSpawn()
+        public abstract bool IsMatchFinished(AbstractMatchSituation situation);
+
+        public virtual bool CanReSpawn() => true;
+
+        public AbstractMatchRule(EGameMode mode, int matchTimeMsec = 300000)
         {
-            return canRespawn;
+            Mode = mode;
+            MatchTimeLimitMsec = matchTimeMsec;
         }
 
-        
-
-        private bool hasTimeLimit = false;
-        private int matchTimeMsec = 3600;
-
-        public AbstractMatchRule()
-        {
-
-        }
-
-        public AbstractMatchRule(EGameMode mode, int matchTimeMsec)
-        {
-
-        }
-
-        public int MatchTimeMSec()
-        {
-            return matchTimeMsec;
-        }
-
-
-
+        public int MatchTimeMSec() => MatchTimeLimitMsec;
     }
 
 

@@ -51,6 +51,7 @@ namespace OpenGSCore
         private HighPrecisionGameTimer timer;
 
         private FieldItemService itemServiceA = new FieldItemService();
+        private AbstractMatchSituation situation;
 
         /// <summary>
         /// プレイヤーをルームから削除する
@@ -68,8 +69,12 @@ namespace OpenGSCore
             Setting = setting;
             eventBus = bus;
 
-            // create appropriate rule using factory
+            // ルールと状況の初期化
             rule = MatchRuleFactory.CreateMatchRule(setting);
+            
+            // モードに応じて適切な Situation を作成
+            situation = new AbstractMatchSituation();
+            situation.RemainingTimeSec = (rule != null) ? rule.MatchTimeMSec() / 1000f : 300f;
 
             switch (setting.Mode)
             {
@@ -163,26 +168,35 @@ namespace OpenGSCore
 
         private void SendPeriodicStatusUpdate()
         {
-            if (Playing)
+            if (Playing && !Finished)
             {
-                // アイテムAグループの更新 (1秒おき)
+                float deltaTime = 1.0f; // 1秒周期
+
+                // マッチ状況の更新
+                situation.UpdateTime(deltaTime);
+
+                // アイテムAグループの更新
                 EFieldItemType? spawnedItem;
-                var stateChange = itemServiceA.Update(1.0f, out spawnedItem);
+                var stateChange = itemServiceA.Update(deltaTime, out spawnedItem);
 
                 if (stateChange == FieldItemService.ESpawnState.Active && spawnedItem.HasValue)
                 {
-                    // アイテム出現を通知
-                    eventBus.PublishItemSpawn(spawnedItem.Value, 0); // スポーンポイントIDは暫定で0
+                    eventBus.PublishItemSpawn(spawnedItem.Value, 0);
                 }
                 else if (stateChange == FieldItemService.ESpawnState.Waiting)
                 {
-                    // アイテム消滅を通知
                     eventBus.PublishItemDespawn();
                 }
 
-                // 基本的なステータス情報を送信
-                var status = $"Match Active - Players: {Players.Count}";
-                // ネットワーク送信処理（未実装）
+                // 勝敗判定の実行
+                if (rule != null && rule.IsMatchFinished(situation))
+                {
+                    Finish();
+                    return;
+                }
+
+                // 基本的なステータス情報をブロードキャスト
+                var status = $"Match Active - Players: {Players.Count}, Time: {situation.RemainingTimeSec}";
             }
         }
 
@@ -207,8 +221,27 @@ namespace OpenGSCore
             // ステータス更新を停止
             StopStatusUpdates();
 
+            // リザルト情報の作成
+            var resultJson = new JObject();
+            resultJson["MessageType"] = MessageType.MatchEndNotification;
+            resultJson["RoomId"] = Id.ToString();
+            
+            // 勝者の判定（DeathMatch想定: 最高キル数）
+            PlayerInfo? winner = null;
+            int maxKills = -1;
+            
+            lock (playerSyncLock)
+            {
+                foreach (var p in Players)
+                {
+                    // 将来的には PlayerInfo に KillCount を持たせる
+                    // ここでは暫定で situation.MaxPlayerKillCount と比較、または全プレイヤーを走査
+                }
+            }
+
             // マッチ終了イベントを発行
             eventBus.PublishGameEnd();
+            eventBus.PublishGameEndWithResult(resultJson);
 
             Playing = false;
 
