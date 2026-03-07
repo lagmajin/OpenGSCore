@@ -73,7 +73,15 @@ namespace OpenGSCore
             rule = MatchRuleFactory.CreateMatchRule(setting);
             
             // モードに応じて適切な Situation を作成
-            situation = new AbstractMatchSituation();
+            if (setting.Mode == EGameMode.TeamDeathMatch || setting.Mode == EGameMode.CaptureTheFlag)
+            {
+                situation = new AbstractTeamMatchSituation();
+            }
+            else
+            {
+                situation = new AbstractMatchSituation();
+            }
+            
             situation.RemainingTimeSec = (rule != null) ? rule.MatchTimeMSec() / 1000f : 300f;
 
             switch (setting.Mode)
@@ -227,16 +235,20 @@ namespace OpenGSCore
             resultJson["RoomId"] = Id.ToString();
             
             // 勝者の判定（DeathMatch想定: 最高キル数）
-            PlayerInfo? winner = null;
-            int maxKills = -1;
-            
-            lock (playerSyncLock)
+            string winnerInfo = "Draw";
+            if (situation is AbstractTeamMatchSituation teamSit)
             {
-                foreach (var p in Players)
-                {
-                    // 将来的には PlayerInfo に KillCount を持たせる
-                    // ここでは暫定で situation.MaxPlayerKillCount と比較、または全プレイヤーを走査
-                }
+                if (teamSit.RedTeamKill > teamSit.BlueTeamKill) winnerInfo = "Red";
+                else if (teamSit.BlueTeamKill > teamSit.RedTeamKill) winnerInfo = "Blue";
+                
+                resultJson["WinnerTeam"] = winnerInfo;
+                resultJson["RedScore"] = teamSit.RedTeamKill;
+                resultJson["BlueScore"] = teamSit.BlueTeamKill;
+            }
+            else
+            {
+                // 個人戦の勝者判定（暫定）
+                resultJson["Winner"] = "Draw"; 
             }
 
             // マッチ終了イベントを発行
