@@ -2,7 +2,9 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Linq;
 
 namespace OpenGSCore
 {
@@ -11,7 +13,11 @@ namespace OpenGSCore
         string RoomName { get; set; }
     }
 
-    public partial class MatchRoom : AbstractGameRoom, IMatchRoom
+    /// <summary>
+    /// OpenGS MatchRoom - ゲームマッチの状態管理クラス
+    /// 同時実行性（Simultaneous Processing）をサポートするように設計されています。
+    /// </summary>
+    public partial class MatchRoom : AbstractGameRoom, IMatchRoom, ISyncable
     {
         private readonly MatchRoomEventBus eventBus;
 
@@ -29,6 +35,9 @@ namespace OpenGSCore
 
         public bool MatchEnd { get; private set; } = false;
         public bool IsSuddenDeathModeNow { get; private set; } = false;
+
+        // 同時処理（Simultaneous Tick）のための入力バッファ
+        private readonly ConcurrentQueue<JObject> _inputBuffer = new();
 
         public int PlayerCount 
         { 
@@ -54,6 +63,14 @@ namespace OpenGSCore
         private AbstractMatchSituation situation;
 
         /// <summary>
+        /// 外部から入力をバッファに追加する（マルチスレッドセーフ）
+        /// </summary>
+        public void PushInput(JObject input)
+        {
+            _inputBuffer.Enqueue(input);
+        }
+
+        /// <summary>
         /// プレイヤーをルームから削除する
         /// </summary>
         public void RemovePlayer(string playerId)
@@ -68,6 +85,8 @@ namespace OpenGSCore
         {
             Setting = setting;
             eventBus = bus;
+            Id = Guid.NewGuid().ToString("N");
+            RoomName = roomName;
 
             // ルールと状況の初期化
             rule = MatchRuleFactory.CreateMatchRule(setting);
@@ -84,23 +103,6 @@ namespace OpenGSCore
             
             situation.mode = setting.Mode;
             situation.RemainingTimeSec = (rule != null) ? rule.MatchTimeMSec() / 1000f : 300f;
-
-            switch (setting.Mode)
-            {
-                case EGameMode.DeathMatch:
-                    if (setting is DeathMatchSetting deathMatchSetting)
-                    {
-
-                    }
-                    break;
-
-                case EGameMode.TeamDeathMatch:
-                    if (setting is TDMMatchSetting teamDeathMatchSetting)
-                    {
-
-                    }
-                    break;
-            }
         }
 
         public bool ChangeOwnerRandom()
@@ -126,7 +128,7 @@ namespace OpenGSCore
         {
             if (Playing)
             {
-                // 途中参加の処理は未実装
+                // 途中参加の処理は要検討
                 return;
             }
 
@@ -147,16 +149,53 @@ namespace OpenGSCore
             }
         }
 
-        public void OnGameUpdateFromClient()
-        {
-
-        }
-
+        /// <summary>
+        /// 同時更新処理 (Simultaneous Tick Update)
+        /// バッファに蓄積された全入力を一括処理してからシーンを更新する
+        /// </summary>
         public override void GameUpdate()
         {
-            if (!Finished)
+            if (Finished) return;
+
+            // 1. バッファに溜まった全入力を処理
+            while (_inputBuffer.TryDequeue(out var input))
             {
-                GameScene.UpdateFrame();
+                ProcessBufferedInput(input);
+            }
+
+            // 2. ゲームシーンのフレーム更新（物理・ロジック）
+            GameScene.UpdateFrame();
+
+            // 3. ルールチェック（終了判定など）
+            if (Playing && rule != null && rule.IsMatchFinished(situation))
+            {
+                Finish();
+            }
+        }
+
+        private void ProcessBufferedInput(JObject input)
+        {
+            var messageType = input.GetStringOrNull("MessageType");
+            var playerId = input.GetStringOrNull("PlayerID");
+
+            if (string.IsNullOrEmpty(messageType) || string.IsNullOrEmpty(playerId)) return;
+
+            switch (messageType)
+            {
+                case "PlayerMove":
+                    var posX = input.Value<float>("PosX");
+                    var posY = input.Value<float>("PosY");
+                    // GameSceneの状態を更新
+                    GameScene.UpdatePlayerPosition(playerId, posX, posY);
+                    break;
+
+                case "PlayerAction":
+                    var action = input.GetStringOrNull("ActionType");
+                    if (action == "Shoot")
+                    {
+                        // 射撃イベントの処理
+                    }
+                    break;
             }
         }
 
@@ -196,27 +235,12 @@ namespace OpenGSCore
                 {
                     eventBus.PublishItemDespawn();
                 }
-
-                // 勝敗判定の実行
-                if (rule != null && rule.IsMatchFinished(situation))
-                {
-                    Finish();
-                    return;
-                }
-
-                // 基本的なステータス情報をブロードキャスト
-                var status = $"Match Active - Players: {Players.Count}, Time: {situation.RemainingTimeSec}";
             }
         }
 
         public void GameStart()
         {
             sw.Start();
-
-            if (Setting.TimeLimit)
-            {
-                //setting.MatchTime;
-            }
 
             // ステータス更新を開始
             StartStatusUpdates();
@@ -230,33 +254,17 @@ namespace OpenGSCore
             // ステータス更新を停止
             StopStatusUpdates();
 
-            // リザルト情報の作成
-            var resultJson = new JObject();
-            resultJson["MessageType"] = MessageType.MatchEndNotification;
+            // 勝敗判定ロジックをファクトリから取得して実行
+            var evaluator = MatchResultEvaluatorFactory.CreateEvaluator(setting.Mode);
+            var resultJson = evaluator.Evaluate(situation, Players);
             resultJson["RoomId"] = Id.ToString();
-            
-            // 勝者の判定（DeathMatch想定: 最高キル数）
-            string winnerInfo = "Draw";
-            if (situation is AbstractTeamMatchSituation teamSit)
-            {
-                if (teamSit.RedTeamKill > teamSit.BlueTeamKill) winnerInfo = "Red";
-                else if (teamSit.BlueTeamKill > teamSit.RedTeamKill) winnerInfo = "Blue";
-                
-                resultJson["WinnerTeam"] = winnerInfo;
-                resultJson["RedScore"] = teamSit.RedTeamKill;
-                resultJson["BlueScore"] = teamSit.BlueTeamKill;
-            }
-            else
-            {
-                // 個人戦の勝者判定（暫定）
-                resultJson["Winner"] = "Draw"; 
-            }
 
             // マッチ終了イベントを発行
             eventBus.PublishGameEnd();
             eventBus.PublishGameEndWithResult(resultJson);
 
             Playing = false;
+            Finished = true;
 
             // WaitRoomに終了を通知
             if (WaitRoomLink != null)
@@ -266,20 +274,41 @@ namespace OpenGSCore
             }
         }
 
-        public JObject ToJson()
+        #region ISyncable Implementation
+
+        private JObject _lastSyncState = new();
+
+        public JObject ToJSon()
         {
             var json = new JObject();
-
+            json["RoomID"] = Id;
             json["RoomName"] = RoomName;
-            json["RoomID"] = Id.ToString();
-            json["MaxCapacity"] = 8;
             json["PlayerCount"] = PlayerCount;
-
+            json["IsPlaying"] = Playing;
+            json["IsFinished"] = Finished;
+            
+            // GameSceneのスナップショットを追加
+            json["Snapshot"] = GameScene.GetSnapshot();
+            
             return json;
         }
 
+        public bool HasChanged()
+        {
+            var currentState = ToJSon();
+            return !JToken.DeepEquals(currentState, _lastSyncState);
+        }
+
+        public void SaveSyncState()
+        {
+            _lastSyncState = ToJSon();
+        }
+
+        #endregion
+
         public void Dispose()
         {
+            StopStatusUpdates();
         }
     }
 }

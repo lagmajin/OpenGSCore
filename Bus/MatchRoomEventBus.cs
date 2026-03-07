@@ -38,6 +38,7 @@ namespace OpenGSCore
 
         public event Action<EFieldItemType, int>? OnItemSpawned;
         public event Action? OnItemDespawned;
+        public event Action? OnGameEnded;
         public event Action<JObject>? OnGameEndedWithResult;
         
         public MatchRoomEventBus()
@@ -80,8 +81,7 @@ namespace OpenGSCore
         // ゲーム終了イベントを発行
         public void PublishGameEnd()
         {
-       
-            //Publish("GameEnd", null);
+            OnGameEnded?.Invoke();
         }
 
         public void PublishGameEndWithResult(JObject result)

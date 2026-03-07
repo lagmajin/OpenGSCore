@@ -45,6 +45,10 @@ namespace OpenGSCore
         public const string GameStateSync = "GameStateSync";
         public const string MatchEndNotification = "MatchEndNotification";
         
+        // プレイヤー情報取得関連
+        public const string PlayerInfoRequest = "PlayerInfoRequest";
+        public const string PlayerInfoResponse = "PlayerInfoResponse";
+        
         // 旧互換用 (移行期間)
         public const string Notification = "Notification";
     }
