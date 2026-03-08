@@ -16,6 +16,11 @@ namespace OpenGSCore
                 return jObject.SelectToken(jsonPath) != null;
             });
         }
+
+        public static string? GetStringOrNull(this JObject obj, string key)
+        {
+            return obj.TryGetValue(key, out JToken token) ? token.ToString() : null;
+        }
     }
 
 }

@@ -300,10 +300,19 @@ namespace OpenGSCore
 
         public void GameIsOver()
         {
-            NowPlaying = false;
-            MatchRoomLink = null;
+            lock (lockObject)
+            {
+                NowPlaying = false;
+                MatchRoomLink = null;
 
-
+                // Reset player states for the next match
+                foreach (var p in Players.Values)
+                {
+                    p.IsReady = false;
+                    p.Kills = 0;
+                    p.Deaths = 0;
+                }
+            }
         }
 
         public JObject ToJson()

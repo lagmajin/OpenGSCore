@@ -255,7 +255,7 @@ namespace OpenGSCore
             StopStatusUpdates();
 
             // 勝敗判定ロジックをファクトリから取得して実行
-            var evaluator = MatchResultEvaluatorFactory.CreateEvaluator(setting.Mode);
+            var evaluator = MatchResultEvaluatorFactory.CreateEvaluator(Setting.Mode);
             var resultJson = evaluator.Evaluate(situation, Players);
             resultJson["RoomId"] = Id.ToString();
 

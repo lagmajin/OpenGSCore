@@ -1,9 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
-//using System.Text.Json;
-//using System.Text.Json.Serialization;
-
-//using NodaTime;
 
 namespace OpenGSCore
 {
@@ -41,7 +37,6 @@ namespace OpenGSCore
         public string? CurrentIp { get; set; } = null;
         public int Ping { get; set; } = 0;
         public EPlayerCharacter playerCharacter { get; set; }
-        public ETeam Team { get; set; } = ETeam.None;
 
         // New properties for player stats
         public int Level { get; set; } = 1;
@@ -51,6 +46,9 @@ namespace OpenGSCore
         public int AttackPower { get; set; } = 10;
         public int DefensePower { get; set; } = 5;
 
+        // Match specific properties
+        public ETeam Team { get; set; } = ETeam.NoTeam;
+        public bool IsReady { get; set; } = false;
         public int Kills { get; set; } = 0;
         public int Deaths { get; set; } = 0;
 
@@ -85,14 +83,10 @@ namespace OpenGSCore
             result["AttackPower"] = AttackPower;
             result["DefensePower"] = DefensePower;
             result["Team"] = Team.ToString();
+            result["IsReady"] = IsReady;
             result["Kills"] = Kills;
             result["Deaths"] = Deaths;
             return result;
         }
-
     }
-
-
-
-
 }

@@ -56,6 +56,16 @@ namespace OpenGSCore
             }
         }
 
+        public void UpdatePlayerPosition(string playerId, float posX, float posY)
+        {
+            var player = FindObject(playerId) as PlayerGameObject;
+            if (player != null)
+            {
+                player.Posx = posX;
+                player.Posy = posY;
+            }
+        }
+
         public void UpdateFrame()
         {
             foreach (var obj in Snapshot())

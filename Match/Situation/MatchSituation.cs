@@ -33,6 +33,8 @@ namespace OpenGSCore
     {
         public int RedTeamKill { get; set; } = 0;
         public int BlueTeamKill { get; set; } = 0;
+        public int RedTeamFlagCaptures { get; set; } = 0;
+        public int BlueTeamFlagCaptures { get; set; } = 0;
     }
 
 }

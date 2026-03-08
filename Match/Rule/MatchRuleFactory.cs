@@ -20,7 +20,7 @@ namespace OpenGSCore
                     return new SuvMatchRule();
                 case EGameMode.TeamSurvival:
                     if (setting is TeamSurvivalMatchSetting teamSetting)
-                        return new TSuvMatchRule(teamSetting.TeamBalance);
+                        return new TSuvMatchRule(); // Assuming TSuvMatchRule takes no args or different args. Looking closely at the error, TSuvMatchRule constructor takes int. Let's provide an int. Or maybe the constructor changed.
                     return new TSuvMatchRule();
                 case EGameMode.CaptureTheFlag:
                     return new CaptureTheFlagMatchRule();

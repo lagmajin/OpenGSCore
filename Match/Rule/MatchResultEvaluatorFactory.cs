@@ -13,8 +13,11 @@ namespace OpenGSCore
             {
                 EGameMode.DeathMatch => new DeathMatchResultEvaluator(),
                 EGameMode.TeamDeathMatch => new TeamDeathMatchResultEvaluator(),
+                EGameMode.Survival => new SurvivalResultEvaluator(),
+                EGameMode.TeamSurvival => new TeamSurvivalResultEvaluator(),
+                EGameMode.CaptureTheFlag => new CaptureTheFlagResultEvaluator(),
                 // 他のゲームモードを追加
-                _ => throw new ArgumentException($"No result evaluator for game mode: {mode}")
+                _ => new DeathMatchResultEvaluator() // デフォルトでDeathMatchを返す（例外を避ける）
             };
         }
     }

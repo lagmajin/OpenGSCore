@@ -17,6 +17,7 @@ namespace OpenGSCore
         private bool isFinished = false;
 
         private string? ownerID_ = null;
+        public string? OwnerId { get => ownerID_; set => ownerID_ = value; }
         public int RoomNumber { get => roomNumber_; }
 
         private string id;
