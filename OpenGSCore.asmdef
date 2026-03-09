@@ -1,19 +1,19 @@
-{
-    "name": "OpenGS.Shared.Unity",
-    "rootNamespace": "",
-    "references": [
-        "GUID:756335c0388f7114790e504ed368ae1d",
-        "GUID:bbde805d927e795439d7a746d1749cab"
-    ],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": true,
-    "precompiledReferences": [
-        "Newtonsoft.Json.dll"
-    ],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+﻿{
+    " name\: \OpenGSCore\,
+ \rootNamespace\: \\,
+ \references\: [
+ \GUID:756335c0388f7114790e504ed368ae1d\,
+ \GUID:bbde805d927e795439d7a746d1749cab\
+ ],
+ \includePlatforms\: [],
+ \excludePlatforms\: [],
+ \allowUnsafeCode\: true,
+ \overrideReferences\: true,
+ \precompiledReferences\: [
+ \Newtonsoft.Json.dll\
+ ],
+ \autoReferenced\: true,
+ \defineConstraints\: [],
+ \versionDefines\: [],
+ \noEngineReferences\: false
 }
