@@ -1,32 +1,8 @@
-
-
-
+using System.Collections.Generic;
 
 namespace OpenGSCore
 {
-
-
-	public class PlayerIDList:public List<PlayerID>
+	public class PlayerIDList : List<PlayerID>
 	{
-
-
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
