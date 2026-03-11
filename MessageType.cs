@@ -48,6 +48,15 @@ namespace OpenGSCore
         // プレイヤー情報取得関連
         public const string PlayerInfoRequest = "PlayerInfoRequest";
         public const string PlayerInfoResponse = "PlayerInfoResponse";
+
+        // フレンド関連 (TCP)
+        public const string FriendRequest = "FriendRequest";
+        public const string FriendRequestResponse = "FriendRequestResponse";
+        public const string FriendRequestNotification = "FriendRequestNotification";
+        public const string FriendApproveRequest = "FriendApproveRequest";
+        public const string FriendApproveResponse = "FriendApproveResponse";
+        public const string FriendListRequest = "FriendListRequest";
+        public const string FriendListResponse = "FriendListResponse";
         
         // 旧互換用 (移行期間)
         public const string Notification = "Notification";
