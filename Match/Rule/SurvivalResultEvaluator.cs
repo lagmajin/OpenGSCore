@@ -12,14 +12,12 @@ namespace OpenGSCore
         public JObject Evaluate(AbstractMatchSituation situation, List<PlayerInfo> players)
         {
             var resultJson = new JObject();
-            resultJson["MessageType"] = "MatchResult";
+            resultJson["MessageType"] = MessageType.MatchEndNotification;
 
-            // サポートされている場合、生存者を勝者とする
-            // ここでは簡易的に、キル数が最も多い（またはデスしていない）プレイヤーを上位に表示
-            var sortedPlayers = players
-                .OrderByDescending(p => p.Health > 0) // 生存優先
-                .ThenByDescending(p => p.Kills)     // 次にキル数
-                .ThenBy(p => p.Deaths)            // 次にデス数の少なさ
+            var sortedPlayers = (players ?? new List<PlayerInfo>())
+                .OrderByDescending(p => p.Health > 0)
+                .ThenByDescending(p => p.Kills)
+                .ThenBy(p => p.Deaths)
                 .ToList();
 
             string winnerId = sortedPlayers.Count > 0 ? sortedPlayers[0].Id : "None";

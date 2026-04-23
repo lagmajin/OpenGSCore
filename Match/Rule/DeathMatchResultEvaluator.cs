@@ -14,24 +14,31 @@ namespace OpenGSCore
         {
             var resultJson = new JObject();
             resultJson["MessageType"] = MessageType.MatchEndNotification;
+            resultJson["WinningTeam"] = "None";
 
-            // 各プレイヤーのキル数を集計（ここではPlayerInfoにキル数プロパティがないため仮に0）
-            // 実際にはPlayerInfoを拡張するか、マッチ状況から取得する必要があります。
-            // 現状では仮のロジックとして、プレイヤーが一人ならそのプレイヤーを勝者とします。
-            
-            if (!players.Any())
+            var safePlayers = players ?? new List<PlayerInfo>();
+            if (!safePlayers.Any())
             {
                 resultJson["Winner"] = "NoPlayers";
+                resultJson["Players"] = new JArray();
                 return resultJson;
             }
-            
-            // TODO: 実際のキル数に基づく勝者判定ロジックを実装
-            // 現状はダミーとして、キル数ではなく参加プレイヤーから適当に選ぶか、Drawとする
-            resultJson["Winner"] = "Draw (Kill Count Logic TBD)";
 
-            // 例: 最もキル数が多いプレイヤーを勝者とする場合
-            // var topKiller = players.OrderByDescending(p => p.Kills).FirstOrDefault();
-            // if (topKiller != null) { resultJson["Winner"] = topKiller.Id; }
+            var topScore = safePlayers.Max(p => p?.Kills ?? 0);
+            var topPlayers = safePlayers.Where(p => (p?.Kills ?? 0) == topScore).ToList();
+            var winner = topPlayers.Count == 1 ? topPlayers[0] : null;
+
+            resultJson["Winner"] = winner != null ? winner.Id : "Draw";
+            resultJson["WinningPlayerId"] = winner != null ? winner.Id : "Draw";
+            resultJson["WinnerName"] = winner != null ? winner.Name : "Draw";
+            resultJson["TopKills"] = topScore;
+
+            var playersArray = new JArray();
+            foreach (var p in safePlayers.OrderByDescending(p => p.Kills).ThenBy(p => p.Deaths))
+            {
+                playersArray.Add(p.ToJson());
+            }
+            resultJson["Players"] = playersArray;
 
             return resultJson;
         }

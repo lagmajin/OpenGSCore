@@ -12,8 +12,9 @@ namespace OpenGSCore
         public JObject Evaluate(AbstractMatchSituation situation, List<PlayerInfo> players)
         {
             var resultJson = new JObject();
-            resultJson["MessageType"] = "MatchResult";
+            resultJson["MessageType"] = MessageType.MatchEndNotification;
 
+            var safePlayers = players ?? new List<PlayerInfo>();
             string winningTeam = "Draw";
             if (situation is AbstractTeamMatchSituation teamSit)
             {
@@ -33,12 +34,12 @@ namespace OpenGSCore
 
             // 個別プレイヤーデータの追加
             var playersArray = new JArray();
-            foreach (var p in players)
+            foreach (var p in safePlayers)
             {
                 var pObj = new JObject();
                 pObj["PlayerId"] = p.Id;
                 pObj["Name"] = p.Name;
-                pObj["Team"] = "None"; // TODO: チーム情報を保持する属性があれば使用
+                pObj["Team"] = p.Team.ToString();
                 pObj["Kills"] = p.Kills;
                 pObj["Deaths"] = p.Deaths;
                 pObj["Score"] = p.Kills * 100; // 仮のスコア計算

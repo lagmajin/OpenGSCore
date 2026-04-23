@@ -1,4 +1,5 @@
 using Newtonsoft.Json.Linq;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -12,7 +13,7 @@ namespace OpenGSCore
         public JObject Evaluate(AbstractMatchSituation situation, List<PlayerInfo> players)
         {
             var resultJson = new JObject();
-            resultJson["MessageType"] = "MatchResult";
+            resultJson["MessageType"] = MessageType.MatchEndNotification;
 
             string winningTeam = "Draw";
             if (situation is AbstractTeamMatchSituation teamSituation)
@@ -45,7 +46,7 @@ namespace OpenGSCore
 
             // プレイヤーごとの戦績
             var playersArray = new JArray();
-            foreach (var p in players)
+            foreach (var p in players ?? new List<PlayerInfo>())
             {
                 playersArray.Add(p.ToJson());
             }
