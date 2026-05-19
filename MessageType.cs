@@ -38,18 +38,47 @@ namespace OpenGSCore
         public const string LobbyChatRequest = "LobbyChatRequest";
         public const string LobbyChatNotification = "LobbyChatNotification";
         public const string AddLobbyChat = LobbyChatRequest;
+        public const string LobbyEnter = "LobbyEnter";
+        public const string LobbyLeave = "LobbyLeave";
+        public const string LobbyPlayerList = "LobbyPlayerList";
+        public const string LobbyChat = "LobbyChat";
+        public const string WaitRoomEnter = "WaitRoomEnter";
+        public const string WaitRoomLeave = "WaitRoomLeave";
+        public const string WaitRoomPlayerList = "WaitRoomPlayerList";
+        public const string WaitRoomChat = "WaitRoomChat";
+        public const string WaitRoomPlayerReady = "WaitRoomPlayerReady";
+        public const string WaitRoomPlayerUnready = "WaitRoomPlayerUnready";
+        public const string WaitRoomSettingsChange = "WaitRoomSettingsChange";
+        public const string WaitRoomKickPlayer = "WaitRoomKickPlayer";
+        public const string WaitRoomOwnerChange = "WaitRoomOwnerChange";
+        public const string WaitRoomStartCountdown = "WaitRoomStartCountdown";
+        public const string WaitRoomCancelCountdown = "WaitRoomCancelCountdown";
+        public const string WaitRoomUpdateNotification = "WaitRoomUpdateNotification";
+        public const string RoomCreated = "RoomCreated";
+        public const string RoomDeleted = "RoomDeleted";
+        public const string RoomFull = "RoomFull";
 
         // --- マッチメイキング・準備関連 (TCP) ---
         public const string MatchServerInfoRequest = "MatchServerInfoRequest";
         public const string MatchServerInfoResponse = "MatchServerInfoResponse";
         public const string PlayerReadyRequest = "PlayerReadyRequest";
         public const string PlayerReadyNotification = "PlayerReadyNotification";
-        public const string PlayerReady = PlayerReadyRequest;
         public const string PlayerUnready = "PlayerUnready";
-        public const string GameStartNotification = "GameStartNotification";
         public const string GameStartRequest = "GameStartRequest";
+        public const string PlayerReady = PlayerReadyRequest;
+        public const string GameStartNotification = "GameStartNotification";
         public const string ItemSpawnNotification = "ItemSpawnNotification";
         public const string ItemDespawnNotification = "ItemDespawnNotification";
+        public const string ClientLoadingSceneEntered = "ClientLoadingSceneEntered";
+        public const string LoadingStarted = "LoadingStarted";
+        public const string LoadingProgress = "LoadingProgress";
+        public const string LoadingCompleted = "LoadingCompleted";
+        public const string LoadingStartedNotification = "LoadingStartedNotification";
+        public const string LoadingProgressNotification = "LoadingProgressNotification";
+        public const string LoadingCompletedNotification = "LoadingCompletedNotification";
+        public const string LoadingFailed = "LoadingFailed";
+        public const string LoadingMessage = "LoadingMessage";
+        public const string AllowEnterMap = "AllowEnterMap";
 
         // --- リアルタイムゲームプレイ関連 (UDP/RUDP) ---
         public const string WelcomeMessage = "WelcomeMessage";
@@ -110,6 +139,17 @@ namespace OpenGSCore
                 "EnterWaitRoomResponse" => JoinRoomResponse,
                 "LeaveWaitRoomResponse" => LeaveRoomResponse,
                 "AddLobbyChat" => LobbyChatRequest,
+                "LobbyEnterRequest" => LobbyEnter,
+                "LobbyLeaveRequest" => LobbyLeave,
+                "LobbyChatRequest" => LobbyChat,
+                "WaitRoomEnterRequest" => WaitRoomEnter,
+                "WaitRoomLeaveRequest" => WaitRoomLeave,
+                "WaitRoomChatRequest" => WaitRoomChat,
+                "WaitRoomPlayerReadyRequest" => WaitRoomPlayerReady,
+                "WaitRoomPlayerUnreadyRequest" => WaitRoomPlayerUnready,
+                "LoadingStartedNotification" => LoadingStartedNotification,
+                "LoadingProgressNotification" => LoadingProgressNotification,
+                "LoadingCompletedNotification" => LoadingCompletedNotification,
                 _ => messageType
             };
         }
