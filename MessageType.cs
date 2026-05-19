@@ -35,28 +35,15 @@ namespace OpenGSCore
         public const string RoomListUpdateNotification = "RoomListUpdateNotification";
         public const string UpdateRoomRequest = RoomListUpdateRequest;
         public const string UpdateRoomResponse = RoomListUpdateNotification;
-        public const string LobbyChatRequest = "LobbyChatRequest";
-        public const string LobbyChatNotification = "LobbyChatNotification";
-        public const string AddLobbyChat = LobbyChatRequest;
-        public const string LobbyEnter = "LobbyEnter";
-        public const string LobbyLeave = "LobbyLeave";
-        public const string LobbyPlayerList = "LobbyPlayerList";
-        public const string LobbyChat = "LobbyChat";
-        public const string WaitRoomEnter = "WaitRoomEnter";
-        public const string WaitRoomLeave = "WaitRoomLeave";
-        public const string WaitRoomPlayerList = "WaitRoomPlayerList";
-        public const string WaitRoomChat = "WaitRoomChat";
-        public const string WaitRoomPlayerReady = "WaitRoomPlayerReady";
-        public const string WaitRoomPlayerUnready = "WaitRoomPlayerUnready";
-        public const string WaitRoomSettingsChange = "WaitRoomSettingsChange";
-        public const string WaitRoomKickPlayer = "WaitRoomKickPlayer";
-        public const string WaitRoomOwnerChange = "WaitRoomOwnerChange";
-        public const string WaitRoomStartCountdown = "WaitRoomStartCountdown";
-        public const string WaitRoomCancelCountdown = "WaitRoomCancelCountdown";
-        public const string WaitRoomUpdateNotification = "WaitRoomUpdateNotification";
         public const string RoomCreated = "RoomCreated";
         public const string RoomDeleted = "RoomDeleted";
         public const string RoomFull = "RoomFull";
+        public const string LobbyChatRequest = "LobbyChatRequest";
+        public const string LobbyChatNotification = "LobbyChatNotification";
+        public const string LobbyEnter = JoinRoomRequest;
+        public const string LobbyLeave = LeaveRoomRequest;
+        public const string LobbyPlayerList = "LobbyPlayerList";
+        public const string LobbyChat = LobbyChatRequest;
 
         // --- マッチメイキング・準備関連 (TCP) ---
         public const string MatchServerInfoRequest = "MatchServerInfoRequest";
@@ -79,6 +66,18 @@ namespace OpenGSCore
         public const string LoadingFailed = "LoadingFailed";
         public const string LoadingMessage = "LoadingMessage";
         public const string AllowEnterMap = "AllowEnterMap";
+        public const string WaitRoomEnter = JoinRoomRequest;
+        public const string WaitRoomLeave = LeaveRoomRequest;
+        public const string WaitRoomPlayerList = "WaitRoomPlayerList";
+        public const string WaitRoomChat = LobbyChatRequest;
+        public const string WaitRoomPlayerReady = PlayerReadyRequest;
+        public const string WaitRoomPlayerUnready = PlayerUnready;
+        public const string WaitRoomSettingsChange = "WaitRoomSettingsChange";
+        public const string WaitRoomKickPlayer = "WaitRoomKickPlayer";
+        public const string WaitRoomOwnerChange = "WaitRoomOwnerChange";
+        public const string WaitRoomStartCountdown = "WaitRoomStartCountdown";
+        public const string WaitRoomCancelCountdown = "WaitRoomCancelCountdown";
+        public const string WaitRoomUpdateNotification = UpdateRoomResponse;
 
         // --- リアルタイムゲームプレイ関連 (UDP/RUDP) ---
         public const string WelcomeMessage = "WelcomeMessage";
