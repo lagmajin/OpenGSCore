@@ -14,9 +14,9 @@ namespace OpenGSCore
         FlameThrower,       // 特殊武器: 火炎放射器
         PowerUpItem,        // 攻撃力2倍 (30秒)
         DefenceUpItem,      // 防御力2倍 (30秒)
-        SpeedUpItem,        // 速度1.5倍 (30秒)
-        StealthItem,        // 不透明度50% (30秒)
-        GrenadePack,        // グレネード補充
+        SpeedUpItem,        // 移動速度2倍 (30秒)
+        StealthItem,        // キャラ半透明化 (30秒)
+        GrenadePack,        // ノーマルグレネード満タン補充
         HealItem            // HP回復
     }
 
