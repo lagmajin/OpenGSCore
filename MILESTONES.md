@@ -2,6 +2,8 @@
 
 This repository defines the shared gameplay contract. The near-term goal is to
 remove ambiguity before client and server work diverge again.
+It should also stay usable as a standalone pure C# domain library if the Unity
+client is replaced later.
 
 ## C0. Canonical Message Contract
 
@@ -82,9 +84,36 @@ Done when:
 - Field-item and combat events use shared names rather than ad hoc strings.
 - The core package can be consumed without relying on client-local guesses.
 
+## C4. Unity-Free Domain Kernel
+
+Goal: keep the shared game domain entirely free of Unity dependencies.
+
+Scope:
+- `Player/PlayerStatus.cs`
+- `Item/*`
+- `Match/*`
+- `Room/*`
+- `Event/*`
+- `GameScene.cs`
+- any shared DTOs added later
+
+Why this matters:
+- If the Unity client is removed, the core package should still describe the
+  game clearly on its own.
+- The current project already has enough gameplay state to justify a real
+  engine-agnostic domain model.
+- This makes server validation, headless tests, and later client rewrites much
+  safer.
+
+Done when:
+- no new core code depends on `UnityEngine`
+- gameplay rules are represented through plain C# types
+- client and server can both consume the same shared state objects
+
 ## Suggested Order
 
 1. `C0`
 2. `C1`
 3. `C2`
 4. `C3`
+5. `C4`
