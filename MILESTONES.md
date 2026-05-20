@@ -24,6 +24,13 @@ Done when:
 - Legacy aliases remain only as compatibility shims.
 - Mode names and normalization rules are documented in one place.
 
+Current status:
+- incoming network handlers are being updated to normalize legacy names before
+  dispatch
+- the shared contract should stay authoritative for client, server, and local
+  test code
+- canonical message names are now also propagated on the general server output
+
 ## C1. Match Rule Coverage And Factory Cleanup
 
 Goal: make rule creation deterministic for every supported mode.
