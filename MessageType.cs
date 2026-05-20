@@ -38,6 +38,8 @@ namespace OpenGSCore
         public const string RoomCreated = "RoomCreated";
         public const string RoomDeleted = "RoomDeleted";
         public const string RoomFull = "RoomFull";
+        public const string RoomNotFound = "RoomNotFound";
+        public const string RoomSettingChanged = "RoomSettingChanged";
         public const string LobbyChatRequest = "LobbyChatRequest";
         public const string LobbyChatNotification = "LobbyChatNotification";
         public const string AddLobbyChat = LobbyChatRequest;
