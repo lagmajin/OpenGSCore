@@ -72,7 +72,10 @@ namespace OpenGSCore
         {
             var result = new JObject();
             result["Id"] = Id;
+            result["PlayerId"] = Id;
             result["Name"] = Name;
+            result["PlayerName"] = Name;
+            result["DisplayName"] = Name;
             if (CurrentIp != null) result["CurrentIP"] = CurrentIp;
             result["Ping"] = Ping;
             result["IsBot"] = IsBot;
@@ -83,9 +86,15 @@ namespace OpenGSCore
             result["AttackPower"] = AttackPower;
             result["DefensePower"] = DefensePower;
             result["Team"] = Team.ToString();
+            result["TeamName"] = Team.ToString();
             result["IsReady"] = IsReady;
             result["Kills"] = Kills;
+            result["KillCount"] = Kills;
             result["Deaths"] = Deaths;
+            result["DeathCount"] = Deaths;
+            result["Score"] = Kills * 100;
+            result["TotalScore"] = Kills * 100;
+            result["Points"] = Kills * 100;
             return result;
         }
     }
