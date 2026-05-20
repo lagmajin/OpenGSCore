@@ -48,8 +48,6 @@ namespace OpenGSCore
         public const string LobbyPlayerList = "LobbyPlayerList";
         public const string LobbyChat = LobbyChatRequest;
         public const string InvalidRoomId = "InvalidRoomId";
-        public const string RoomNotFound = "RoomNotFound";
-        public const string RoomSettingChanged = "RoomSettingChanged";
         public const string CreateNewWaitRoomSuccess = "CreateNewWaitRoomSuccess";
         public const string UpdateRoomResult = "UpdateRoomResult";
         public const string LobbyInfo = "LobbyInfo";
