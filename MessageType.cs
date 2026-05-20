@@ -40,10 +40,18 @@ namespace OpenGSCore
         public const string RoomFull = "RoomFull";
         public const string LobbyChatRequest = "LobbyChatRequest";
         public const string LobbyChatNotification = "LobbyChatNotification";
+        public const string AddLobbyChat = LobbyChatRequest;
         public const string LobbyEnter = JoinRoomRequest;
         public const string LobbyLeave = LeaveRoomRequest;
         public const string LobbyPlayerList = "LobbyPlayerList";
         public const string LobbyChat = LobbyChatRequest;
+        public const string InvalidRoomId = "InvalidRoomId";
+        public const string RoomNotFound = "RoomNotFound";
+        public const string RoomSettingChanged = "RoomSettingChanged";
+        public const string CreateNewWaitRoomSuccess = "CreateNewWaitRoomSuccess";
+        public const string UpdateRoomResult = "UpdateRoomResult";
+        public const string LobbyInfo = "LobbyInfo";
+        public const string LobbyInfoResponse = "LobbyInfoResponse";
 
         // --- マッチメイキング・準備関連 (TCP) ---
         public const string MatchServerInfoRequest = "MatchServerInfoRequest";
