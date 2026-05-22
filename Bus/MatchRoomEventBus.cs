@@ -37,6 +37,8 @@ namespace OpenGSCore
     {
         private MatchRoom room;
 
+        public event Action? OnLoadingStarted;
+        public event Action? OnGameStarted;
         public event Action<EFieldItemType, int>? OnItemSpawned;
         public event Action? OnItemDespawned;
         public event Action? OnGameEnded;
@@ -69,11 +71,13 @@ namespace OpenGSCore
         public void PublishLoadingStart()
         {
             Console.WriteLine("LoadingStart");
+            OnLoadingStarted?.Invoke();
         }
 
         public void PublishGameStart()
         {
             Console.WriteLine("GameStart");
+            OnGameStarted?.Invoke();
 
 
             //Publish("GameStart", null);

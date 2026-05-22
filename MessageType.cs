@@ -1,5 +1,3 @@
-using System;
-
 namespace OpenGSCore
 {
     /// <summary>
@@ -126,6 +124,11 @@ namespace OpenGSCore
 
         public static string Normalize(string messageType)
         {
+            if (string.IsNullOrWhiteSpace(messageType))
+            {
+                return messageType;
+            }
+
             return messageType switch
             {
                 CreateNewWaitRoomRequest => CreateRoomRequest,

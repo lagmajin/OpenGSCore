@@ -51,6 +51,7 @@ namespace OpenGSCore
         public bool IsReady { get; set; } = false;
         public int Kills { get; set; } = 0;
         public int Deaths { get; set; } = 0;
+        public List<EInstantItemType> EquipInstantItems { get; set; } = new();
 
         // Indicates whether this entry represents a bot
         public bool IsBot { get; set; } = false;
@@ -88,6 +89,12 @@ namespace OpenGSCore
             result["Team"] = Team.ToString();
             result["TeamName"] = Team.ToString();
             result["IsReady"] = IsReady;
+            var equipInstantItems = new JArray();
+            foreach (var item in EquipInstantItems)
+            {
+                equipInstantItems.Add(item.ToString());
+            }
+            result["EquipInstantItems"] = equipInstantItems;
             result["Kills"] = Kills;
             result["KillCount"] = Kills;
             result["Deaths"] = Deaths;
