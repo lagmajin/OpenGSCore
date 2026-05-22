@@ -8,7 +8,7 @@ namespace OpenGSCore{
     {
         public void OnLoadingStart()
         {
-
+            LoadingStart();
         }
 
 

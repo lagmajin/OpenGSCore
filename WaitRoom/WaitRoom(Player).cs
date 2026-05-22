@@ -11,12 +11,15 @@ namespace OpenGSCore
 
         public void RemovePlayer()
         {
-
+            RemoveAllPlayers();
         }
 
         public void LoadingStart()
         {
-
+            lock (lockObject)
+            {
+                NowPlaying = true;
+            }
         }
     }
 
