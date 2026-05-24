@@ -8,9 +8,9 @@ namespace OpenGSCore
     {
 
 
-        public TDMMatchSetting(int maxPlayerCapacity = 8, bool teamBalance = true) : base(EGameMode.TeamDeathMatch)
+        public TDMMatchSetting(int maxPlayerCapacity = 8, bool teamBalance = true) : base(EGameMode.TeamDeathMatch, true, teamBalance)
         {
-
+            MaxPlayerCount = maxPlayerCapacity;
         }
     }
 }

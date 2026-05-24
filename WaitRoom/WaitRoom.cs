@@ -16,6 +16,7 @@ namespace OpenGSCore
         public string RoomId { get; set; }
         public bool NowPlaying { get; private set; } = false;
         public int Capacity { get; set; } = 0;
+        public EGameMode GameMode { get; private set; } = EGameMode.Unknown;
 
         
         public List<PlayerInfo> OldPlayers { get; set; }
@@ -82,6 +83,8 @@ namespace OpenGSCore
                 {
                     Capacity = setting.MaxPlayerCount;
                 }
+
+                GameMode = setting != null ? setting.Mode : mode;
             }
         }
 
@@ -279,6 +282,7 @@ namespace OpenGSCore
                 {
                     setting = new DeathMatchSetting();
                 }
+                GameMode = setting.Mode;
                 return setting;
             }
         }
@@ -326,6 +330,12 @@ namespace OpenGSCore
                 result["RoomId"] = RoomId;
                 result["NowPlaying"] = NowPlaying;
                 result["Capacity"] = Capacity;
+                result["GameMode"] = GameMode.ToString();
+
+                if (setting != null)
+                {
+                    result["Setting"] = setting.ToJson();
+                }
 
                 foreach (var p in Players.Values)
                 {

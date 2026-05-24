@@ -1,52 +1,21 @@
-﻿using OpenGSServer;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace OpenGSCore
 {
     public class MatchResultService
     {
-
-
         public AbstractMatchResult createMatchResult(AbstractMatchFinalScore score)
         {
-            //var playerFinalScore=score.FinalScores;
-
-            switch(score)
+            if (score == null)
             {
-                case DeathMatchFinalScore deathMatchScore:
-                    
-                    var deathMatchResult=new DeathMatchResult();
-
-
-
-                    return deathMatchResult;
-
-                    break;
-
-                case TeamDeathMatchFinalScore teamDeathMatchScore:
-                    var teamDeathMatchResult=new TeamDeathMatchResult();
-
-
-                    return null;
-                    break;
-
-
-
-                case CTFMatchFinalScore cTFMatchFinalScore:
-
-                    return null;
-
-                    break;
-
-
+                return null;
             }
 
-        
-
-            return null;
+            return score switch
+            {
+                DeathMatchFinalScore deathMatchScore => new DeathMatchResult(deathMatchScore),
+                TeamDeathMatchFinalScore teamDeathMatchScore => new TeamDeathMatchResult(teamDeathMatchScore),
+                CTFMatchFinalScore ctfMatchScore => new CTFMatchResult(ctfMatchScore),
+                _ => null
+            };
         }
-
     }
 }

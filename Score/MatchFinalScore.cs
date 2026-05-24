@@ -10,6 +10,11 @@ namespace OpenGSCore
     {
         public EGameMode Mode { get; private set; }
 
+        protected AbstractMatchFinalScore(EGameMode mode)
+        {
+            Mode = mode;
+        }
+
         public abstract AbstractAllPlayerMatchFinalScore AllPlayerFinalScores();
 
     }
@@ -18,8 +23,13 @@ namespace OpenGSCore
     {
         public AllPlayerDeathMatchPlayerMatchFinalScore allPlayerFinalScores;
 
+        public DeathMatchFinalScore() : base(EGameMode.DeathMatch)
+        {
+        }
+
         public override AbstractAllPlayerMatchFinalScore AllPlayerFinalScores()
         {
+            allPlayerFinalScores ??= new AllPlayerDeathMatchPlayerMatchFinalScore();
             return allPlayerFinalScores;
         }
     }
@@ -28,22 +38,30 @@ namespace OpenGSCore
     {
         public AllPlayerTeamDeathMatchPlayerMatchFinalScore allPlayerFinalScores;
 
+        public TeamDeathMatchFinalScore() : base(EGameMode.TeamDeathMatch)
+        {
+        }
+
 
         public override AbstractAllPlayerMatchFinalScore AllPlayerFinalScores()
         {
-            return null;
+            allPlayerFinalScores ??= new AllPlayerTeamDeathMatchPlayerMatchFinalScore();
+            return allPlayerFinalScores;
         }
     }
 
     public class CTFMatchFinalScore : AbstractMatchFinalScore
     {
+        public CTFMatchFinalScore() : base(EGameMode.CaptureTheFlag)
+        {
+        }
 
 
 
         public override AbstractAllPlayerMatchFinalScore AllPlayerFinalScores()
         {
 
-            return null;
+            return new AllCaptureTheFlagMatchPlayerFinalScore();
         }
     }
 

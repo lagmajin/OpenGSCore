@@ -1,18 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace OpenGSCore
 {
     public class CTFMatchResult : AbstractMatchResult
     {
+        private readonly CTFMatchFinalScore finalScore;
 
-        public CTFMatchResult()
+        public CTFMatchResult() : this(new CTFMatchFinalScore())
         {
-
         }
 
+        public CTFMatchResult(CTFMatchFinalScore? score)
+        {
+            finalScore = score ?? new CTFMatchFinalScore();
+            SetOutcome(true, false);
+        }
+
+        public CTFMatchFinalScore FinalScore()
+        {
+            return finalScore;
+        }
     }
 }

@@ -1,23 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace OpenGSCore
 {
     public class SuvMatchFinalScore
     {
-
     }
 
     public class SuvMatchResult : AbstractMatchResult
     {
+        private readonly SuvMatchFinalScore finalScore;
 
-        public SuvMatchResult()
+        public SuvMatchResult() : this(new SuvMatchFinalScore())
         {
-
         }
 
+        public SuvMatchResult(SuvMatchFinalScore? score)
+        {
+            finalScore = score ?? new SuvMatchFinalScore();
+            SetOutcome(true, false);
+        }
+
+        public SuvMatchFinalScore FinalScore()
+        {
+            return finalScore;
+        }
     }
 }

@@ -13,7 +13,7 @@ namespace OpenGSCore.Score
     // 既存互換を保つ非ジェネリック基底（元のまま null を返す実装を維持）
     public class AbstractAllPlayerMatchFinalScore
     {
-        public List<AbstractPlayerMatchFinalScore> AllPlayerFinalScore() { return null; }
+        public List<AbstractPlayerMatchFinalScore> AllPlayerFinalScore() { return new List<AbstractPlayerMatchFinalScore>(); }
     }
 
     // 重複を吸収するジェネリック中間基底。元の基底メソッドを隠す（new）ことで

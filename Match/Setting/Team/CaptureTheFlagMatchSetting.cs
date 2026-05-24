@@ -11,7 +11,7 @@ namespace OpenGSCore
 
 
 
-        public CaptureTheFlagMatchSetting(int winCondition = 3, bool teamBalance = true) : base(EGameMode.CaptureTheFlag, 0, true)
+        public CaptureTheFlagMatchSetting(int winCondition = 3, bool teamBalance = true) : base(EGameMode.CaptureTheFlag, 8, teamBalance, false)
         {
             winConditionPoint = winCondition;
         }

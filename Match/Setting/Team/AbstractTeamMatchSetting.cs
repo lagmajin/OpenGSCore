@@ -10,9 +10,10 @@ namespace OpenGSCore
 
         public bool TeamBalance { get; set; } = false;
 
-        public AbstractTeamMatchSetting(EGameMode mode, bool randomTeam = false, bool teamBalance = true) : base(mode, 8, true, false)
+        public AbstractTeamMatchSetting(EGameMode mode, bool randomTeam = false, bool teamBalance = true) : base(mode, 8, teamBalance, false)
         {
-
+            RandomTeam = randomTeam;
+            TeamBalance = teamBalance;
         }
 
 

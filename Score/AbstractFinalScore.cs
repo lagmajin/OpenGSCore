@@ -16,7 +16,7 @@ namespace OpenGSCore
 
         public AbstractFinalScore(EGameMode mode)
         {
-            
+            this.mode = mode;
         }        
     }
 }

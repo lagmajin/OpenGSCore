@@ -1,23 +1,22 @@
-﻿using OpenGSCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace OpenGSCore
 {
-
-    public class DeathMatchResult:AbstractMatchResult
+    public class DeathMatchResult : AbstractMatchResult
     {
+        private readonly DeathMatchFinalScore finalScore;
+
+        public DeathMatchResult() : this(new DeathMatchFinalScore())
+        {
+        }
+
+        public DeathMatchResult(DeathMatchFinalScore? score)
+        {
+            finalScore = score ?? new DeathMatchFinalScore();
+            SetOutcome(true, false);
+        }
 
         public DeathMatchFinalScore FinalScore()
         {
-            var result = new DeathMatchFinalScore();
-
-            return result;
+            return finalScore;
         }
-
-
     }
 }

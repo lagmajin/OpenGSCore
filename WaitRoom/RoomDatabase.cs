@@ -34,8 +34,24 @@ namespace OpenGSCore
 
             foreach (var room in rooms)
             {
-                // MatchRule で型チェック。詳細な Mode チェックは必要に応じてMatchRule に拡張
-                if (room.MatchRule != null && !room.NowPlaying)
+                if (room == null || room.NowPlaying)
+                {
+                    continue;
+                }
+
+                if (mode == EGameMode.Unknown)
+                {
+                    list.Add(room);
+                    continue;
+                }
+
+                if (room.MatchRule != null && room.MatchRule.Mode == mode)
+                {
+                    list.Add(room);
+                    continue;
+                }
+
+                if (room.setting != null && room.setting.Mode == mode)
                 {
                     list.Add(room);
                 }

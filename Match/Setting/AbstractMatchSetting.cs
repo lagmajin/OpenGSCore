@@ -33,19 +33,17 @@ namespace OpenGSCore
 
         public AbstractMatchSetting(EGameMode gamemode, int maxplayerCount, bool teamBalance = true, bool hasTimeLimit_ = false)
         {
-
+            Mode = gamemode;
+            MaxPlayerCount = maxplayerCount;
+            TimeLimit = hasTimeLimit_;
         }
 
         public AbstractMatchSetting(in EGameMode gamemode, int maxplayerCount, bool teamBalance = true, bool hasTimeLimit_ = false, int timeLimit = 1000)
         {
-
-            //gameMode_ = gamemode;
-            //maxPlayerCount_ = maxplayerCount;
-
-            //matchTimeMSec_ = 600000;
-
-
-
+            Mode = gamemode;
+            MaxPlayerCount = maxplayerCount;
+            TimeLimit = hasTimeLimit_;
+            MatchTimeMSec = timeLimit;
         }
 
         public AbstractMatchSetting()

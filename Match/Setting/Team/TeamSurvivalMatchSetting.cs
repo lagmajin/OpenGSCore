@@ -13,6 +13,7 @@ namespace OpenGSCore
         public TeamSurvivalMatchSetting(int maxPlayerCapacity = 8, bool teamBalance = true)
             : base(EGameMode.TeamSurvival, true, teamBalance)
         {
+            MaxPlayerCount = maxPlayerCapacity;
             SurvivalTimeMinutes = 10;
             LastTeamStanding = true;
         }

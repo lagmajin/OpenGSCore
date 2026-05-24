@@ -10,7 +10,7 @@ namespace OpenGSCore
         private int winConditionKill_ = 10;
         public DeathMatchSetting(int winConditionKill = 20, bool teamBalance = true) : base(EGameMode.DeathMatch, 0, teamBalance)
         {
-            winConditionKill_ = 20;
+            winConditionKill_ = winConditionKill;
 
         }
 
