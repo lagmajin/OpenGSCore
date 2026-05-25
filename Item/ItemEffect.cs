@@ -76,4 +76,68 @@ namespace OpenGSCore
             // 消費型なので解除処理は不要
         }
     }
+
+    public class SpeedUpItemEffect : AbstractItemEffect
+    {
+        public override void ApplyItemEffect(PlayerStatus status)
+        {
+            if (status == null)
+            {
+                return;
+            }
+
+            status.AddBooster(20f);
+        }
+
+        public override void UnApplyItemEffect(PlayerStatus status)
+        {
+            if (status == null)
+            {
+                return;
+            }
+
+            status.UseBooster(20f);
+        }
+    }
+
+    public class StealthItemEffect : AbstractItemEffect
+    {
+        public override void ApplyItemEffect(PlayerStatus status)
+        {
+            if (status == null)
+            {
+                return;
+            }
+
+            status.AddDefensePower(1);
+        }
+
+        public override void UnApplyItemEffect(PlayerStatus status)
+        {
+            if (status == null)
+            {
+                return;
+            }
+
+            status.AddDefensePower(-1);
+        }
+    }
+
+    public class HealItemEffect : AbstractItemEffect
+    {
+        public override void ApplyItemEffect(PlayerStatus status)
+        {
+            status?.AddHp(150f);
+        }
+
+        public override void UnApplyItemEffect(PlayerStatus status)
+        {
+            if (status == null)
+            {
+                return;
+            }
+
+            status.Damage(150f);
+        }
+    }
 }

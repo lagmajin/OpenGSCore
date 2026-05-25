@@ -16,4 +16,13 @@ namespace OpenGSCore
         /// <returns>勝敗情報を含むJObject</returns>
         JObject Evaluate(AbstractMatchSituation situation, System.Collections.Generic.List<PlayerInfo> players);
     }
+
+    public static class MatchResultEvaluatorExtensions
+    {
+        public static bool TryEvaluate(this IMatchResultEvaluator evaluator, AbstractMatchSituation situation, System.Collections.Generic.List<PlayerInfo> players, out JObject result)
+        {
+            result = evaluator != null ? evaluator.Evaluate(situation, players) : null;
+            return result != null;
+        }
+    }
 }
