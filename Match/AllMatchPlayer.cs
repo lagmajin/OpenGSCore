@@ -1,63 +1,61 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
+using System.Reflection;
 using System.Text;
-
-
-
 
 namespace OpenGSCore
 {
     public class AllMatchPlayer
     {
-        //public SortedDictionary<string, PlayerStatus> AllPlayers { get;set; } = new();
-
-        private List<PlayerStatus> players = new();
-
+        private readonly List<PlayerStatus> players = new();
 
         public AllMatchPlayer()
         {
-
         }
-
 
         public PlayerStatus? SearchPlayer()
         {
-            var player = new PlayerStatus();
-
-            
-
-
-            return player;
-
+            return players.FirstOrDefault() ?? new PlayerStatus();
         }
 
         public List<PlayerStatus>? SearchPlayers()
         {
-            var list = new List<PlayerStatus>();
-
-
-            return null;
+            return new List<PlayerStatus>(players);
         }
-
-        
 
         public List<PlayerStatus>? SearchTeamPlayers(eTeam team)
         {
-
             var teamPlayers = new List<PlayerStatus>();
+            var teamProperty = typeof(PlayerStatus).GetProperty("Team", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (teamProperty == null)
+            {
+                return teamPlayers;
+            }
 
+            foreach (var player in players)
+            {
+                if (player == null)
+                {
+                    continue;
+                }
 
-            return null;
+                var value = teamProperty.GetValue(player);
+                if (value is ETeam playerTeam &&
+                    Enum.TryParse<eTeam>(playerTeam.ToString(), true, out var parsedTeam) &&
+                    parsedTeam == team)
+                {
+                    teamPlayers.Add(player);
+                }
+            }
+
+            return teamPlayers;
         }
 
-        public void AddPlayer(string id,string displayName)
+        public void AddPlayer(string id, string displayName)
         {
-
+            players.Add(new PlayerStatus());
         }
-
-
-
-
     }
 }

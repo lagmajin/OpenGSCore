@@ -14,7 +14,12 @@ namespace OpenGSCore
                 DeathMatchFinalScore deathMatchScore => new DeathMatchResult(deathMatchScore),
                 TeamDeathMatchFinalScore teamDeathMatchScore => new TeamDeathMatchResult(teamDeathMatchScore),
                 CTFMatchFinalScore ctfMatchScore => new CTFMatchResult(ctfMatchScore),
-                _ => null
+                _ => score.Mode switch
+                {
+                    EGameMode.Survival => new SuvMatchResult(),
+                    EGameMode.TeamSurvival => new TSuvMatchResult(),
+                    _ => null
+                },
             };
         }
     }

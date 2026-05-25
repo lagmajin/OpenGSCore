@@ -127,7 +127,7 @@ namespace OpenGSCore
 
         public void AddPlayers()
         {
-
+            AddPlayers(OldPlayers);
         }
 
         // convenience overload to add multiple players
@@ -145,7 +145,7 @@ namespace OpenGSCore
 
         public void AddBotPlayer()
         {
-
+            AddBotPlayer(null);
         }
 
         public PlayerInfo AddBotPlayer(string? displayName = null)
