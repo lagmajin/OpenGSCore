@@ -72,6 +72,9 @@ namespace OpenGSCore
                         playerJson["Name"]?.ToString() ?? playerJson["PlayerName"]?.ToString() ?? string.Empty);
                     player.IsReady = playerJson["IsReady"]?.ToObject<bool>() ?? false;
                     player.IsBot = playerJson["IsBot"]?.ToObject<bool>() ?? false;
+                    player.playerCharacter = Enum.TryParse(playerJson["PlayerCharacter"]?.ToString(), true, out EPlayerCharacter character)
+                        ? character
+                        : EPlayerCharacter.Misty;
                     player.Team = Enum.TryParse(playerJson["Team"]?.ToString(), true, out ETeam team) ? team : ETeam.NoTeam;
                     snapshot.Players.Add(player);
                 }

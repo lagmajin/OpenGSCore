@@ -61,6 +61,7 @@ namespace OpenGSCore
             Id = id ?? string.Empty;
             Name = name;
             CurrentIp = currentIp;
+            playerCharacter = EPlayerCharacter.Misty;
             Level = level;
             Exp = exp;
             Health = health;
@@ -95,6 +96,7 @@ namespace OpenGSCore
                 equipInstantItems.Add(item.ToString());
             }
             result["EquipInstantItems"] = equipInstantItems;
+            result["PlayerCharacter"] = playerCharacter.ToString();
             result["Kills"] = Kills;
             result["KillCount"] = Kills;
             result["Deaths"] = Deaths;
