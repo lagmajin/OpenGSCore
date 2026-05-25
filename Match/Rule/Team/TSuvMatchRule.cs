@@ -8,6 +8,11 @@ namespace OpenGSCore
         {
         }
 
+        public TSuvMatchRule(in TeamSurvivalMatchSetting setting)
+            : base(EGameMode.TeamSurvival, (setting?.SurvivalTimeMinutes ?? 10) * 60 * 1000)
+        {
+        }
+
         public override bool IsMatchFinished(AbstractMatchSituation situation)
         {
             // 時間切れ判定

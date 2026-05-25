@@ -5,13 +5,15 @@ namespace OpenGSCore
 {
     public sealed class SuvMatchRule : AbstractMatchRule
     {
+        private int winConditionKill = 1;
+
         public SuvMatchRule() : base(EGameMode.Survival)
         {
         }
 
         public SuvMatchRule(in SuvMatchSetting setting) : base(EGameMode.Survival, setting.MatchTimeMSec)
         {
-
+            winConditionKill = setting?.WinConditionKill ?? 1;
         }
 
         public override bool CanReSpawn()
@@ -21,7 +23,17 @@ namespace OpenGSCore
 
         public override bool IsMatchFinished(AbstractMatchSituation situation)
         {
-            return false;
+            if (situation == null)
+            {
+                return true;
+            }
+
+            if (situation.RemainingTimeSec <= 0)
+            {
+                return true;
+            }
+
+            return situation.MaxPlayerKillCount >= winConditionKill;
         }
     }
 }

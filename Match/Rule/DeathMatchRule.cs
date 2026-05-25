@@ -16,10 +16,9 @@ namespace OpenGSCore
         }
 
         public DeathMatchRule(in DeathMatchSetting setting) 
-            : base(EGameMode.DeathMatch, 300000) // デフォルト5分
+            : base(EGameMode.DeathMatch, setting?.MatchTimeMSec > 0 ? setting.MatchTimeMSec : 300000)
         {
-            // 設定からキル制限を読み取る（将来的には Setting クラスを拡張）
-            killLimit = 20;
+            killLimit = setting?.WinConditionKill ?? 20;
         }
 
         public override bool IsMatchFinished(AbstractMatchSituation situation)

@@ -13,17 +13,23 @@ namespace OpenGSCore
             switch (setting.Mode)
             {
                 case EGameMode.DeathMatch:
-                    return new DeathMatchRule();
+                    return setting is DeathMatchSetting deathMatchSetting
+                        ? new DeathMatchRule(deathMatchSetting)
+                        : new DeathMatchRule();
                 case EGameMode.TeamDeathMatch:
                     return new TDMMatchRule();
                 case EGameMode.Survival:
-                    return new SuvMatchRule();
+                    return setting is SuvMatchSetting suvSetting
+                        ? new SuvMatchRule(suvSetting)
+                        : new SuvMatchRule();
                 case EGameMode.TeamSurvival:
                     if (setting is TeamSurvivalMatchSetting teamSetting)
-                        return new TSuvMatchRule(); // Assuming TSuvMatchRule takes no args or different args. Looking closely at the error, TSuvMatchRule constructor takes int. Let's provide an int. Or maybe the constructor changed.
+                        return new TSuvMatchRule(teamSetting);
                     return new TSuvMatchRule();
                 case EGameMode.CaptureTheFlag:
-                    return new CaptureTheFlagMatchRule();
+                    return setting is CaptureTheFlagMatchSetting ctfSetting
+                        ? new CaptureTheFlagMatchRule(ctfSetting.WinConditionPoint)
+                        : new CaptureTheFlagMatchRule();
                 default:
                     return null;
             }
