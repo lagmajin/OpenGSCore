@@ -7,7 +7,9 @@ namespace OpenGSCore
     public class PowerUpItemEffect:AbstractItemEffect
     {
 
-        public PowerUpItemEffect() { }
+        public PowerUpItemEffect()
+        {
+        }
 
         public override void ApplyItemEffect(PlayerStatus status)
         {
@@ -41,26 +43,16 @@ namespace OpenGSCore
 
         public override void ApplyItemEffect(PlayerStatus status)
         {
-            if (status == null)
-            {
-                return;
-            }
-
-            status.AddHp(50f);
-            status.AddBooster(50f);
-            status.AddDefensePower(5);
+            ApplyHp(status, 50f);
+            ApplyBooster(status, 50f);
+            ApplyDefensePower(status, 5);
         }
 
         public override void UnApplyItemEffect(PlayerStatus status)
         {
-            if (status == null)
-            {
-                return;
-            }
-
-            status.Damage(50f);
-            status.UseBooster(50f);
-            status.AddDefensePower(-5);
+            ApplyHp(status, -50f);
+            ApplyBooster(status, -50f);
+            ApplyDefensePower(status, -5);
         }
     }
 
@@ -81,22 +73,12 @@ namespace OpenGSCore
     {
         public override void ApplyItemEffect(PlayerStatus status)
         {
-            if (status == null)
-            {
-                return;
-            }
-
-            status.AddBooster(20f);
+            ApplyBooster(status, 20f);
         }
 
         public override void UnApplyItemEffect(PlayerStatus status)
         {
-            if (status == null)
-            {
-                return;
-            }
-
-            status.UseBooster(20f);
+            ApplyBooster(status, -20f);
         }
     }
 
@@ -104,22 +86,12 @@ namespace OpenGSCore
     {
         public override void ApplyItemEffect(PlayerStatus status)
         {
-            if (status == null)
-            {
-                return;
-            }
-
-            status.AddDefensePower(1);
+            ApplyDefensePower(status, 1);
         }
 
         public override void UnApplyItemEffect(PlayerStatus status)
         {
-            if (status == null)
-            {
-                return;
-            }
-
-            status.AddDefensePower(-1);
+            ApplyDefensePower(status, -1);
         }
     }
 
@@ -132,12 +104,7 @@ namespace OpenGSCore
 
         public override void UnApplyItemEffect(PlayerStatus status)
         {
-            if (status == null)
-            {
-                return;
-            }
-
-            status.Damage(150f);
+            ApplyHp(status, -150f);
         }
     }
 }
