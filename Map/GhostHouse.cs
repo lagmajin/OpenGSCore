@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace OpenGSCore
 {
-    public class GhostHouse
+    public class GhostHouse : AbstractStage
     {
+        public GhostHouse() : base("GhostHouse", EMap.GhostHouse)
+        {
+        }
     }
 }

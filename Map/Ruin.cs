@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace OpenGSCore
 {
-    public class Ruin
+    public class Ruin : AbstractStage
     {
+        public Ruin() : base("Ruin", EMap.RuinOfWarSide1)
+        {
+        }
     }
 }

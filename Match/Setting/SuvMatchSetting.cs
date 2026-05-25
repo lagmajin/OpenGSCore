@@ -1,15 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using Newtonsoft.Json.Linq;
 
 namespace OpenGSCore
 {
-    public class SuvMatchSetting:AbstractMatchSetting
+    public class SuvMatchSetting : AbstractMatchSetting
     {
-        public SuvMatchSetting(int maxPlayer,bool teamBalance):base(EGameMode.Survival,maxPlayer,teamBalance)
-        {
+        public int WinConditionKill { get; set; } = 1;
 
+        public SuvMatchSetting(int maxPlayer, bool teamBalance)
+            : base(EGameMode.Survival, maxPlayer, teamBalance)
+        {
+            TimeLimit = false;
+            AllowOvertime = false;
         }
 
+        public override JObject ToJson()
+        {
+            var result = base.ToJson();
+            result["MatchType"] = "Survival";
+            result["WinConditionKill"] = WinConditionKill;
+            result["TeamBalance"] = false;
+            return result;
+        }
     }
 }

@@ -1,22 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace OpenGSCore
 {
-    public class SuvGameEvent
+    public class SuvGameEvent : AbstractGameEvent
     {
+        public string PlayerId { get; set; } = string.Empty;
+        public int AliveCount { get; set; } = 0;
 
         public SuvGameEvent()
         {
-            var test = 20;
-
-
-
+            EventName = "SuvGameEvent";
         }
-
     }
-
-
-
 }

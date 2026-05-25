@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace OpenGSCore
 {
-    class RobotFactory
+    public class RobotFactory : AbstractStage
     {
+        public RobotFactory() : base("RobotFactory", EMap.RobotFactory)
+        {
+        }
     }
 }

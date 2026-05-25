@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace OpenGSCore
 {
-    class DryDays
+    public class DryDays : AbstractStage
     {
+        public DryDays() : base("DryDays", EMap.DryDays)
+        {
+        }
     }
 }

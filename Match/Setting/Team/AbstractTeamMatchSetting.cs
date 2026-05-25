@@ -18,7 +18,7 @@ namespace OpenGSCore
 
 
 
-        public JObject ToJson()
+        public override JObject ToJson()
         {
             var result = base.ToJson();
 

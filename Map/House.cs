@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace OpenGSCore
 {
-    public class FullHouse
+    public class House : AbstractStage
     {
+        public House() : base("House", EMap.FullHouse)
+        {
+        }
     }
 }

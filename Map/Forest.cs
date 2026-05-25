@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace OpenGSCore
 {
-    class Forest
+    public class Forest : AbstractStage
     {
+        public Forest() : base("Forest", EMap.ThePark)
+        {
+        }
     }
 }

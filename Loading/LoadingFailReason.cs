@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace OpenGSCore
 {
-    enum ELoadingFailReason
+    public enum ELoadingFailReason
     {
-
+        Unknown,
+        NetworkError,
+        Timeout,
+        ServerBusy,
+        InvalidData,
+        RoomNotFound
     }
 }

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace OpenGSCore
 {
-    public class ArchloadGunster
+    public class ArchloadGunster : AbstractStage
     {
+        public ArchloadGunster() : base("ArchloadGunster", EMap.ArchLoadOfGunster)
+        {
+        }
     }
 }

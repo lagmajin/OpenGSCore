@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace OpenGSCore
 {
-    public class Christmas
+    public class Chiristmas : AbstractStage
     {
-
-
-
+        public Chiristmas() : base("Christmas", EMap.Christmas)
+        {
+        }
     }
 }

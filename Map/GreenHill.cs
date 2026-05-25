@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace OpenGSCore.Stage
 {
-    class GreenHill
+    public class GreenHill : OpenGSCore.AbstractStage
     {
+        public GreenHill() : base("GreenHill", OpenGSCore.EMap.GreenHillSide1)
+        {
+        }
     }
 }
