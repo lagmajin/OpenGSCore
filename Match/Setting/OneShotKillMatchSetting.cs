@@ -8,6 +8,7 @@ namespace OpenGSCore
     public class OneShotKillMatchSetting : AbstractMatchSetting
     {
         private int winConditionKill = 1;
+        public int WinConditionKill => winConditionKill;
 
         public OneShotKillMatchSetting(int maxPlayerCapacity = 8, bool teamBalance = true)
             : base(EGameMode.OneShotKill, maxPlayerCapacity, teamBalance)

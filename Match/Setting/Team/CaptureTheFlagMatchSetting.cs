@@ -5,7 +5,6 @@ namespace OpenGSCore
     public class CaptureTheFlagMatchSetting : AbstractMatchSetting
     {
         private int winConditionPoint = 3;
-
         public int WinConditionPoint => winConditionPoint;
 
         public CaptureTheFlagMatchSetting(int winCondition = 3, bool teamBalance = true)

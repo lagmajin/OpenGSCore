@@ -15,6 +15,7 @@ namespace OpenGSCore
     {
         public enum ESpawnState
         {
+            None,       // 状態変化なし
             Waiting,    // 出現待ち (27秒)
             Active      // 出現中 (30秒)
         }
@@ -51,8 +52,8 @@ namespace OpenGSCore
         /// </summary>
         /// <param name="deltaTime">経過時間(秒)</param>
         /// <param name="spawnedItem">出現したアイテムの種類</param>
-        /// <returns>状態変化があった場合はその状態、なければ null</returns>
-        public ESpawnState? Update(float deltaTime, out EFieldItemType? spawnedItem)
+        /// <returns>状態変化があった場合はその状態、なければ None</returns>
+        public ESpawnState Update(float deltaTime, out EFieldItemType? spawnedItem)
         {
             spawnedItem = null;
             timer -= deltaTime;
@@ -82,7 +83,7 @@ namespace OpenGSCore
                 }
             }
 
-            return null;
+            return ESpawnState.None;
         }
 
         /// <summary>

@@ -1,3 +1,5 @@
+using System;
+
 namespace OpenGSCore
 {
     public class MatchResultService
@@ -6,7 +8,7 @@ namespace OpenGSCore
         {
             if (score == null)
             {
-                return null;
+                throw new ArgumentNullException(nameof(score));
             }
 
             return score switch
@@ -16,10 +18,19 @@ namespace OpenGSCore
                 CTFMatchFinalScore ctfMatchScore => new CTFMatchResult(ctfMatchScore),
                 _ => score.Mode switch
                 {
+                    EGameMode.DeathMatch => new DeathMatchResult(),
+                    EGameMode.OneShotKill => new DeathMatchResult(),
+                    EGameMode.ArmsRace => new DeathMatchResult(),
+                    EGameMode.TeamDeathMatch => new TeamDeathMatchResult(),
+                    EGameMode.CaptureTheFlag => new CTFMatchResult(),
                     EGameMode.Survival => new SuvMatchResult(),
                     EGameMode.TeamSurvival => new TSuvMatchResult(),
-                    _ => null
-                },
+                    EGameMode.Practice => new DeathMatchResult(),
+                    EGameMode.FreeStyle => new DeathMatchResult(),
+                    EGameMode.Sniper => new DeathMatchResult(),
+                    EGameMode.TowerMatch => new DeathMatchResult(),
+                    _ => throw new NotSupportedException($"Unsupported match result mode: {score.Mode}")
+                }
             };
         }
     }

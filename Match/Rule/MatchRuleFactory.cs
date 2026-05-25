@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System;
 
 namespace OpenGSCore
 {
@@ -8,31 +6,36 @@ namespace OpenGSCore
     {
         public static AbstractMatchRule? CreateMatchRule(AbstractMatchSetting setting)
         {
-            if (setting == null) return null;
-
-            switch (setting.Mode)
+            if (setting == null)
             {
-                case EGameMode.DeathMatch:
-                    return setting is DeathMatchSetting deathMatchSetting
-                        ? new DeathMatchRule(deathMatchSetting)
-                        : new DeathMatchRule();
-                case EGameMode.TeamDeathMatch:
-                    return new TDMMatchRule();
-                case EGameMode.Survival:
-                    return setting is SuvMatchSetting suvSetting
-                        ? new SuvMatchRule(suvSetting)
-                        : new SuvMatchRule();
-                case EGameMode.TeamSurvival:
-                    if (setting is TeamSurvivalMatchSetting teamSetting)
-                        return new TSuvMatchRule(teamSetting);
-                    return new TSuvMatchRule();
-                case EGameMode.CaptureTheFlag:
-                    return setting is CaptureTheFlagMatchSetting ctfSetting
-                        ? new CaptureTheFlagMatchRule(ctfSetting.WinConditionPoint)
-                        : new CaptureTheFlagMatchRule();
-                default:
-                    return null;
+                throw new ArgumentNullException(nameof(setting));
             }
+
+            return setting.Mode switch
+            {
+                EGameMode.DeathMatch => setting is DeathMatchSetting deathMatchSetting
+                    ? new DeathMatchRule(deathMatchSetting)
+                    : new DeathMatchRule(),
+                EGameMode.OneShotKill => setting is OneShotKillMatchSetting oneShotKillSetting
+                    ? new DeathMatchRule(oneShotKillSetting.WinConditionKill)
+                    : new DeathMatchRule(1),
+                EGameMode.ArmsRace => setting is ArmsRaceMatchSetting armsRaceSetting
+                    ? new DeathMatchRule(armsRaceSetting.WinConditionKill)
+                    : new DeathMatchRule(30),
+                EGameMode.TeamDeathMatch => setting is TDMMatchSetting teamDeathMatchSetting
+                    ? new TDMMatchRule(teamDeathMatchSetting)
+                    : new TDMMatchRule(),
+                EGameMode.Survival => setting is SuvMatchSetting suvSetting
+                    ? new SuvMatchRule(suvSetting)
+                    : new SuvMatchRule(),
+                EGameMode.TeamSurvival => setting is TeamSurvivalMatchSetting teamSetting
+                    ? new TSuvMatchRule(teamSetting)
+                    : new TSuvMatchRule(),
+                EGameMode.CaptureTheFlag => setting is CaptureTheFlagMatchSetting ctfSetting
+                    ? new CaptureTheFlagMatchRule(ctfSetting.WinConditionPoint)
+                    : new CaptureTheFlagMatchRule(),
+                _ => throw new NotSupportedException($"Unsupported game mode: {setting.Mode}")
+            };
         }
     }
 }
