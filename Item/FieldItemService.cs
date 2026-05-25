@@ -29,6 +29,8 @@ namespace OpenGSCore
 
         public ESpawnState CurrentState => currentState;
         public float Timer => timer;
+        public bool IsActive => currentState == ESpawnState.Active;
+        public bool IsWaiting => currentState == ESpawnState.Waiting;
 
         public FieldItemService()
         {
@@ -43,6 +45,12 @@ namespace OpenGSCore
             int randomIndex = _random.Next(itemListA.Count);
             lastSpawnedItemA = itemListA[randomIndex];
             
+            timer = SPAWN_INTERVAL;
+            currentState = ESpawnState.Waiting;
+        }
+
+        public void Reset()
+        {
             timer = SPAWN_INTERVAL;
             currentState = ESpawnState.Waiting;
         }
@@ -90,6 +98,12 @@ namespace OpenGSCore
         /// プレイヤーが取得した際に呼び出す
         /// </summary>
         public void OnItemPickedUp()
+        {
+            currentState = ESpawnState.Waiting;
+            timer = SPAWN_INTERVAL;
+        }
+
+        public void OnItemExpired()
         {
             currentState = ESpawnState.Waiting;
             timer = SPAWN_INTERVAL;

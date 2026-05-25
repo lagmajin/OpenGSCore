@@ -1,4 +1,5 @@
-﻿using System;
+#nullable enable
+using System;
 using MessagePack;
 using MemoryPack;
 
@@ -33,3 +34,4 @@ namespace OpenGSCore
         public string? Reason { get; set; }
     }
 }
+

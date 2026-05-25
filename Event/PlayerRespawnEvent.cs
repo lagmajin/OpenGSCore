@@ -1,4 +1,5 @@
-﻿using System;
+#nullable enable
+using System;
 using System.Numerics;
 using MessagePack;
 using MemoryPack;
@@ -35,3 +36,4 @@ namespace OpenGSCore
         public DeadReason Reason { get; set; } = DeadReason.Unknown;
     }
 }
+

@@ -72,6 +72,7 @@ namespace OpenGSCore
             }
 
 
+            Console.WriteLine($"[PlayerDatabase] Player not found: {id}");
             return null;
         }
 

@@ -1,3 +1,4 @@
+#nullable enable
 namespace OpenGSCore
 {
     public class TeamSuvMatchFinalScore
@@ -24,3 +25,4 @@ namespace OpenGSCore
         }
     }
 }
+

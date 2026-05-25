@@ -123,6 +123,39 @@ namespace OpenGSCore
             }
         }
 
+        public bool ContainsPlayer(string id)
+        {
+            lock (lockObject)
+            {
+                if (string.IsNullOrWhiteSpace(id) || Players == null)
+                {
+                    return false;
+                }
+
+                return Players.ContainsKey(id);
+            }
+        }
+
+        public bool TryRemovePlayer(string id, out PlayerInfo? removed)
+        {
+            lock (lockObject)
+            {
+                removed = null;
+                if (string.IsNullOrWhiteSpace(id) || Players == null)
+                {
+                    return false;
+                }
+
+                if (!Players.TryGetValue(id, out removed))
+                {
+                    return false;
+                }
+
+                Players.Remove(id);
+                return true;
+            }
+        }
+
         public void AddPlayer(in string id, in string displayName)
         {
             lock (lockObject)
@@ -158,7 +191,7 @@ namespace OpenGSCore
             AddBotPlayer(null);
         }
 
-        public PlayerInfo AddBotPlayer(string? displayName = null)
+        public PlayerInfo? AddBotPlayer(string? displayName = null)
         {
             lock (lockObject)
             {
@@ -201,6 +234,14 @@ namespace OpenGSCore
 
             }
 
+        }
+
+        public void ClearHistory()
+        {
+            lock (lockObject)
+            {
+                OldPlayers.Clear();
+            }
         }
 
         public void RemoveAllBotPlayer()

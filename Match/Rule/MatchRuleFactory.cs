@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 
 namespace OpenGSCore
@@ -39,3 +40,4 @@ namespace OpenGSCore
         }
     }
 }
+

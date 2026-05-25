@@ -25,34 +25,41 @@ namespace OpenGSCore
     
         public static void calcScore(AbstractPlayerMatchFinalScore finalScore)
         {
+            if (finalScore == null)
+            {
+                return;
+            }
 
             switch (finalScore.Mode)
             {
                 case EGameMode.DeathMatch:
                     if (finalScore is PlayerDeathMatchFinalScore deathMatchScore)
                     {
-
-
-                        
-
-                    }
-
-                        break;
-
-                case EGameMode.TeamDeathMatch:
-
-                    if (finalScore is PlayerTeamDeathMatchFinalScore teamDeathMatchScore)
-                    {
-
-
+                        deathMatchScore.CalcTotalPoint();
                     }
 
                     break;
 
+                case EGameMode.TeamDeathMatch:
+                    if (finalScore is PlayerTeamDeathMatchFinalScore teamDeathMatchScore)
+                    {
+                        teamDeathMatchScore.CalcTotalPoint();
+                    }
+
+                    break;
+
+                case EGameMode.CaptureTheFlag:
+                    if (finalScore is PlayerCTFMatchFinalScore ctfMatchScore)
+                    {
+                        ctfMatchScore.CalcTotalPoint();
+                    }
+
+                    break;
+
+                default:
+                    finalScore.CalcTotalPoint();
+                    break;
             }
-
-
-            //return null;
         }
 
 

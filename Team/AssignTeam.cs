@@ -22,6 +22,7 @@ namespace OpenGSCore
         {
             if (idList.Count == 0)
             {
+                Console.WriteLine("[AssignTeam] Cannot assign teams from an empty id list.");
                 return null;
             }
 

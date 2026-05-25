@@ -1,4 +1,5 @@
-﻿using OpenGSCore;
+#nullable enable
+using OpenGSCore;
 using OpenGSCore.Score;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,10 @@ namespace OpenGSCore.Score
     public class AbstractAllPlayerMatchFinalScore
     {
         public List<AbstractPlayerMatchFinalScore> AllPlayerFinalScore() { return new List<AbstractPlayerMatchFinalScore>(); }
+
+        public virtual void Clear()
+        {
+        }
     }
 
     // 重複を吸収するジェネリック中間基底。元の基底メソッドを隠す（new）ことで
@@ -23,9 +28,47 @@ namespace OpenGSCore.Score
     {
         public List<T> scores = new();
 
+        public int Count => scores.Count;
+
+        public void AddScore(T score)
+        {
+            if (score == null)
+            {
+                return;
+            }
+
+            scores.Add(score);
+        }
+
+        public bool TryAddScore(T score)
+        {
+            if (score == null)
+            {
+                return false;
+            }
+
+            scores.Add(score);
+            return true;
+        }
+
+        public T? FindByPlayerId(string playerId)
+        {
+            if (string.IsNullOrWhiteSpace(playerId))
+            {
+                return default;
+            }
+
+            return scores.FirstOrDefault(score => score != null && score.PlayerId == playerId);
+        }
+
         public new List<AbstractPlayerMatchFinalScore> AllPlayerFinalScore()
         {
             return scores.Cast<AbstractPlayerMatchFinalScore>().ToList();
+        }
+
+        public override void Clear()
+        {
+            scores.Clear();
         }
     }
 
@@ -43,3 +86,4 @@ namespace OpenGSCore.Score
     }
 
 }
+

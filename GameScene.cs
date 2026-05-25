@@ -1,4 +1,5 @@
-﻿using System;
+#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -49,7 +50,11 @@ namespace OpenGSCore
 
         public AbstractGameObject? FindObject(string objectId)
         {
-            if (string.IsNullOrWhiteSpace(objectId)) return null;
+            if (string.IsNullOrWhiteSpace(objectId))
+            {
+                Console.WriteLine("[GameScene] FindObject called with empty objectId.");
+                return null;
+            }
             lock (_syncRoot)
             {
                 return _objectIndex.TryGetValue(objectId, out var obj) ? obj : null;
@@ -121,6 +126,7 @@ namespace OpenGSCore
                 return current;
             }
 
+            Console.WriteLine("[GameScene] No snapshot delta available.");
             return null;
         }
 
@@ -176,3 +182,4 @@ namespace OpenGSCore
         }
     }
 }
+

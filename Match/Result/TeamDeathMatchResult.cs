@@ -1,3 +1,4 @@
+#nullable enable
 namespace OpenGSCore
 {
     public class TeamDeathMatchResult : AbstractMatchResult
@@ -20,3 +21,4 @@ namespace OpenGSCore
         }
     }
 }
+

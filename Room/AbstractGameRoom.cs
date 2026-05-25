@@ -1,4 +1,5 @@
-﻿using System;
+#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -15,6 +16,7 @@ namespace OpenGSCore
         private List<PlayerInfo> players = new List<PlayerInfo>();
 
         private bool isFinished = false;
+        private AbstractMatchResult? gameResult = null;
 
         private string? ownerID_ = null;
         public string? OwnerId { get => ownerID_; set => ownerID_ = value; }
@@ -26,10 +28,14 @@ namespace OpenGSCore
         public string Id { get => id; set => id = value; }
         public AbstractGameRoom(int roomNumber, in string roomOwnerID)
         {
+            roomNumber_ = roomNumber;
             if (string.IsNullOrEmpty(roomOwnerID))
             {
-
-                return;
+                ownerID_ = null;
+            }
+            else
+            {
+                ownerID_ = roomOwnerID;
             }
 
             id = Guid.NewGuid().ToString("N");
@@ -45,8 +51,23 @@ namespace OpenGSCore
 
         public virtual AbstractMatchResult GameResult()
         {
+            return gameResult;
+        }
 
-            return null;
+        public void SetGameResult(AbstractMatchResult result)
+        {
+            gameResult = result;
+        }
+
+        public bool IsFinished()
+        {
+            return isFinished;
+        }
+
+        public void SetFinished(bool finished)
+        {
+            isFinished = finished;
         }
     }
 }
+

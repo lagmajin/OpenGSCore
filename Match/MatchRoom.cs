@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -141,8 +142,41 @@ namespace OpenGSCore
             }
         }
 
+        public bool TryGetPlayer(string playerId, out PlayerInfo? player)
+        {
+            lock (playerSyncLock)
+            {
+                player = null;
+                if (string.IsNullOrWhiteSpace(playerId))
+                {
+                    return false;
+                }
+
+                player = Players.FirstOrDefault(p => p.Id == playerId);
+                return player != null;
+            }
+        }
+
+        public bool ContainsPlayer(string playerId)
+        {
+            lock (playerSyncLock)
+            {
+                if (string.IsNullOrWhiteSpace(playerId))
+                {
+                    return false;
+                }
+
+                return Players.Any(p => p.Id == playerId);
+            }
+        }
+
         public void AddNewPlayers(List<PlayerInfo> list)
         {
+            if (list == null || list.Count == 0)
+            {
+                return;
+            }
+
             foreach (var info in list)
             {
                 AddNewPlayer(info);
@@ -312,3 +346,4 @@ namespace OpenGSCore
         }
     }
 }
+

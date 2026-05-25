@@ -1,4 +1,5 @@
-﻿using System;
+#nullable enable
+using System;
 using System.Numerics;
 using MessagePack;
 using MemoryPack;
@@ -43,3 +44,4 @@ namespace OpenGSCore
         public int? RemainingHealth { get; set; }
     }
 }
+

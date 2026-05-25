@@ -22,7 +22,7 @@ namespace OpenGSCore
             type_ = type;
         }
 
-        public string ToString()
+        public override string ToString()
         {
             string result=new string("");
 
