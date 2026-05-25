@@ -17,6 +17,16 @@ namespace OpenGSCore
         public bool NowPlaying { get; private set; } = false;
         public int Capacity { get; set; } = 0;
         public EGameMode GameMode { get; private set; } = EGameMode.Unknown;
+        public int PlayerCount
+        {
+            get
+            {
+                lock (lockObject)
+                {
+                    return Players?.Count ?? 0;
+                }
+            }
+        }
 
         
         public List<PlayerInfo> OldPlayers { get; set; }

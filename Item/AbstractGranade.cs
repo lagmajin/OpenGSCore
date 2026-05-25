@@ -97,6 +97,11 @@ namespace OpenGSCore
                    type_ == type.type_;
         }
 
+        public override int GetHashCode()
+        {
+            return type_.GetHashCode();
+        }
+
         public static bool operator==(GranadeType a, GranadeType b)
         {
             if (a is null || b is null) return false;

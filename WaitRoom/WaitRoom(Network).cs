@@ -49,7 +49,7 @@ namespace OpenGSCore
                     Capacity = Capacity,
                     NowPlaying = NowPlaying,
                     GameMode = GameMode.ToString(),
-                    TeamBalance = setting?.TeamBalance ?? false,
+                    TeamBalance = setting is AbstractTeamMatchSetting teamSetting && teamSetting.TeamBalance,
                     OwnerId = ""
                 };
 

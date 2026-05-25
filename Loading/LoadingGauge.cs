@@ -51,9 +51,9 @@ namespace OpenGSCore
             
         }
 
-        public string ToString()
+        public override string ToString()
         {
-            return "Percent";
+            return $"{Gauge:0.##}%";
         }
 
         public static implicit  operator float (LoadingGauge gauge)
