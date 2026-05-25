@@ -27,6 +27,10 @@ namespace OpenGSCore
 
         public float BoosterPowerGround { get; set; } = 3.0f;
         public float BoosterPower { get; set; } = 1.0f;
+        public int AttackPower { get; set; } = 10;
+        public int DefensePower { get; set; } = 5;
+        public int GrenadeCount { get; set; } = 3;
+        public int MaxGrenadeCount { get; set; } = 3;
 
         public PlayerStatus()
         {
@@ -51,7 +55,60 @@ namespace OpenGSCore
 
         }
 
-        //public PlayerStatus()
+        public void AddHp(float amount)
+        {
+            if (amount <= 0) return;
+            Hp = Math.Min(MaxHp, Hp + amount);
+        }
+
+        public void Damage(float amount)
+        {
+            if (amount <= 0) return;
+            Hp = Math.Max(0, Hp - amount);
+        }
+
+        public void AddBooster(float amount)
+        {
+            if (amount <= 0) return;
+            Booster = Math.Min(MaxBooster, Booster + amount);
+        }
+
+        public void UseBooster(float amount)
+        {
+            if (amount <= 0) return;
+            Booster = Math.Max(0, Booster - amount);
+        }
+
+        public void RefillBooster()
+        {
+            Booster = MaxBooster;
+        }
+
+        public void AddAttackPower(int amount)
+        {
+            AttackPower = Math.Max(0, AttackPower + amount);
+        }
+
+        public void AddDefensePower(int amount)
+        {
+            DefensePower = Math.Max(0, DefensePower + amount);
+        }
+
+        public void RefillGrenade()
+        {
+            GrenadeCount = MaxGrenadeCount;
+        }
+
+        public bool UseGrenade()
+        {
+            if (GrenadeCount <= 0)
+            {
+                return false;
+            }
+
+            GrenadeCount--;
+            return true;
+        }
 
 
     }
