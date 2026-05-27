@@ -60,7 +60,7 @@ namespace OpenGSCore
     {
         public override void ApplyItemEffect(PlayerStatus status)
         {
-            status?.RefillGrenade();
+            status?.RefillGrenade(EGrenadeType.Normal);
         }
 
         public override void UnApplyItemEffect(PlayerStatus status)

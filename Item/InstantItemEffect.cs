@@ -24,7 +24,7 @@ namespace OpenGSCore.Item
     {
         protected override void Apply(PlayerStatus status)
         {
-            status?.RefillGrenade();
+            status?.RefillGrenade(EGrenadeType.Normal);
         }
 
         protected override void UnApply(PlayerStatus status)

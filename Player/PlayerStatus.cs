@@ -15,7 +15,14 @@ namespace OpenGSCore
 
     public sealed class PlayerStatus
     {
+        private const int DefaultMaxGrenade = 3;
         private readonly object lockObject = new();
+        private readonly EGrenadeType[] grenadeSlots = new EGrenadeType[DefaultMaxGrenade]
+        {
+            EGrenadeType.Empty,
+            EGrenadeType.Empty,
+            EGrenadeType.Empty
+        };
 
         private ETeam Team { get; set; }=ETeam.NoTeam;
 
@@ -29,8 +36,25 @@ namespace OpenGSCore
         public float BoosterPower { get; set; } = 1.0f;
         public int AttackPower { get; set; } = 10;
         public int DefensePower { get; set; } = 5;
-        public int GrenadeCount { get; set; } = 3;
-        public int MaxGrenadeCount { get; set; } = 3;
+        public int GrenadeCount
+        {
+            get
+            {
+                var count = 0;
+                for (var index = 0; index < grenadeSlots.Length; index++)
+                {
+                    if (grenadeSlots[index] != EGrenadeType.Empty)
+                    {
+                        count++;
+                    }
+                }
+
+                return count;
+            }
+            set => SetGrenadeCount(value);
+        }
+
+        public int MaxGrenadeCount { get; set; } = DefaultMaxGrenade;
 
         public PlayerStatus()
         {
@@ -94,22 +118,140 @@ namespace OpenGSCore
             DefensePower = Math.Max(0, DefensePower + amount);
         }
 
+        public IReadOnlyList<EGrenadeType> GrenadeSlots => grenadeSlots;
+
         public void RefillGrenade()
         {
-            GrenadeCount = MaxGrenadeCount;
+            RefillGrenade(EGrenadeType.Normal, MaxGrenadeCount);
+        }
+
+        public int RefillGrenade(EGrenadeType type, int amount = DefaultMaxGrenade)
+        {
+            if (amount <= 0)
+            {
+                return 0;
+            }
+
+            if (type == EGrenadeType.Empty)
+            {
+                type = EGrenadeType.Normal;
+            }
+
+            var filled = 0;
+            for (var index = 0; index < grenadeSlots.Length && filled < amount; index++)
+            {
+                if (grenadeSlots[index] != EGrenadeType.Empty)
+                {
+                    continue;
+                }
+
+                grenadeSlots[index] = type;
+                filled++;
+            }
+
+            return filled;
         }
 
         public bool UseGrenade()
         {
-            if (GrenadeCount <= 0)
-            {
-                return false;
-            }
-
-            GrenadeCount--;
-            return true;
+            return UseGrenade(out _);
         }
 
+        public bool UseGrenade(out EGrenadeType usedType)
+        {
+            for (var index = 0; index < grenadeSlots.Length; index++)
+            {
+                if (grenadeSlots[index] == EGrenadeType.Empty)
+                {
+                    continue;
+                }
+
+                usedType = grenadeSlots[index];
+                grenadeSlots[index] = EGrenadeType.Empty;
+                return true;
+            }
+
+            usedType = EGrenadeType.Empty;
+            return false;
+        }
+
+        public bool UseGrenade(EGrenadeType type)
+        {
+            return UseGrenade(type, out _);
+        }
+
+        public bool UseGrenade(EGrenadeType type, out int slotIndex)
+        {
+            slotIndex = -1;
+
+            if (type == EGrenadeType.Empty)
+            {
+                return UseGrenade(out _);
+            }
+
+            for (var index = 0; index < grenadeSlots.Length; index++)
+            {
+                if (grenadeSlots[index] != type)
+                {
+                    continue;
+                }
+
+                grenadeSlots[index] = EGrenadeType.Empty;
+                slotIndex = index;
+                return true;
+            }
+
+            return false;
+        }
+
+        public EGrenadeType GetGrenadeSlot(int index)
+        {
+            if (index < 0 || index >= grenadeSlots.Length)
+            {
+                return EGrenadeType.Empty;
+            }
+
+            return grenadeSlots[index];
+        }
+
+        public int FillGrenade(EGrenadeType type = EGrenadeType.Normal)
+        {
+            return RefillGrenade(type, MaxGrenadeCount);
+        }
+
+        public void FillNormalGrenade()
+        {
+            RefillGrenade(EGrenadeType.Normal, MaxGrenadeCount);
+        }
+
+        private void SetGrenadeCount(int value)
+        {
+            value = Math.Max(0, Math.Min(value, MaxGrenadeCount));
+            var current = GrenadeCount;
+
+            if (value == current)
+            {
+                return;
+            }
+
+            if (value > current)
+            {
+                RefillGrenade(EGrenadeType.Normal, value - current);
+                return;
+            }
+
+            var toRemove = current - value;
+            for (var index = grenadeSlots.Length - 1; index >= 0 && toRemove > 0; index--)
+            {
+                if (grenadeSlots[index] == EGrenadeType.Empty)
+                {
+                    continue;
+                }
+
+                grenadeSlots[index] = EGrenadeType.Empty;
+                toRemove--;
+            }
+        }
 
     }
 
