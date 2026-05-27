@@ -1,5 +1,6 @@
 #nullable enable
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 
 namespace OpenGSCore
@@ -76,10 +77,12 @@ namespace OpenGSCore
             var result = new JObject();
             result["Id"] = Id;
             result["PlayerId"] = Id;
+            result["PlayerID"] = Id;
             result["Name"] = Name;
             result["PlayerName"] = Name;
             result["DisplayName"] = Name;
             if (CurrentIp != null) result["CurrentIP"] = CurrentIp;
+            if (CurrentIp != null) result["CurrentIp"] = CurrentIp;
             result["Ping"] = Ping;
             result["IsBot"] = IsBot;
             result["Level"] = Level;
@@ -106,6 +109,56 @@ namespace OpenGSCore
             result["TotalScore"] = Kills * 100;
             result["Points"] = Kills * 100;
             return result;
+        }
+
+        public static PlayerInfo FromJson(JObject json)
+        {
+            if (json == null)
+            {
+                return new PlayerInfo();
+            }
+
+            var player = new PlayerInfo(
+                id: json.GetStringAny("Id", "PlayerId", "PlayerID", "PlayerLocalId") ?? string.Empty,
+                name: json.GetStringAny("Name", "PlayerName", "DisplayName") ?? string.Empty,
+                currentIp: json.GetStringAny("CurrentIP", "CurrentIp"))
+            {
+                Ping = json.GetIntAny("Ping") ?? 0,
+                IsBot = json.GetBoolAny("IsBot") ?? false,
+                Level = json.GetIntAny("Level") ?? 1,
+                Exp = json["Exp"]?.ToObject<long>() ?? 0,
+                Health = json.GetIntAny("Health") ?? 100,
+                MaxHealth = json.GetIntAny("MaxHealth") ?? json.GetIntAny("Health") ?? 100,
+                AttackPower = json.GetIntAny("AttackPower") ?? 10,
+                DefensePower = json.GetIntAny("DefensePower") ?? 5,
+                IsReady = json.GetBoolAny("IsReady") ?? false,
+                Kills = json.GetIntAny("Kills", "KillCount") ?? 0,
+                Deaths = json.GetIntAny("Deaths", "DeathCount") ?? 0
+            };
+
+            if (Enum.TryParse(json.GetStringAny("PlayerCharacter"), true, out EPlayerCharacter playerCharacter))
+            {
+                player.playerCharacter = playerCharacter;
+            }
+
+            if (Enum.TryParse(json.GetStringAny("Team", "TeamName"), true, out ETeam team))
+            {
+                player.Team = team;
+            }
+
+            if (json["EquipInstantItems"] is JArray equipInstantItems)
+            {
+                player.EquipInstantItems.Clear();
+                foreach (var token in equipInstantItems)
+                {
+                    if (Enum.TryParse(token?.ToString(), true, out EInstantItemType itemType))
+                    {
+                        player.EquipInstantItems.Add(itemType);
+                    }
+                }
+            }
+
+            return player;
         }
     }
 }
