@@ -16,6 +16,7 @@ namespace OpenGSCore
         Cluster,
         ClusterChild,
         Fire,
+        Smoke,
     }
 
 
