@@ -1,7 +1,5 @@
 ﻿
-
-
-
+#nullable enable
 using System;
 using System.Collections.Generic;
 
@@ -61,20 +59,73 @@ namespace OpenGSCore
 
         }
 
-        public PlayerData Player(string id)
+        public PlayerData? Player(string id)
         {
+            return TryGetPlayer(id, out var player) ? player : null;
+        }
+
+        public bool TryGetPlayer(string id, out PlayerData? player)
+        {
+            player = null;
+
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return false;
+            }
+
             foreach (PlayerData temp in data)
             {
                 if(id==temp.info.Id)
                 {
-                    return temp;
+                    player = temp;
+                    return true;
                 }
 
             }
 
 
             Console.WriteLine($"[PlayerDatabase] Player not found: {id}");
-            return null;
+            return false;
+        }
+
+        public bool AddPlayer(PlayerData player)
+        {
+            if (player == null || player.info == null || string.IsNullOrWhiteSpace(player.info.Id))
+            {
+                return false;
+            }
+
+            for (var index = 0; index < data.Count; index++)
+            {
+                if (string.Equals(data[index].info.Id, player.info.Id, StringComparison.OrdinalIgnoreCase))
+                {
+                    data[index] = player;
+                    if (!allIDCache.Contains(player.info.Id))
+                    {
+                        allIDCache.Add(player.info.Id);
+                    }
+                    return true;
+                }
+            }
+
+            data.Add(player);
+            if (!allIDCache.Contains(player.info.Id))
+            {
+                allIDCache.Add(player.info.Id);
+            }
+            return true;
+        }
+
+        public bool RemovePlayer(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return false;
+            }
+
+            var removed = data.RemoveAll(entry => string.Equals(entry.info?.Id, id, StringComparison.OrdinalIgnoreCase)) > 0;
+            allIDCache.RemoveAll(existing => string.Equals(existing, id, StringComparison.OrdinalIgnoreCase));
+            return removed;
         }
 
         public List<string> AllID()
@@ -91,6 +142,7 @@ namespace OpenGSCore
         public void RemoveAll()
         {
             data.Clear ();
+            allIDCache.Clear();
 
         }
     }
