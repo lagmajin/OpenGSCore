@@ -17,6 +17,8 @@ namespace OpenGSCore
         public bool NowPlaying { get; private set; } = false;
         public int Capacity { get; set; } = 0;
         public EGameMode GameMode { get; private set; } = EGameMode.Unknown;
+        public EMap Map { get; set; } = EMap.Unknown;
+        public string Password { get; set; } = string.Empty;
         public int PlayerCount
         {
             get
@@ -382,6 +384,8 @@ namespace OpenGSCore
                 result["NowPlaying"] = NowPlaying;
                 result["Capacity"] = Capacity;
                 result["GameMode"] = GameMode.ToString();
+                result["Map"] = Map.ToString();
+                result["HasPassword"] = !string.IsNullOrWhiteSpace(Password);
 
                 if (setting != null)
                 {

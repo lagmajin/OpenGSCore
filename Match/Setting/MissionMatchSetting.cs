@@ -11,8 +11,8 @@ namespace OpenGSCore
         public int ObjectiveCount { get; set; } = 1;
         public bool AllowRespawn { get; set; } = false;
 
-        public MissionMatchSetting(int maxPlayerCapacity = 4, string missionType = "Default")
-            : base(EGameMode.Unknown, maxPlayerCapacity, false)
+        public MissionMatchSetting(int maxPlayerCapacity = 4, string missionType = "Default", EGameMode mode = EGameMode.Survival)
+            : base(mode, maxPlayerCapacity, false)
         {
             MissionType = missionType;
             AllowRespawn = false;

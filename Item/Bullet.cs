@@ -21,12 +21,18 @@ namespace OpenGSCore
 
     public class BulletGameObject :AbstractBullet
     {
-
-
-
         public BulletGameObject(float x, float y, float damage)
         {
-
+            Name = "Bullet";
+            Posx = x;
+            Posy = y;
+            PosX = x;
+            PosY = y;
+            Damage = damage;
+            Angle = 0f;
+            Speed = 0f;
+            StoppingPower = 0f;
+            ObjectType = eGameObjectType.Bullet;
         }
 
     }

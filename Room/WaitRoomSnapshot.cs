@@ -15,6 +15,7 @@ namespace OpenGSCore
         public int Capacity { get; set; } = 8;
         public bool NowPlaying { get; set; }
         public string GameMode { get; set; } = EGameMode.DeathMatch.ToString();
+        public string Map { get; set; } = EMap.Unknown.ToString();
         public bool TeamBalance { get; set; }
         public string OwnerId { get; set; } = string.Empty;
         public List<PlayerInfo> Players { get; set; } = new();
@@ -28,6 +29,7 @@ namespace OpenGSCore
                 ["Capacity"] = Capacity,
                 ["NowPlaying"] = NowPlaying,
                 ["GameMode"] = GameMode,
+                ["Map"] = Map,
                 ["TeamBalance"] = TeamBalance,
                 ["OwnerId"] = OwnerId
             };
@@ -54,6 +56,7 @@ namespace OpenGSCore
                 Capacity = json["Capacity"]?.ToObject<int>() ?? 8,
                 NowPlaying = json["NowPlaying"]?.ToObject<bool>() ?? false,
                 GameMode = json["GameMode"]?.ToString() ?? EGameMode.DeathMatch.ToString(),
+                Map = json["Map"]?.ToString() ?? EMap.Unknown.ToString(),
                 TeamBalance = json["TeamBalance"]?.ToObject<bool>() ?? false,
                 OwnerId = json["OwnerId"]?.ToString() ?? json["OwnerID"]?.ToString() ?? string.Empty
             };

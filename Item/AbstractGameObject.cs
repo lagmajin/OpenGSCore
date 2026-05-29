@@ -1,12 +1,11 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace OpenGSCore
 {
     public enum eGameObjectType
     {
+        Bullet,
         Grenade,
         Character,
         FieldItem,
@@ -32,23 +31,23 @@ namespace OpenGSCore
         protected DateTime lastSyncTime = DateTime.Now;
 
         public string Name { get => name; set => name = value; }
-        public float Posx 
-        { 
-            get => posx; 
-            set 
-            { 
+        public float Posx
+        {
+            get => posx;
+            set
+            {
                 if (posx != value) updated = true;
-                posx = value; 
-            } 
+                posx = value;
+            }
         }
-        public float Posy 
-        { 
-            get => posy; 
-            set 
-            { 
+        public float Posy
+        {
+            get => posy;
+            set
+            {
                 if (posy != value) updated = true;
-                posy = value; 
-            } 
+                posy = value;
+            }
         }
         public string Id { get => id; set => id = value; }
         public bool Updated { get => updated; }
@@ -98,9 +97,9 @@ namespace OpenGSCore
         /// <summary>
         /// オブジェクトの状態をJSON形式で取得します。
         /// </summary>
-        public virtual Newtonsoft.Json.Linq.JObject ToJSon()
+        public virtual JObject ToJSon()
         {
-            var json = new Newtonsoft.Json.Linq.JObject();
+            var json = new JObject();
             json["id"] = Id;
             json["name"] = Name;
             json["posx"] = Posx;
@@ -120,25 +119,25 @@ namespace OpenGSCore
         private PlayerStatus status;
         private string playerId = "";
 
-        public PlayerStatus Status 
-        { 
-            get => status; 
-            set => status = value; 
+        public PlayerStatus Status
+        {
+            get => status;
+            set => status = value;
         }
 
-        public string PlayerId 
-        { 
-            get => playerId; 
-            set => playerId = value; 
+        public string PlayerId
+        {
+            get => playerId;
+            set => playerId = value;
         }
 
-        public PlayerGameObject() 
+        public PlayerGameObject()
         {
             ObjectType = eGameObjectType.Character;
             status = new PlayerStatus();
         }
 
-        public PlayerGameObject(string playerId, string name, float x, float y) 
+        public PlayerGameObject(string playerId, string name, float x, float y)
         {
             PlayerId = playerId;
             Name = name;
@@ -239,10 +238,5 @@ namespace OpenGSCore
             return json;
         }
     }
-
-
-
-
-
 
 }

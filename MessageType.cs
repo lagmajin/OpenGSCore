@@ -118,6 +118,26 @@ namespace OpenGSCore
         public const string FriendApproveResponse = "FriendApproveResponse";
         public const string FriendListRequest = "FriendListRequest";
         public const string FriendListResponse = "FriendListResponse";
+
+        // ギルド関連 (TCP)
+        public const string GuildListRequest = "GuildListRequest";
+        public const string GuildListResponse = "GuildListResponse";
+        public const string GuildInfoRequest = "GuildInfoRequest";
+        public const string GuildInfoResponse = "GuildInfoResponse";
+        public const string GuildCreateRequest = "GuildCreateRequest";
+        public const string GuildCreateResponse = "GuildCreateResponse";
+        public const string GuildJoinRequest = "GuildJoinRequest";
+        public const string GuildJoinResponse = "GuildJoinResponse";
+        public const string GuildLeaveRequest = "GuildLeaveRequest";
+        public const string GuildLeaveResponse = "GuildLeaveResponse";
+        public const string GuildInviteRequest = "GuildInviteRequest";
+        public const string GuildInviteResponse = "GuildInviteResponse";
+        public const string GuildInviteNotification = "GuildInviteNotification";
+        public const string GuildKickRequest = "GuildKickRequest";
+        public const string GuildKickResponse = "GuildKickResponse";
+        public const string GuildKickNotification = "GuildKickNotification";
+        public const string GuildChatRequest = "GuildChatRequest";
+        public const string GuildChatNotification = "GuildChatNotification";
         
         // 旧互換用 (移行期間)
         public const string Notification = "Notification";

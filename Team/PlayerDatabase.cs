@@ -31,7 +31,8 @@ namespace OpenGSCore
         public PlayerStatus status;
         public PlayerData(PlayerInfo info,PlayerStatus status)
         {
-
+            this.info = info ?? new PlayerInfo();
+            this.status = status ?? new PlayerStatus();
         }
 
     }

@@ -50,6 +50,7 @@ namespace OpenGSCore
                     Capacity = Capacity,
                     NowPlaying = NowPlaying,
                     GameMode = GameMode.ToString(),
+                    Map = Map.ToString(),
                     TeamBalance = setting is AbstractTeamMatchSetting teamSetting && teamSetting.TeamBalance,
                     OwnerId = ""
                 };
@@ -80,6 +81,7 @@ namespace OpenGSCore
                 Capacity = snapshot.Capacity;
                 NowPlaying = snapshot.NowPlaying;
                 GameMode = Enum.TryParse(snapshot.GameMode, true, out EGameMode mode) ? mode : EGameMode.Unknown;
+                Map = Enum.TryParse(snapshot.Map, true, out EMap map) ? map : EMap.Unknown;
                 Players.Clear();
 
                 foreach (var player in snapshot.Players)
