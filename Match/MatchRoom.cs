@@ -24,9 +24,9 @@ namespace OpenGSCore
 
         AbstractMatchRule? rule;
 
-        public AbstractMatchSetting Setting { get; set; }
+        public AbstractMatchSetting Setting { get; set; } = null!;
 
-        private AbstractMatchSituation Situation { get; set; } = null;
+        private AbstractMatchSituation? Situation { get; set; } = null;
         private readonly object playerSyncLock = new();
 
         public GameScene GameScene { get; set; } = new();
@@ -58,7 +58,7 @@ namespace OpenGSCore
 
         private Stopwatch sw = new();
 
-        private HighPrecisionGameTimer timer;
+        private HighPrecisionGameTimer? timer;
 
         private FieldItemService itemServiceA = new FieldItemService();
         private AbstractMatchSituation situation;
@@ -220,7 +220,7 @@ namespace OpenGSCore
                     var posX = input.Value<float>("PosX");
                     var posY = input.Value<float>("PosY");
                     // GameSceneの状態を更新
-                    GameScene.UpdatePlayerPosition(playerId, posX, posY);
+                    GameScene.UpdatePlayerPosition(playerId!, posX, posY);
                     break;
 
                 case "PlayerAction":

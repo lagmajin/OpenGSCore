@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+#nullable enable
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -38,9 +39,9 @@ namespace OpenGSCore
         private readonly  Object lockObject = new Object();
 
 
-        public AbstractMatchRule MatchRule { get; set; } = null;
+        public AbstractMatchRule? MatchRule { get; set; } = null;
 
-        public AbstractMatchSetting setting = null;
+        public AbstractMatchSetting? setting = null;
         public WaitRoom(in string roomName, int capacity = 8)
         {
             RoomName = roomName;

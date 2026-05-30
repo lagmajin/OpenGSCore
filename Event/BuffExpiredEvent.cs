@@ -16,7 +16,7 @@ namespace OpenGSCore
 
         [Key(1)]
         // バフの識別子
-        public string BuffId { get; set; }
+        public string BuffId { get; set; } = string.Empty;
 
         [Key(2)]
         // 期限切れ時刻（サーバ時刻）

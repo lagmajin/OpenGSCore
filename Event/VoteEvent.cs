@@ -11,13 +11,13 @@ namespace OpenGSCore
     public partial class VoteEvent
     {
         [Key(0)]
-        public string VoteId { get; set; }
+        public string VoteId { get; set; } = string.Empty;
 
         [Key(1)]
-        public string InitiatorPlayerId { get; set; }
+        public string InitiatorPlayerId { get; set; } = string.Empty;
 
         [Key(2)]
-        public string VoteType { get; set; }
+        public string VoteType { get; set; } = string.Empty;
 
         [Key(3)]
         // 追加オプション（対象プレイヤーIDやマップ名など）

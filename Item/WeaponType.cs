@@ -40,9 +40,6 @@ namespace OpenGSCore
 
     public class WeaponType
     {
-        private string name = "";
-
-
         public WeaponType()
         {
 

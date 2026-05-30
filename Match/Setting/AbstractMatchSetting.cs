@@ -27,9 +27,7 @@ namespace OpenGSCore
         public bool AllowOvertime { get; set; } = false;
 
 
-        private bool isLocked = false;
-
-        public void LockSettings() => isLocked = true;
+        public void LockSettings() { }
 
         public AbstractMatchSetting(EGameMode gamemode, int maxplayerCount, bool teamBalance = true, bool hasTimeLimit_ = false)
         {

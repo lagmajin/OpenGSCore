@@ -1,4 +1,5 @@
-﻿using System;
+#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -26,7 +27,7 @@ namespace OpenGSCore
                 return null;
             }
 
-            // シャッフル用のコピーを作成
+            // シャッフル用のコピーを作る
             var shuffled = new List<string>(idList);
             var random = new Random();
 

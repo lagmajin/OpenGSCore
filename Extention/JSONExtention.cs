@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+#nullable enable
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace OpenGSCore
 
         public static string? GetStringOrNull(this JObject obj, string key)
         {
-            return obj.TryGetValue(key, out JToken token) ? token.ToString() : null;
+            return obj.TryGetValue(key, out JToken? token) && token != null ? token.ToString() : null;
         }
 
         public static string? GetStringAny(this JObject obj, params string[] keys)
@@ -36,7 +37,7 @@ namespace OpenGSCore
                     continue;
                 }
 
-                if (obj.TryGetValue(key, out JToken token) && token != null)
+                if (obj.TryGetValue(key, out JToken? token) && token != null)
                 {
                     var value = token.ToString();
                     if (!string.IsNullOrWhiteSpace(value))
@@ -63,7 +64,7 @@ namespace OpenGSCore
                     continue;
                 }
 
-                if (!obj.TryGetValue(key, out JToken token) || token == null)
+                if (!obj.TryGetValue(key, out JToken? token) || token == null)
                 {
                     continue;
                 }
@@ -94,7 +95,7 @@ namespace OpenGSCore
                     continue;
                 }
 
-                if (!obj.TryGetValue(key, out JToken token) || token == null)
+                if (!obj.TryGetValue(key, out JToken? token) || token == null)
                 {
                     continue;
                 }

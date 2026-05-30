@@ -48,8 +48,6 @@ namespace OpenGSCore
 
     public class MapInfo
     {
-        private int boostLevel = 0;
-
         public EGameMode GameMode { get; set; }
 
         //public eStage Stage { get; set; }
