@@ -36,7 +36,7 @@ namespace OpenGSCore
 
     public class MatchRoomEventBus : AbstractEventBus
     {
-        private MatchRoom room;
+        private MatchRoom? room;
 
         public event Action? OnLoadingStarted;
         public event Action? OnGameStarted;

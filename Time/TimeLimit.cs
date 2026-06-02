@@ -6,10 +6,6 @@ namespace OpenGSCore
 {
     public class TimeLimit
     {
-        private long timeLimit = 0;
-
-        private bool hasLimit = true;
-
         public TimeLimit()
         {
 
@@ -22,7 +18,6 @@ namespace OpenGSCore
 
         public void NoTimeLimit()
         {
-            hasLimit = false;
         }
 
 

@@ -15,6 +15,7 @@ namespace OpenGSCore
         public const string LogoutSuccessful = "LogoutSuccessful";
         public const string Heartbeat = "Heartbeat";
         public const string ErrorNotification = "ErrorNotification";
+        public const string ConnectServerSuccessful = "ConnectServerSuccessful";
 
         // --- ロビー・ルーム管理関連 (TCP) ---
         public const string CreateRoomRequest = "CreateRoomRequest";
@@ -72,6 +73,8 @@ namespace OpenGSCore
         public const string LoadingFailed = "LoadingFailed";
         public const string LoadingMessage = "LoadingMessage";
         public const string AllowEnterMap = "AllowEnterMap";
+        public const string SceneTransitionRequest = "SceneTransitionRequest";
+        public const string SceneTransitionResponse = "SceneTransitionResponse";
         public const string WaitRoomEnter = JoinRoomRequest;
         public const string WaitRoomLeave = LeaveRoomRequest;
         public const string WaitRoomPlayerList = "WaitRoomPlayerList";
@@ -109,6 +112,7 @@ namespace OpenGSCore
         public const string ShopEquipRequest = "ShopEquipRequest";
         public const string ShopEquipResponse = "ShopEquipResponse";
         public const string ShopUnequipRequest = "ShopUnequipRequest";
+        public const string PlayerEquipInfo = "PlayerEquipInfo";
 
         // フレンド関連 (TCP)
         public const string FriendRequest = "FriendRequest";
@@ -162,6 +166,7 @@ namespace OpenGSCore
                 LoginSuccessful => LoginResponse,
                 "LogoutSuccess" => LogoutSuccessful,
                 "SendEnterRoom" => JoinRoomRequest,
+                "EquipRequest" => ShopEquipRequest,
                 "CreateNewWaitRoomRequest" => CreateRoomRequest,
                 "CreateNewWaitRoomResponse" => CreateRoomResponse,
                 "UpdateRoomResponse" => RoomListUpdateNotification,
@@ -174,6 +179,7 @@ namespace OpenGSCore
                 "WaitRoomChatRequest" => WaitRoomChat,
                 "WaitRoomPlayerReadyRequest" => WaitRoomPlayerReady,
                 "WaitRoomPlayerUnreadyRequest" => WaitRoomPlayerUnready,
+                "Welcome" => WelcomeMessage,
                 "LoadingStartedNotification" => LoadingStartedNotification,
                 "LoadingProgressNotification" => LoadingProgressNotification,
                 "LoadingCompletedNotification" => LoadingCompletedNotification,

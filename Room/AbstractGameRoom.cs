@@ -22,7 +22,7 @@ namespace OpenGSCore
         public string? OwnerId { get => ownerID_; set => ownerID_ = value; }
         public int RoomNumber { get => roomNumber_; }
 
-        private string id;
+        private string id = string.Empty;
 
         public List<PlayerInfo> Players { get => players; set => players = value; }
         public string Id { get => id; set => id = value; }
@@ -49,7 +49,7 @@ namespace OpenGSCore
 
         }
 
-        public virtual AbstractMatchResult GameResult()
+        public virtual AbstractMatchResult? GameResult()
         {
             return gameResult;
         }

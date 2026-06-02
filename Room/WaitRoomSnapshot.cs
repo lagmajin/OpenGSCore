@@ -25,13 +25,15 @@ namespace OpenGSCore
             var result = new JObject
             {
                 ["RoomId"] = RoomId,
+                ["RoomID"] = RoomId,
                 ["RoomName"] = RoomName,
                 ["Capacity"] = Capacity,
                 ["NowPlaying"] = NowPlaying,
                 ["GameMode"] = GameMode,
                 ["Map"] = Map,
                 ["TeamBalance"] = TeamBalance,
-                ["OwnerId"] = OwnerId
+                ["OwnerId"] = OwnerId,
+                ["OwnerID"] = OwnerId
             };
 
             var players = new JArray();
@@ -47,18 +49,30 @@ namespace OpenGSCore
             return result;
         }
 
+        public JObject ToNetworkJson(string messageType)
+        {
+            var result = ToJson();
+            result["MessageType"] = messageType;
+            return result;
+        }
+
         public static WaitRoomSnapshot FromJson(JObject json)
         {
+            if (json == null)
+            {
+                return new WaitRoomSnapshot();
+            }
+
             var snapshot = new WaitRoomSnapshot
             {
-                RoomId = json["RoomId"]?.ToString() ?? json["RoomID"]?.ToString() ?? string.Empty,
-                RoomName = json["RoomName"]?.ToString() ?? string.Empty,
-                Capacity = json["Capacity"]?.ToObject<int>() ?? 8,
-                NowPlaying = json["NowPlaying"]?.ToObject<bool>() ?? false,
-                GameMode = json["GameMode"]?.ToString() ?? EGameMode.DeathMatch.ToString(),
-                Map = json["Map"]?.ToString() ?? EMap.Unknown.ToString(),
-                TeamBalance = json["TeamBalance"]?.ToObject<bool>() ?? false,
-                OwnerId = json["OwnerId"]?.ToString() ?? json["OwnerID"]?.ToString() ?? string.Empty
+                RoomId = json.GetStringAny("RoomId", "RoomID") ?? string.Empty,
+                RoomName = json.GetStringAny("RoomName") ?? string.Empty,
+                Capacity = json.GetIntAny("Capacity") ?? 8,
+                NowPlaying = json.GetBoolAny("NowPlaying") ?? false,
+                GameMode = json.GetStringAny("GameMode") ?? EGameMode.DeathMatch.ToString(),
+                Map = json.GetStringAny("Map") ?? EMap.Unknown.ToString(),
+                TeamBalance = json.GetBoolAny("TeamBalance") ?? false,
+                OwnerId = json.GetStringAny("OwnerId", "OwnerID") ?? string.Empty
             };
 
             if (json["Players"] is JArray players)
@@ -70,16 +84,7 @@ namespace OpenGSCore
                         continue;
                     }
 
-                    var player = new PlayerInfo(
-                        playerJson["Id"]?.ToString() ?? playerJson["PlayerId"]?.ToString() ?? string.Empty,
-                        playerJson["Name"]?.ToString() ?? playerJson["PlayerName"]?.ToString() ?? string.Empty);
-                    player.IsReady = playerJson["IsReady"]?.ToObject<bool>() ?? false;
-                    player.IsBot = playerJson["IsBot"]?.ToObject<bool>() ?? false;
-                    player.playerCharacter = Enum.TryParse(playerJson["PlayerCharacter"]?.ToString(), true, out EPlayerCharacter character)
-                        ? character
-                        : EPlayerCharacter.Misty;
-                    player.Team = Enum.TryParse(playerJson["Team"]?.ToString(), true, out ETeam team) ? team : ETeam.NoTeam;
-                    snapshot.Players.Add(player);
+                    snapshot.Players.Add(PlayerInfo.FromJson(playerJson));
                 }
             }
 

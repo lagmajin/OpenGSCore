@@ -63,7 +63,7 @@ namespace OpenGSCore
 
         public void UpdatePlayerPosition(string playerId, float posX, float posY)
         {
-            var player = FindObject(playerId) as PlayerGameObject ?? FindPlayerObject(playerId);
+            var player = FindObject(playerId) as PlayerGameObject;
             if (player != null)
             {
                 player.Posx = posX;
@@ -109,6 +109,29 @@ namespace OpenGSCore
             return snap;
         }
 
+        public void ApplySnapshot(JObject snapshot)
+        {
+            if (snapshot == null)
+            {
+                return;
+            }
+
+            _lastSnapshot = snapshot.DeepClone() as JObject;
+
+            if (snapshot["Objects"] is not JArray objects)
+            {
+                return;
+            }
+
+            lock (_syncRoot)
+            {
+                foreach (var token in objects.OfType<JObject>())
+                {
+                    ApplyObjectSnapshot(token);
+                }
+            }
+        }
+
         public JObject? GetSnapshotDelta()
         {
             var current = ToJson();
@@ -142,46 +165,6 @@ namespace OpenGSCore
             {
                 ["Players"] = players
             };
-        }
-
-        public void ApplySnapshot(JObject snapshot)
-        {
-            if (snapshot == null)
-            {
-                return;
-            }
-
-            var objectTokens = snapshot["Objects"] as JArray ?? snapshot["Players"] as JArray ?? new JArray();
-            var rebuiltObjects = new List<AbstractGameObject>();
-
-            foreach (var token in objectTokens.OfType<JObject>())
-            {
-                var obj = CreateObjectFromJson(token);
-                if (obj != null)
-                {
-                    rebuiltObjects.Add(obj);
-                }
-            }
-
-            lock (_syncRoot)
-            {
-                _objects.Clear();
-                _objectIndex.Clear();
-
-                foreach (var obj in rebuiltObjects)
-                {
-                    if (string.IsNullOrWhiteSpace(obj.Id))
-                    {
-                        obj.Id = Guid.NewGuid().ToString("N");
-                    }
-
-                    _objects.Add(obj);
-                    _objectIndex[obj.Id] = obj;
-                    obj.SaveSyncState();
-                }
-            }
-
-            _lastSnapshot = snapshot.DeepClone() as JObject;
         }
 
         private bool AddObject(AbstractGameObject gameObject)
@@ -223,69 +206,79 @@ namespace OpenGSCore
             }
         }
 
-        private static AbstractGameObject? CreateObjectFromJson(JObject json)
+        private void ApplyObjectSnapshot(JObject json)
         {
-            if (json == null)
-            {
-                return null;
-            }
-
-            var typeText = json["type"]?.ToString() ?? json["Type"]?.ToString() ?? string.Empty;
-            Enum.TryParse(typeText, true, out eGameObjectType objectType);
-
-            var id = json["id"]?.ToString() ?? json["ID"]?.ToString() ?? json["objectId"]?.ToString() ?? string.Empty;
-            var name = json["name"]?.ToString() ?? json["Name"]?.ToString() ?? string.Empty;
-            var posX = json["posx"]?.ToObject<float?>() ?? json["PosX"]?.ToObject<float?>() ?? 0f;
-            var posY = json["posy"]?.ToObject<float?>() ?? json["PosY"]?.ToObject<float?>() ?? 0f;
-
-            AbstractGameObject obj = objectType switch
-            {
-                eGameObjectType.Bullet => new BulletGameObject(posX, posY, json["damage"]?.ToObject<float?>() ?? json["Damage"]?.ToObject<float?>() ?? 0f),
-                eGameObjectType.FieldItem => new FieldItem(posX, posY),
-                eGameObjectType.Grenade => new NormalGranade(posX, posY, json["velocityX"]?.ToObject<float?>() ?? json["VelocityX"]?.ToObject<float?>() ?? 0f, json["velocityY"]?.ToObject<float?>() ?? json["VelocityY"]?.ToObject<float?>() ?? 0f),
-                _ => json["playerId"] != null || json["PlayerId"] != null
-                    ? new PlayerGameObject(json["playerId"]?.ToString() ?? json["PlayerId"]?.ToString() ?? id, name, posX, posY)
-                    : new Character(name, posX, posY)
-            };
-
-            obj.Id = string.IsNullOrWhiteSpace(id) ? obj.Id : id;
-            obj.Name = string.IsNullOrWhiteSpace(name) ? obj.Name : name;
-            obj.Posx = posX;
-            obj.Posy = posY;
-            ApplyObjectState(obj, json);
-            return obj;
-        }
-
-        private static void ApplyObjectState(AbstractGameObject obj, JObject json)
-        {
-            if (obj == null || json == null)
+            var id = json["id"]?.ToString() ?? json["ID"]?.ToString() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(id))
             {
                 return;
             }
 
+            if (!_objectIndex.TryGetValue(id, out var obj) || obj == null)
+            {
+                obj = CreateObjectFromSnapshot(json);
+                if (obj == null)
+                {
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(obj.Id))
+                {
+                    obj.Id = id;
+                }
+
+                _objects.Add(obj);
+                _objectIndex[id] = obj;
+            }
+
+            obj.Id = id;
+            obj.Name = json["name"]?.ToString() ?? json["Name"]?.ToString() ?? obj.Name;
+            obj.Posx = json["posx"]?.ToObject<float>() ?? json["PosX"]?.ToObject<float>() ?? obj.Posx;
+            obj.Posy = json["posy"]?.ToObject<float>() ?? json["PosY"]?.ToObject<float>() ?? obj.Posy;
+            obj.Frame = json["frame"]?.ToObject<int>() ?? json["Frame"]?.ToObject<int>() ?? obj.Frame;
+
             if (obj is PlayerGameObject player)
             {
                 player.PlayerId = json["playerId"]?.ToString() ?? json["PlayerId"]?.ToString() ?? player.PlayerId;
-
-                var teamText = json["team"]?.ToString() ?? json["Team"]?.ToString();
-                Enum.TryParse(teamText, true, out ETeam team);
-                var maxHp = json["maxHp"]?.ToObject<float?>() ?? json["MaxHp"]?.ToObject<float?>() ?? 500f;
-                var maxBooster = json["maxBooster"]?.ToObject<float?>() ?? json["MaxBooster"]?.ToObject<float?>() ?? 100f;
-                var status = new PlayerStatus(team, EPlayerType.OtherPlayer, Math.Max(1, (int)maxHp), maxBooster)
+                if (player.Status != null)
                 {
-                    Hp = json["hp"]?.ToObject<float?>() ?? json["Hp"]?.ToObject<float?>() ?? maxHp,
-                    Booster = json["booster"]?.ToObject<float?>() ?? json["Booster"]?.ToObject<float?>() ?? maxBooster,
-                    AttackPower = json["attackPower"]?.ToObject<int?>() ?? json["AttackPower"]?.ToObject<int?>() ?? 10,
-                    DefensePower = json["defensePower"]?.ToObject<int?>() ?? json["DefensePower"]?.ToObject<int?>() ?? 5
-                };
-                player.Status = status;
+                    player.Status.Hp = json["hp"]?.ToObject<float>() ?? json["Hp"]?.ToObject<float>() ?? player.Status.Hp;
+                    player.Status.MaxHp = json["maxHp"]?.ToObject<float>() ?? json["MaxHp"]?.ToObject<float>() ?? player.Status.MaxHp;
+                    player.Status.Booster = json["booster"]?.ToObject<float>() ?? json["Booster"]?.ToObject<float>() ?? player.Status.Booster;
+                    player.Status.MaxBooster = json["maxBooster"]?.ToObject<float>() ?? json["MaxBooster"]?.ToObject<float>() ?? player.Status.MaxBooster;
+                }
             }
-            else if (obj is NormalGranade grenade)
+
+            if (obj is AbstractBullet bullet)
             {
-                grenade.VelocityX = json["velocityX"]?.ToObject<float?>() ?? json["VelocityX"]?.ToObject<float?>() ?? grenade.VelocityX;
-                grenade.VelocityY = json["velocityY"]?.ToObject<float?>() ?? json["VelocityY"]?.ToObject<float?>() ?? grenade.VelocityY;
-                grenade.LifeTime = json["lifeTime"]?.ToObject<float?>() ?? json["LifeTime"]?.ToObject<float?>() ?? grenade.LifeTime;
+                bullet.Damage = json["damage"]?.ToObject<float>() ?? bullet.Damage;
+                bullet.Angle = json["angle"]?.ToObject<float>() ?? bullet.Angle;
+                bullet.Speed = json["speed"]?.ToObject<float>() ?? bullet.Speed;
+                bullet.StoppingPower = json["stoppingPower"]?.ToObject<float>() ?? bullet.StoppingPower;
             }
+        }
+
+        private static AbstractGameObject? CreateObjectFromSnapshot(JObject json)
+        {
+            var type = json["type"]?.ToString() ?? json["Type"]?.ToString();
+            var name = json["name"]?.ToString() ?? json["Name"]?.ToString() ?? string.Empty;
+            var x = json["posx"]?.ToObject<float>() ?? json["PosX"]?.ToObject<float>() ?? 0f;
+            var y = json["posy"]?.ToObject<float>() ?? json["PosY"]?.ToObject<float>() ?? 0f;
+            var playerId = json["playerId"]?.ToString() ?? json["PlayerId"]?.ToString() ?? string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(playerId))
+            {
+                return new PlayerGameObject(playerId, name, x, y);
+            }
+
+            return type switch
+            {
+                nameof(eGameObjectType.Character) => new Character(name, x, y),
+                nameof(eGameObjectType.FieldItem) => new FieldItem(x, y),
+                nameof(eGameObjectType.Grenade) => new NormalGranade(x, y),
+                "Bullet" => new BulletGameObject(0, 0, 0),
+                _ => null
+            };
         }
 
         private static JObject CreateObjectJson(AbstractGameObject item)

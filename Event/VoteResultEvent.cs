@@ -11,7 +11,7 @@ namespace OpenGSCore
     public partial class VoteResultEvent
     {
         [Key(0)]
-        public string VoteId { get; set; }
+        public string VoteId { get; set; } = string.Empty;
 
         [Key(1)]
         public bool Passed { get; set; }
