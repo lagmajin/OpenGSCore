@@ -143,6 +143,12 @@ namespace OpenGSCore
         public const string GuildChatRequest = "GuildChatRequest";
         public const string GuildChatNotification = "GuildChatNotification";
         
+        // --- Mission Route (TCP) ---
+        public const string MissionStartRequest = "MissionStartRequest";
+        public const string MissionStartNotification = "MissionStartNotification";
+        public const string MissionCompleteNotification = "MissionCompleteNotification";
+        public const string MissionFailedNotification = "MissionFailedNotification";
+
         // 旧互換用 (移行期間)
         public const string Notification = "Notification";
 

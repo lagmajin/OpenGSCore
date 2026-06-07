@@ -53,6 +53,8 @@ namespace OpenGSCore
         public bool IsReady { get; set; } = false;
         public int Kills { get; set; } = 0;
         public int Deaths { get; set; } = 0;
+        public int LifeCount { get; set; } = 3;
+        public int Score { get; set; } = 0;
         public List<EInstantItemType> EquipInstantItems { get; set; } = new();
 
         // Indicates whether this entry represents a bot
@@ -105,7 +107,8 @@ namespace OpenGSCore
             result["KillCount"] = Kills;
             result["Deaths"] = Deaths;
             result["DeathCount"] = Deaths;
-            result["Score"] = Kills * 100;
+            result["Score"] = Score;
+            result["LifeCount"] = LifeCount;
             result["TotalScore"] = Kills * 100;
             result["Points"] = Kills * 100;
             return result;
