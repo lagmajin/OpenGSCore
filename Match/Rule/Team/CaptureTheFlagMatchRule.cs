@@ -6,7 +6,7 @@ namespace OpenGSCore
 {
     public sealed class CaptureTheFlagMatchRule : AbstractMatchRule
     {
-        private int flagLimit = 3; // 3回旗を奪取すれば勝利
+        private int flagLimit = 3; // 3回フラッグ得点で勝利
 
         public CaptureTheFlagMatchRule(int limit = 3, int matchTimeMsec = 600000) 
             : base(EGameMode.CaptureTheFlag, matchTimeMsec)
@@ -19,10 +19,10 @@ namespace OpenGSCore
             // 時間切れ判定
             if (situation.RemainingTimeSec <= 0) return true;
 
-            // 旗の奪取数判定
+            // 旗の得点数判定
             if (situation is CaptureTheFlagMatchSituation ctfSituation)
             {
-                if (ctfSituation.RedTeamFlagReturn >= flagLimit || ctfSituation.BlueTeamFlagReturn >= flagLimit)
+                if (ctfSituation.RedTeamFlagCaptures >= flagLimit || ctfSituation.BlueTeamFlagCaptures >= flagLimit)
                 {
                     return true;
                 }

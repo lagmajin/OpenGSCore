@@ -248,6 +248,68 @@ namespace OpenGSCore
             statusUpdateTimer?.Dispose();
         }
 
+        public void AddFlagCapture(ETeam team)
+        {
+            if (situation is CaptureTheFlagMatchSituation ctfSituation)
+            {
+                ctfSituation.AddFlagCapture(team);
+                return;
+            }
+
+            if (situation is AbstractTeamMatchSituation teamSituation)
+            {
+                switch (team)
+                {
+                    case ETeam.Red:
+                        teamSituation.RedTeamFlagCaptures++;
+                        break;
+                    case ETeam.Blue:
+                        teamSituation.BlueTeamFlagCaptures++;
+                        break;
+                }
+            }
+        }
+
+        public void AddFlagReturn(ETeam team)
+        {
+            if (situation is CaptureTheFlagMatchSituation ctfSituation)
+            {
+                ctfSituation.AddFlagReturn(team);
+            }
+        }
+
+        public void ResetCaptureTheFlagState()
+        {
+            if (situation is CaptureTheFlagMatchSituation ctfSituation)
+            {
+                ctfSituation.Reset();
+                return;
+            }
+
+            if (situation is AbstractTeamMatchSituation teamSituation)
+            {
+                teamSituation.RedTeamFlagCaptures = 0;
+                teamSituation.BlueTeamFlagCaptures = 0;
+                teamSituation.RedTeamKill = 0;
+                teamSituation.BlueTeamKill = 0;
+            }
+        }
+
+        public int GetFlagScore(ETeam team)
+        {
+            if (situation is CaptureTheFlagMatchSituation ctfSituation)
+            {
+                return team == ETeam.Red ? ctfSituation.RedTeamFlagCaptures : ctfSituation.BlueTeamFlagCaptures;
+            }
+
+            if (situation is AbstractTeamMatchSituation teamSituation)
+            {
+                return team == ETeam.Red ? teamSituation.RedTeamFlagCaptures : teamSituation.BlueTeamFlagCaptures;
+            }
+
+            return 0;
+        }
+
         private void SendPeriodicStatusUpdate()
         {
             if (Playing && !Finished)
