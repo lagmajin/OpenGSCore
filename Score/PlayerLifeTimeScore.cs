@@ -1,74 +1,42 @@
-﻿
-
 namespace OpenGSCore
 {
     public class PlayerLifeTimeScore
     {
-        public int TotalMatchCount { get; private set; } = 0;
-        public int DeathMatchCount { get; private set; } = 0;
-        public int DeathMatchWinCount { get; private set; } = 0;
-        public int DeathMatchLoseCount { get; set; } = 0;
-        public int TeamDeathMatchWinCount { get; set; } = 0;
-        public int TeamDeathMatchLoseCount { get; set; } = 0;
-        public int SurvivalWinCount { get; set; } = 0;
-        public int SurvivalLoseCount { get; set; } = 0;
-        public int TeamSurvivalWinCount { get; set; } = 0;
-        public int TeamSurvivalLoseCount { get; set; } = 0;
-        public int CtfFlagReturn { get; set; } = 0;
-        public int CtfFlagInterrupt { get; set; } = 0;
-
+        public int TotalMatchCount { get; private set; }
+        public int DeathMatchCount { get; private set; }
+        public int DeathMatchWinCount { get; private set; }
+        public int DeathMatchLoseCount { get; private set; }
+        public int TeamDeathMatchWinCount { get; private set; }
+        public int TeamDeathMatchLoseCount { get; private set; }
+        public int SurvivalWinCount { get; private set; }
+        public int SurvivalLoseCount { get; private set; }
+        public int TeamSurvivalWinCount { get; private set; }
+        public int TeamSurvivalLoseCount { get; private set; }
+        public int CtfFlagReturn { get; private set; }
+        public int CtfFlagInterrupt { get; private set; }
 
         public PlayerLifeTimeScore()
         {
-
         }
 
-        public void IncrementTotalMatchCount()
-        {
-            TotalMatchCount++;
-        }
+        public void IncrementTotalMatchCount() => TotalMatchCount++;
+        public void IncrementTeamDeathMatchWinCount() => TeamDeathMatchWinCount++;
+        public void IncrementSurvivalWinCount() => SurvivalWinCount++;
+        public void IncrementTeamSurvivalWinCount() => TeamSurvivalWinCount++;
 
-        public void IncrementTeamDeathMatchWinCount()
-        {
-            TeamDeathMatchWinCount++;
-            
-        }
-
-        public void IncrementSurvivalWinCount()
-        {
-            SurvivalWinCount++;
-        }
-
-        public void IncrementTeamSurvivalWinCount()
-        {
-            TeamSurvivalWinCount++;
-        }
-        
         public void RecordDeathMatchResult(bool won)
         {
             IncrementTotalMatchCount();
             DeathMatchCount++;
-            if (won)
-            {
-                DeathMatchWinCount++;
-            }
-            else
-            {
-                DeathMatchLoseCount++;
-            }
+            if (won) DeathMatchWinCount++;
+            else DeathMatchLoseCount++;
         }
 
         public void RecordTeamDeathMatchResult(bool won)
         {
             IncrementTotalMatchCount();
-            if (won)
-            {
-                TeamDeathMatchWinCount++;
-            }
-            else
-            {
-                TeamDeathMatchLoseCount++;
-            }
+            if (won) TeamDeathMatchWinCount++;
+            else TeamDeathMatchLoseCount++;
         }
 
         public void RecordSurvivalResult(bool won, bool isTeamMatch)
@@ -76,39 +44,17 @@ namespace OpenGSCore
             IncrementTotalMatchCount();
             if (isTeamMatch)
             {
-                if (won)
-                {
-                    TeamSurvivalWinCount++;
-                }
-                else
-                {
-                    TeamSurvivalLoseCount++;
-                }
+                if (won) TeamSurvivalWinCount++;
+                else TeamSurvivalLoseCount++;
             }
             else
             {
-                if (won)
-                {
-                    SurvivalWinCount++;
-                }
-                else
-                {
-                    SurvivalLoseCount++;
-                }
+                if (won) SurvivalWinCount++;
+                else SurvivalLoseCount++;
             }
         }
 
-        public void RecordCtfFlagReturn()
-        {
-            CtfFlagReturn++;
-        }
-
-        public void RecordCtfFlagInterrupt()
-        {
-            CtfFlagInterrupt++;
-        }
-
-
-
+        public void RecordCtfFlagReturn() => CtfFlagReturn++;
+        public void RecordCtfFlagInterrupt() => CtfFlagInterrupt++;
     }
 }
