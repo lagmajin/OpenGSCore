@@ -1,9 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System;
+using UnityEngine;
 
 namespace OpenGSCore
 {
+    public enum EPlayerPoseState
+    {
+        Stand,
+        Sit,
+        LieDown
+    }
+
+    public class PlayerPoseEvent : AbstractGameEvent
+    {
+        private string playerID_;
+        private EPlayerPoseState poseState_;
+
+        public PlayerPoseEvent(string playerId, EPlayerPoseState poseState)
+        {
+            playerID_ = playerId;
+            poseState_ = poseState;
+        }
+
+        public string PlayerID() => playerID_;
+        public EPlayerPoseState PoseState() => poseState_;
+    }
 
     public class PlayerDeadEvent : AbstractGameEvent
     {
@@ -15,9 +35,11 @@ namespace OpenGSCore
         public PlayerDeadEvent(DeadReason reason, string playerName, string playerID, ETeam team)
         {
             reason_ = reason;
-
-
+            playerName_ = playerName;
+            playerID_ = playerID;
+            playerTeam_ = team;
         }
+
         public string PlayerName()
         {
             return playerName_;
@@ -27,7 +49,5 @@ namespace OpenGSCore
         {
             return playerTeam_;
         }
-
     }
-
 }

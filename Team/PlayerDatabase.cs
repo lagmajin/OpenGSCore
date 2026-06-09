@@ -18,7 +18,7 @@ namespace OpenGSCore
 
     public class SearchInfo
     {
-        public MultipleKey Key { get; set; }=null;
+        public MultipleKey Key { get; set; } = null!;
 
         
     }

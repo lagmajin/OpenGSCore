@@ -28,6 +28,7 @@ namespace OpenGSCore
 
         private AbstractMatchSituation? Situation { get; set; } = null;
         private readonly object playerSyncLock = new();
+        private readonly Dictionary<string, EPlayerPoseState> playerPoseStates = new();
 
         public GameScene GameScene { get; set; } = new();
 
@@ -79,6 +80,7 @@ namespace OpenGSCore
             lock (playerSyncLock)
             {
                 Players.RemoveAll(p => p.Id == playerId);
+                playerPoseStates.Remove(playerId);
             }
         }
 
@@ -167,6 +169,32 @@ namespace OpenGSCore
                 }
 
                 return Players.Any(p => p.Id == playerId);
+            }
+        }
+
+        public void SetPlayerPoseState(string playerId, EPlayerPoseState poseState)
+        {
+            lock (playerSyncLock)
+            {
+                if (string.IsNullOrWhiteSpace(playerId))
+                {
+                    return;
+                }
+
+                if (!Players.Any(p => p.Id == playerId))
+                {
+                    return;
+                }
+
+                playerPoseStates[playerId] = poseState;
+            }
+        }
+
+        public EPlayerPoseState GetPlayerPoseState(string playerId)
+        {
+            lock (playerSyncLock)
+            {
+                return playerPoseStates.TryGetValue(playerId, out var poseState) ? poseState : EPlayerPoseState.Stand;
             }
         }
 

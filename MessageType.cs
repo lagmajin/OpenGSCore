@@ -95,6 +95,7 @@ namespace OpenGSCore
         public const string PlayerShot = "PlayerShot";
         public const string PlayerDamage = "PlayerDamage";
         public const string PlayerDeath = "PlayerDeath";
+        public const string PlayerPose = "PlayerPose";
         public const string GameStateSync = "GameStateSync";
         public const string MatchEndNotification = "MatchEndNotification";
         public const string MatchResult = MatchEndNotification;
