@@ -2,6 +2,10 @@ using System;
 
 namespace OpenGSCore
 {
+    public interface IWaitRoom
+    {
+    }
+
     public class OfflineWaitRoom : IWaitRoom
     {
         public int BotCount { get; private set; }
