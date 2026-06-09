@@ -31,6 +31,22 @@ Current status:
   test code
 - canonical message names are now also propagated on the general server output
 
+### C0-A. Network Transport Constraint
+
+**UDP payload format: JSON only.**
+
+- The Unity client (OpenGSR) cannot use LiteNetLib on its side due to platform
+  constraints. OpenGSServer may still use LiteNetLib as its transport layer,
+  but the wire payload must be JSON text — no LiteNetLib binary Put/Get
+  serialization.
+- Match UDP messages shared between client and server must serialize as JSON
+  strings, not LiteNetLib typed binary tokens.
+- TCP lobby messages already use JSON (`JS{...}\x1F` framing) and are not
+  affected.
+
+This constraint ensures the client and server can always parse each other's
+messages without depending on a single library's binary format.
+
 ## C1. Match Rule Coverage And Factory Cleanup
 
 Goal: make rule creation deterministic for every supported mode.

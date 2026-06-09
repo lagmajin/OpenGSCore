@@ -1,7 +1,6 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace OpenGSCore
 {
@@ -16,7 +15,7 @@ namespace OpenGSCore
         private List<PlayerInfo> players = new List<PlayerInfo>();
 
         private bool isFinished = false;
-        private AbstractMatchResult? gameResult = null;
+        private MatchResult<MatchFinalScore>? gameResult = null;
 
         private string? ownerID_ = null;
         public string? OwnerId { get => ownerID_; set => ownerID_ = value; }
@@ -49,12 +48,12 @@ namespace OpenGSCore
 
         }
 
-        public virtual AbstractMatchResult? GameResult()
+        public virtual MatchResult<MatchFinalScore>? GameResult()
         {
             return gameResult;
         }
 
-        public void SetGameResult(AbstractMatchResult result)
+        public void SetGameResult(MatchResult<MatchFinalScore> result)
         {
             gameResult = result;
         }
@@ -70,4 +69,3 @@ namespace OpenGSCore
         }
     }
 }
-

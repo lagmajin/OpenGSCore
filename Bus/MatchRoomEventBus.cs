@@ -20,7 +20,7 @@ namespace OpenGSCore
 
 
 
-        void OnReceiveMatchResult(MatchResult eventData)
+        void OnReceiveMatchResult(global::OpenGSCore.MatchResult.Status eventData)
         {
             //Console.WriteLine($"[Default] MatchResult: Winner={eventData.Winner}, Score={eventData.Score}");
         }

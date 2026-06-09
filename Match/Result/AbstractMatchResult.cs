@@ -1,61 +1,65 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace OpenGSCore
 {
     public interface IMatchResult
     {
-        List<PlayerID> winnersList();
-        List<PlayerID> losersList();
+        IReadOnlyList<PlayerID> Winners { get; }
+        IReadOnlyList<PlayerID> Losers { get; }
     }
 
-    public abstract class AbstractMatchResult : IMatchResult
+    /// <summary>
+    /// 単一のジェネリック試合結果クラス。
+    /// 従来の5つのサブクラス (DeathMatchResult, TeamDeathMatchResult, SuvMatchResult, TSuvMatchResult, CTFMatchResult) を統合。
+    /// </summary>
+    public sealed class MatchResult<TFinalScore> : IMatchResult where TFinalScore : class
     {
-        private readonly List<PlayerID> winners = new();
-        private readonly List<PlayerID> losers = new();
+        private readonly List<PlayerID> _winners = new();
+        private readonly List<PlayerID> _losers = new();
+        private readonly TFinalScore _finalScore;
 
-        public bool Won { get; private set; } = false;
-        public bool Lost { get; private set; } = false;
+        public TFinalScore FinalScore => _finalScore;
+        public IReadOnlyList<PlayerID> Winners => _winners.AsReadOnly();
+        public IReadOnlyList<PlayerID> Losers => _losers.AsReadOnly();
 
-        public List<PlayerID> winnersList()
+        public MatchResult(TFinalScore? finalScore)
         {
-            return new List<PlayerID>(winners);
+            _finalScore = finalScore ?? throw new ArgumentNullException(nameof(finalScore));
         }
 
-        public List<PlayerID> losersList()
+        public void SetWinners(IEnumerable<PlayerID>? playerIds)
         {
-            return new List<PlayerID>(losers);
-        }
-
-        protected void SetOutcome(bool won, bool lost)
-        {
-            Won = won;
-            Lost = lost;
-        }
-
-        protected void SetWinners(IEnumerable<PlayerID>? playerIds)
-        {
-            winners.Clear();
-            if (playerIds == null)
+            _winners.Clear();
+            if (playerIds != null)
             {
-                return;
+                foreach (var id in playerIds)
+                {
+                    if (id != null) _winners.Add(id);
+                }
             }
-
-            winners.AddRange(playerIds.Where(id => id != null));
         }
 
-        protected void SetLosers(IEnumerable<PlayerID>? playerIds)
+        public void SetLosers(IEnumerable<PlayerID>? playerIds)
         {
-            losers.Clear();
-            if (playerIds == null)
+            _losers.Clear();
+            if (playerIds != null)
             {
-                return;
+                foreach (var id in playerIds)
+                {
+                    if (id != null) _losers.Add(id);
+                }
             }
+        }
+    }
 
-            losers.AddRange(playerIds.Where(id => id != null));
+    public static class MatchResultFactory2
+    {
+        public static MatchResult<TFinalScore> Create<TFinalScore>(TFinalScore? finalScore)
+            where TFinalScore : class
+        {
+            return new MatchResult<TFinalScore>(finalScore);
         }
     }
 }
-

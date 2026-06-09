@@ -1,91 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace OpenGSCore
 {
-    interface IPlayerScore
-    {
-
-    }
-
+    /// <summary>
+    /// 試合中のライブスコア追跡。
+    /// </summary>
     public sealed class MatchInGameScore
     {
+        public int Kill { get; private set; }
+        public int Death { get; private set; }
+        public int Suicide { get; private set; }
+        public int TotalDamage { get; private set; }
+        public int FlagCarrierKill { get; private set; }
+        public int RecoverFlag { get; private set; }
 
-        public int Kill { get; private set; } = 0;
-        public int Death { get; private set; } = 0;
-
-        public int Suicide { get; private set; } = 0;
-
-        public int Killed { get; private set; } = 0;
-        public int TotalDamage { get; private set; } = 0;
-
-        public int FlagCarrierKill { get; private set; } = 0;
-        public int RecoverFlag { get; private set; } = 0;
-        public int FlagReturn { get; private set; } = 0;
-
-
-
-        public void AddKill(int kill)
+        public void AddKill(int value = 1)
         {
-            Kill += kill;
-
+            if (value > 0) Kill += value;
         }
 
-        public void MinusKill()
+        public void AddDeath(int value = 1)
         {
-            if (Kill > 0)
-            {
-                Kill--;
-            }
-
-
-        }
-
-        public void AddDeath(int death = 1)
-        {
-
-
-
-        }
-
-        public void MinusDeath()
-        {
-
+            if (value > 0) Death += value;
         }
 
         public void AddSuicide()
         {
-            MinusKill();
-            AddDeath();
-
-
-
+            Suicide++;
+            if (Kill > 0) Kill--;
         }
 
         public void AddFlagCarrierKill()
         {
             FlagCarrierKill++;
-
         }
-
 
         public void AddTotalDamage(int damage)
         {
-            if (damage < 0)
-            {
-                damage = 0;
-            }
-
-            TotalDamage += damage;
-
+            if (damage > 0) TotalDamage += damage;
         }
-
-        public void MinusTotalDamage(int damage)
-        {
-
-        }
-
-
     }
 }

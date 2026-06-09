@@ -1,12 +1,13 @@
-using OpenGSCore;
+using System;
 
 namespace OpenGSServer
 {
+    [Obsolete("Use MatchResultResolver directly")]
     public class MatchResultFactory
     {
-        public static AbstractMatchResult CreateMatchResult(AbstractFinalScore score)
+        public static OpenGSCore.MatchResult<OpenGSCore.MatchFinalScore> CreateMatchResult(OpenGSCore.MatchFinalScore score)
         {
-            return MatchResultResolver.Create(score);
+            return OpenGSCore.MatchResultResolver.Create(score);
         }
     }
 }

@@ -1,12 +1,13 @@
+using System;
+
 namespace OpenGSCore
 {
+    [Obsolete("Use MatchResultResolver directly")]
     public class MatchResultService
     {
-        public AbstractMatchResult CreateMatchResult(AbstractMatchFinalScore score)
+        public MatchResult<MatchFinalScore> CreateMatchResult(MatchFinalScore score)
         {
             return MatchResultResolver.Create(score);
         }
-
-        public AbstractMatchResult createMatchResult(AbstractMatchFinalScore score) => CreateMatchResult(score);
     }
 }
