@@ -45,7 +45,7 @@ namespace OpenGSCore
             return result;
         }
 
-        public static WaitRoomSetting FromJson(JToken? token)
+        public static new WaitRoomSetting FromJson(JToken? token)
         {
             var baseSetting = RoomSetting.FromJson(token);
             var setting = new WaitRoomSetting
@@ -93,7 +93,7 @@ namespace OpenGSCore
             return setting;
         }
 
-        public static WaitRoomSetting FromDictionary(System.Collections.Generic.IDictionary<string, JToken> dic)
+        public static new WaitRoomSetting FromDictionary(System.Collections.Generic.IDictionary<string, JToken> dic)
         {
             if (dic == null)
             {
