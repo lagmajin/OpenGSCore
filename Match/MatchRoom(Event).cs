@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace OpenGSCore
@@ -23,12 +24,14 @@ namespace OpenGSCore
 
             lock (playerSyncLock)
             {
-                if (!Players.Exists(p => p.Id == playerId))
+                if (!Players.Exists(p => string.Equals(p.Id, playerId, StringComparison.OrdinalIgnoreCase)))
                 {
                     return;
                 }
 
-                _readyPlayers.Add(playerId);
+                var canonicalPlayerId = Players.First(p =>
+                    string.Equals(p.Id, playerId, StringComparison.OrdinalIgnoreCase)).Id;
+                _readyPlayers.Add(canonicalPlayerId);
                 shouldStart = _readyPlayers.Count >= Players.Count && Players.Count > 0 && !Playing;
             }
 

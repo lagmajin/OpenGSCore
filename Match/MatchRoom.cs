@@ -79,8 +79,15 @@ namespace OpenGSCore
         {
             lock (playerSyncLock)
             {
-                Players.RemoveAll(p => p.Id == playerId);
-                playerPoseStates.Remove(playerId);
+                var player = Players.FirstOrDefault(p =>
+                    string.Equals(p.Id, playerId, StringComparison.OrdinalIgnoreCase));
+                if (player == null)
+                {
+                    return;
+                }
+
+                Players.Remove(player);
+                playerPoseStates.Remove(player.Id);
             }
         }
 
