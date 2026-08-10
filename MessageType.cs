@@ -141,8 +141,16 @@ namespace OpenGSCore
         public const string GuildKickRequest = "GuildKickRequest";
         public const string GuildKickResponse = "GuildKickResponse";
         public const string GuildKickNotification = "GuildKickNotification";
+        public const string GuildRoleRequest = "GuildRoleRequest";
+        public const string GuildRoleResponse = "GuildRoleResponse";
         public const string GuildChatRequest = "GuildChatRequest";
         public const string GuildChatNotification = "GuildChatNotification";
+        public const string DailyListRequest = "DailyListRequest";
+        public const string DailyListResponse = "DailyListResponse";
+        public const string DailyProgressRequest = "DailyProgressRequest";
+        public const string DailyProgressResponse = "DailyProgressResponse";
+        public const string DailyClaimRequest = "DailyClaimRequest";
+        public const string DailyClaimResponse = "DailyClaimResponse";
         
         // --- Mission Route (TCP) ---
         public const string MissionStartRequest = "MissionStartRequest";

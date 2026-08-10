@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace OpenGSCore
 {
@@ -28,7 +26,10 @@ namespace OpenGSCore
 
         public void AddKill(int kill)
         {
-            Kill += kill;
+            if (kill > 0)
+            {
+                Kill += kill;
+            }
 
         }
 
@@ -44,14 +45,18 @@ namespace OpenGSCore
 
         public void AddDeath(int death = 1)
         {
-
-
-
+            if (death > 0)
+            {
+                Death += death;
+            }
         }
 
         public void MinusDeath()
         {
-
+            if (Death > 0)
+            {
+                Death--;
+            }
         }
 
         public void AddSuicide()
@@ -83,7 +88,10 @@ namespace OpenGSCore
 
         public void MinusTotalDamage(int damage)
         {
-
+            if (damage > 0)
+            {
+                TotalDamage = Math.Max(0, TotalDamage - damage);
+            }
         }
 
 

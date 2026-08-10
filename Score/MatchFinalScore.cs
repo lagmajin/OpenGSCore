@@ -1,7 +1,4 @@
 ﻿using OpenGSCore.Score;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace OpenGSCore
 {
@@ -52,6 +49,8 @@ namespace OpenGSCore
 
     public class CTFMatchFinalScore : AbstractMatchFinalScore
     {
+        private AllCaptureTheFlagMatchPlayerFinalScore allPlayerFinalScores;
+
         public CTFMatchFinalScore() : base(EGameMode.CaptureTheFlag)
         {
         }
@@ -61,7 +60,8 @@ namespace OpenGSCore
         public override AbstractAllPlayerMatchFinalScore AllPlayerFinalScores()
         {
 
-            return new AllCaptureTheFlagMatchPlayerFinalScore();
+            allPlayerFinalScores ??= new AllCaptureTheFlagMatchPlayerFinalScore();
+            return allPlayerFinalScores;
         }
     }
 

@@ -71,7 +71,7 @@ namespace OpenGSCore
 
         public void SetTotalPoint(float totalPoint)
         {
-            TotalPoint = totalPoint;
+            TotalPoint = float.IsFinite(totalPoint) ? totalPoint : 0f;
         }
 
         public void AddKill(int value = 1)
