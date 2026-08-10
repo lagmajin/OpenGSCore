@@ -32,17 +32,13 @@ namespace OpenGSCore.Score
 
         public void AddScore(T score)
         {
-            if (score == null)
-            {
-                return;
-            }
-
-            scores.Add(score);
+            TryAddScore(score);
         }
 
         public bool TryAddScore(T score)
         {
-            if (score == null)
+            if (score == null || string.IsNullOrWhiteSpace(score.PlayerId) ||
+                scores.Any(existing => existing != null && existing.PlayerId == score.PlayerId))
             {
                 return false;
             }
