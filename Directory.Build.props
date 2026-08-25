@@ -3,5 +3,6 @@
   <PropertyGroup>
     <!-- Unity ignores . prefix folder -->
     <ArtifactsPath>$(MSBuildThisFileDirectory).artifacts</ArtifactsPath>
+    <UseArtifactsOutput>true</UseArtifactsOutput>
   </PropertyGroup>
 </Project>
