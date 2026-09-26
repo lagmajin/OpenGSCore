@@ -16,6 +16,7 @@ namespace OpenGSCore
         public const string Heartbeat = "Heartbeat";
         public const string ErrorNotification = "ErrorNotification";
         public const string ConnectServerSuccessful = "ConnectServerSuccessful";
+        public const string EncryptKey = "EncryptKey";
 
         // --- ロビー・ルーム管理関連 (TCP) ---
         public const string CreateRoomRequest = "CreateRoomRequest";
