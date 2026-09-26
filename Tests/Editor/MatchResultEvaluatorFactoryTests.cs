@@ -13,8 +13,15 @@ namespace OpenGSCore.Tests
         [Test]
         public void EveryModeExceptUnknownHasAnEvaluator()
         {
-            foreach (var mode in Enum.GetValues<EGameMode>().Where(mode => mode != EGameMode.Unknown))
+            // Unity compiles this package with C# 9, so the generic
+            // Enum.GetValues<T>() overload is not available here.
+            foreach (EGameMode mode in Enum.GetValues(typeof(EGameMode)))
             {
+                if (mode == EGameMode.Unknown)
+                {
+                    continue;
+                }
+
                 Assert.That(
                     MatchResultEvaluatorFactory.CreateEvaluator(mode),
                     Is.Not.Null,
