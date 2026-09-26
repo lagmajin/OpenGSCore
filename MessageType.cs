@@ -42,8 +42,8 @@ namespace OpenGSCore
         public const string LobbyChatRequest = "LobbyChatRequest";
         public const string LobbyChatNotification = "LobbyChatNotification";
         public const string AddLobbyChat = LobbyChatRequest;
-        public const string LobbyEnter = JoinRoomRequest;
-        public const string LobbyLeave = LeaveRoomRequest;
+        public const string LobbyEnter = "LobbyEnter";
+        public const string LobbyLeave = "LobbyLeave";
         public const string LobbyPlayerList = "LobbyPlayerList";
         public const string LobbyChat = LobbyChatRequest;
         public const string InvalidRoomId = "InvalidRoomId";
@@ -86,7 +86,7 @@ namespace OpenGSCore
         public const string WaitRoomOwnerChange = "WaitRoomOwnerChange";
         public const string WaitRoomStartCountdown = "WaitRoomStartCountdown";
         public const string WaitRoomCancelCountdown = "WaitRoomCancelCountdown";
-        public const string WaitRoomUpdateNotification = UpdateRoomResponse;
+        public const string WaitRoomUpdateNotification = "WaitRoomUpdateNotification";
 
         // --- リアルタイムゲームプレイ関連 (UDP/RUDP) ---
         public const string WelcomeMessage = "WelcomeMessage";
@@ -195,6 +195,7 @@ namespace OpenGSCore
                 "WaitRoomPlayerReadyRequest" => WaitRoomPlayerReady,
                 "WaitRoomPlayerUnreadyRequest" => WaitRoomPlayerUnready,
                 "Welcome" => WelcomeMessage,
+                "MatchEnd" => MatchEndNotification,
                 "LoadingStartedNotification" => LoadingStartedNotification,
                 "LoadingProgressNotification" => LoadingProgressNotification,
                 "LoadingCompletedNotification" => LoadingCompletedNotification,
