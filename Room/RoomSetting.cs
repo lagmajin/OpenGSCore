@@ -16,12 +16,12 @@ namespace OpenGSCore
         public bool TeamBalance { get; set; } = true;
         public string Map { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
-        public bool HasRoomName { get; private set; }
-        public bool HasCapacity { get; private set; }
-        public bool HasGameMode { get; private set; }
-        public bool HasTeamBalance { get; private set; }
-        public bool HasMap { get; private set; }
-        public bool HasPasswordValue { get; private set; }
+        public bool HasRoomName { get; internal set; }
+        public bool HasCapacity { get; internal set; }
+        public bool HasGameMode { get; internal set; }
+        public bool HasTeamBalance { get; internal set; }
+        public bool HasMap { get; internal set; }
+        public bool HasPasswordValue { get; internal set; }
 
         public int MaxPlayerCount
         {

@@ -55,7 +55,13 @@ namespace OpenGSCore
                 GameMode = baseSetting.GameMode,
                 TeamBalance = baseSetting.TeamBalance,
                 Map = baseSetting.Map,
-                Password = baseSetting.Password
+                Password = baseSetting.Password,
+                HasRoomName = baseSetting.HasRoomName,
+                HasCapacity = baseSetting.HasCapacity,
+                HasGameMode = baseSetting.HasGameMode,
+                HasTeamBalance = baseSetting.HasTeamBalance,
+                HasMap = baseSetting.HasMap,
+                HasPasswordValue = baseSetting.HasPasswordValue
             };
 
             if (token == null)
