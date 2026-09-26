@@ -313,6 +313,33 @@ namespace OpenGSCore
         }
 
         /// <summary>
+        /// <summary>
+        /// Releases the wait room when a match never reached the map.
+        /// <para>
+        /// When the S3 loading handshake times out, the MatchRoom that was
+        /// created is discarded, but NowPlaying on the wait room stays true.
+        /// CanStartMatch() then keeps returning false, so the room is stuck and
+        /// can never start again. This releases it so a retry is possible.
+        /// The link is cleared as well, because the MatchRoom on the other side
+        /// is being thrown away; leaving it set would keep the room locked.
+        /// </para>
+        /// </summary>
+        public void CancelPendingMatch()
+        {
+            lock (lockObject)
+            {
+                var pending = MatchRoomLink;
+                MatchRoomLink = null;
+                NowPlaying = false;
+
+                if (pending != null)
+                {
+                    pending.WaitRoomLink = null;
+                }
+            }
+        }
+
+        /// <summary>
         /// ゲーム開始可能かチェック
         /// </summary>
         public bool CanStartMatch()
