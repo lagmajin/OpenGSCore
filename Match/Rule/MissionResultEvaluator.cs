@@ -61,9 +61,10 @@ namespace OpenGSCore
     {
         public static IMatchResultEvaluator CreateEvaluator(EGameMode mode)
         {
-            return mode == EGameMode.Practice || mode == EGameMode.Unknown
-                ? new MissionResultEvaluator()
-                : new MissionResultEvaluator();
+            // Missions currently share a single evaluator. The mode parameter is
+            // kept so per-mode mission rules can be split out later without
+            // changing every caller.
+            return new MissionResultEvaluator();
         }
     }
 
