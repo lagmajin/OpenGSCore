@@ -20,13 +20,6 @@ namespace OpenGSCore
         HealItem            // HP回復
     }
 
-
-
-
-
-
-}
-
     /// <summary>
     /// アイテム効果の既定持続時間（秒）。
     /// Timed effects used to hard code 30 seconds on the client only, so the
@@ -36,4 +29,5 @@ namespace OpenGSCore
     public static class FieldItemDefaults
     {
         public const float DurationSeconds = 30.0f;
+    }
 }
