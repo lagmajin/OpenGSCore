@@ -80,7 +80,7 @@ namespace OpenGSCore
             lock (playerSyncLock)
             {
                 var player = Players.FirstOrDefault(p =>
-                    string.Equals(p.Id, playerId, StringComparison.OrdinalIgnoreCase));
+                    IdEquals(p.Id, playerId));
                 if (player == null)
                 {
                     return;
@@ -144,7 +144,7 @@ namespace OpenGSCore
 
             lock (playerSyncLock)
             {
-                if (!Players.Exists(p => p.Id == info.Id))
+                if (!Players.Exists(p => IdEquals(p.Id, info.Id)))
                 {
                     Players.Add(info);
                 }
@@ -161,7 +161,7 @@ namespace OpenGSCore
                     return false;
                 }
 
-                player = Players.FirstOrDefault(p => p.Id == playerId);
+                player = Players.FirstOrDefault(p => IdEquals(p.Id, playerId));
                 return player != null;
             }
         }
@@ -175,8 +175,23 @@ namespace OpenGSCore
                     return false;
                 }
 
-                return Players.Any(p => p.Id == playerId);
+                return Players.Any(p => IdEquals(p.Id, playerId));
             }
+        }
+
+        /// <summary>
+        /// Compares two player ids.
+        /// <para>
+        /// Player ids are guids produced with the N format, but they also arrive
+        /// from clients, and the casing of a guid is not fixed by the format. The
+        /// lookups here used a plain string equality while RemovePlayer did not,
+        /// so the same player could be found by one call and missed by another,
+        /// and a pose was stored under a key the lookup could never match.
+        /// </para>
+        /// </summary>
+        private static bool IdEquals(string left, string right)
+        {
+            return string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
         }
 
         public void SetPlayerPoseState(string playerId, EPlayerPoseState poseState)
@@ -188,12 +203,15 @@ namespace OpenGSCore
                     return;
                 }
 
-                if (!Players.Any(p => p.Id == playerId))
+                // Store under the id the player actually has, not the one the
+                // caller passed, so the state can be found again later.
+                var actual = Players.FirstOrDefault(p => IdEquals(p.Id, playerId))?.Id;
+                if (actual == null)
                 {
                     return;
                 }
 
-                playerPoseStates[playerId] = poseState;
+                playerPoseStates[actual] = poseState;
             }
         }
 
@@ -201,7 +219,18 @@ namespace OpenGSCore
         {
             lock (playerSyncLock)
             {
-                return playerPoseStates.TryGetValue(playerId, out var poseState) ? poseState : EPlayerPoseState.Stand;
+                // The dictionary is keyed by the id the player actually has, so
+                // resolve the caller's id against the roster before reading it
+                // rather than looking the key up verbatim.
+                foreach (var entry in playerPoseStates)
+                {
+                    if (IdEquals(entry.Key, playerId))
+                    {
+                        return entry.Value;
+                    }
+                }
+
+                return EPlayerPoseState.Stand;
             }
         }
 
