@@ -69,6 +69,11 @@ namespace OpenGSCore
 
         /// <summary>
         /// True when the type grants a timed buff rather than a one shot effect.
+        /// <para>
+        /// A dropped weapon is deliberately not in this set. It is not a timed
+        /// effect, it is equipment that is carried, so a caller acting on "a buff
+        /// was applied" must not treat picking a weapon up as one.
+        /// </para>
         /// </summary>
         public static bool IsTimedBuff(EFieldItemType type)
         {
@@ -77,6 +82,20 @@ namespace OpenGSCore
                     or EFieldItemType.DefenceUpItem
                     or EFieldItemType.SpeedUpItem
                     or EFieldItemType.StealthItem;
+        }
+
+        /// <summary>
+        /// True when the type is equipment a player carries rather than something
+        /// that applies an effect on contact.
+        /// <para>
+        /// A dropped weapon keeps state with it, the rounds left in its magazine,
+        /// so the paths that fire for every pickup cannot assume the effect of a
+        /// pickup is immediate and finite.
+        /// </para>
+        /// </summary>
+        public static bool IsCarriedEquipment(EFieldItemType type)
+        {
+            return type == EFieldItemType.WeaponItem;
         }
     }
 }

@@ -17,7 +17,8 @@ namespace OpenGSCore
         SpeedUpItem,        // 移動速度2倍 (30秒)
         StealthItem,        // キャラ半透明化 (30秒)
         GrenadePack,        // ノーマルグレネード満タン補充
-        HealItem            // HP回復
+        HealItem,           // HP回復
+        WeaponItem          // ドロップされた通常武器。効果ではなく装備そのもの
     }
 
     /// <summary>
