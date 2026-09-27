@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -25,4 +25,15 @@ namespace OpenGSCore
 
 
 
+}
+
+    /// <summary>
+    /// アイテム効果の既定持続時間（秒）。
+    /// Timed effects used to hard code 30 seconds on the client only, so the
+    /// server had no way to shorten or extend one. Keeping the number in the
+    /// shared package lets both sides apply the same value.
+    /// </summary>
+    public static class FieldItemDefaults
+    {
+        public const float DurationSeconds = 30.0f;
 }
