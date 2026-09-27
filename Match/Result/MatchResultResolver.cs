@@ -33,22 +33,37 @@ namespace OpenGSCore
             return Create(score.mode);
         }
 
+        /// <summary>
+        /// The modes that share the solo death match result. They are listed
+        /// explicitly rather than caught by a default, so adding a mode without
+        /// deciding its result fails instead of drifting silently into death
+        /// match.
+        /// </summary>
+        private static bool IsSoloDeathMatchMode(EGameMode mode)
+        {
+            return mode
+                is EGameMode.DeathMatch
+                    or EGameMode.OneShotKill
+                    or EGameMode.ArmsRace
+                    or EGameMode.Practice
+                    or EGameMode.FreeStyle
+                    or EGameMode.Sniper
+                    or EGameMode.TowerMatch;
+        }
+
         public static AbstractMatchResult Create(EGameMode mode)
         {
             return mode switch
             {
-                EGameMode.DeathMatch => new DeathMatchResult(),
-                EGameMode.OneShotKill => new DeathMatchResult(),
-                EGameMode.ArmsRace => new DeathMatchResult(),
                 EGameMode.TeamDeathMatch => new TeamDeathMatchResult(),
                 EGameMode.CaptureTheFlag => new CTFMatchResult(),
                 EGameMode.Survival => new SuvMatchResult(),
                 EGameMode.TeamSurvival => new TSuvMatchResult(),
-                EGameMode.Practice => new DeathMatchResult(),
-                EGameMode.FreeStyle => new DeathMatchResult(),
-                EGameMode.Sniper => new DeathMatchResult(),
-                EGameMode.TowerMatch => new DeathMatchResult(),
-                _ => throw new NotSupportedException($"Unsupported match result mode: {mode}")
+                _ when IsSoloDeathMatchMode(mode) => new DeathMatchResult(),
+                _ => throw new NotSupportedException(
+                    $"Unsupported match result mode: {mode}. Sniper, TowerMatch, " +
+                    "Practice, and FreeStyle have no rule or setting type of their own yet, " +
+                    "so they only resolve while they stay on the death match result.")
             };
         }
     }
