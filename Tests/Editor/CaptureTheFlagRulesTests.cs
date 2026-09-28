@@ -283,6 +283,43 @@ namespace OpenGSCore.Tests
         }
 
         [Test]
+        public void TheRoomSaysTheFlagLimitTheServerIsPlayingTo()
+        {
+            var setting = new CaptureTheFlagMatchSetting(winCondition: 3);
+            var room = new MatchRoom(1, "ctf", "host", setting, new MatchRoomEventBus());
+
+            var state = room.ToJSon();
+
+            // A client used to carry its own idea of this and the server carried
+            // another, so a scoreboard could say first to five on a match that
+            // ends at three. The rule ends the match, so the rule's number is the
+            // one worth saying out loud.
+            Assert.That(
+                state["WinConditionPoint"]?.ToObject<int>(),
+                Is.EqualTo(setting.WinConditionPoint));
+        }
+
+        [Test]
+        public void TheRoomSaysTheClockItsRuleIsRunningOn()
+        {
+            var setting = new CaptureTheFlagMatchSetting(winCondition: 3);
+            var room = new MatchRoom(1, "ctf", "host", setting, new MatchRoomEventBus());
+            room.GameStart();
+
+            var state = room.ToJSon();
+
+            // The rule is what ends the match, so the room state reports the
+            // clock the rule is running rather than the one a setting carried.
+            // A setting's own field defaults to zero, and reporting that would
+            // tell a client the match had no time on it.
+            Assert.That(
+                state["MatchTimeSeconds"]?.ToObject<float>(),
+                Is.EqualTo(room.Rule.MatchTimeMSec() / 1000f));
+            Assert.That(state["MatchTimeSeconds"]?.ToObject<float>(), Is.GreaterThan(0f));
+            Assert.That(state["IsPlaying"]?.ToObject<bool>(), Is.True);
+        }
+
+        [Test]
         public void ATeamWithNoOpponentHasNoEnemyFlag()
         {
             var flags = FreshFlags();
