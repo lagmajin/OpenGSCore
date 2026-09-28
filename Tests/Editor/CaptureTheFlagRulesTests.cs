@@ -65,7 +65,7 @@ namespace OpenGSCore.Tests
 
             // Nothing is in anybody's hands, so a claim that a carrier dropped is
             // a claim about a carrier that does not exist.
-            Assert.That(flags[ETeam.Blue].Drop(), Is.False);
+            Assert.That(flags[ETeam.Blue].Drop(0.0d), Is.False);
             Assert.That(flags[ETeam.Blue].State, Is.EqualTo(EFlagState.FlagOnStand));
         }
 
@@ -113,7 +113,7 @@ namespace OpenGSCore.Tests
             var flags = FreshFlags();
             flags[ETeam.Blue].PickUp("red-player");
             flags[ETeam.Red].PickUp("blue-player");
-            flags[ETeam.Red].Drop();
+            flags[ETeam.Red].Drop(0.0d);
 
             // A flag on the ground is not at base either, so the same refusal
             // applies: a team whose flag is loose cannot defend.
@@ -183,7 +183,7 @@ namespace OpenGSCore.Tests
             var flags = FreshFlags();
             flags[ETeam.Blue].PickUp("red-player");
             flags[ETeam.Red].PickUp("blue-player");
-            flags[ETeam.Blue].Drop();
+            flags[ETeam.Blue].Drop(0.0d);
 
             CaptureTheFlagRules.ResetAll(flags);
 
@@ -191,6 +191,95 @@ namespace OpenGSCore.Tests
             Assert.That(flags[ETeam.Blue].State, Is.EqualTo(EFlagState.FlagOnStand));
             Assert.That(flags[ETeam.Red].CarrierId, Is.Null);
             Assert.That(flags[ETeam.Blue].CarrierId, Is.Null);
+        }
+
+        [Test]
+        public void ADroppedFlagWaitsOnTheGroundBeforeItGoesHome()
+        {
+            var flags = FreshFlags();
+            var flag = flags[ETeam.Blue];
+            flag.AutoReturnSeconds = 30f;
+
+            flag.PickUp("red-player");
+            flag.Drop(1000.0d);
+
+            // The clock starts when the flag is dropped, because a flag on the
+            // ground is on a countdown whether or not anybody is around to see it
+            // go home.
+            Assert.That(flag.HasTimedOutOnGround(1029.0d), Is.False);
+            Assert.That(flag.HasTimedOutOnGround(1030.0d), Is.True);
+        }
+
+        [Test]
+        public void AFlagBeingCarriedIsNotOnATimer()
+        {
+            var flags = FreshFlags();
+            var flag = flags[ETeam.Blue];
+
+            flag.PickUp("red-player");
+
+            // A carrier is waiting for nothing, so a carried flag is never due
+            // back however long they hold it.
+            Assert.That(flag.HasTimedOutOnGround(100000.0d), Is.False);
+        }
+
+        [Test]
+        public void ATimedOutFlagGoesHomeByItself()
+        {
+            var flags = FreshFlags();
+            flags[ETeam.Blue].AutoReturnSeconds = 10f;
+            flags[ETeam.Blue].PickUp("red-player");
+            flags[ETeam.Blue].Drop(0.0d);
+
+            var returned = CaptureTheFlagRules.ReturnTimedOutFlags(flags, 20.0d);
+
+            // A flag nobody claims has to come back on its own, or a team that
+            // lost a carrier can never pick their flag up again and is out of the
+            // match by a rule nobody chose.
+            Assert.That(returned, Is.EqualTo(ETeam.Blue));
+            Assert.That(flags[ETeam.Blue].State, Is.EqualTo(EFlagState.FlagOnStand));
+        }
+
+        [Test]
+        public void AFlagThatWasNeverDroppedIsNotSweptUp()
+        {
+            var flags = FreshFlags();
+            flags[ETeam.Blue].AutoReturnSeconds = 10f;
+            flags[ETeam.Blue].PickUp("red-player");
+
+            Assert.That(
+                CaptureTheFlagRules.ReturnTimedOutFlags(flags, 20.0d),
+                Is.EqualTo(ETeam.NoTeam));
+        }
+
+        [Test]
+        public void AFlagPickedUpBeforeItsDeadlineKeepsIt()
+        {
+            var flags = FreshFlags();
+            flags[ETeam.Blue].AutoReturnSeconds = 10f;
+            flags[ETeam.Blue].PickUp("red-player");
+            flags[ETeam.Blue].Drop(0.0d);
+            flags[ETeam.Blue].PickUp("other-red");
+
+            // The clock stops when the flag is taken again, so a carrier who gets
+            // to it before the deadline keeps it rather than losing it to a timer
+            // that never noticed it had moved.
+            Assert.That(
+                CaptureTheFlagRules.ReturnTimedOutFlags(flags, 20.0d),
+                Is.EqualTo(ETeam.NoTeam));
+            Assert.That(flags[ETeam.Blue].CarrierId, Is.EqualTo("other-red"));
+        }
+
+        [Test]
+        public void TheAutoReturnWaitIsAlwaysSane()
+        {
+            var flag = new TeamFlag(ETeam.Red);
+
+            flag.AutoReturnSeconds = float.NaN;
+            Assert.That(flag.AutoReturnSeconds, Is.EqualTo(TeamFlag.DefaultAutoReturnSeconds));
+
+            flag.AutoReturnSeconds = -5f;
+            Assert.That(flag.AutoReturnSeconds, Is.GreaterThan(0f));
         }
 
         [Test]

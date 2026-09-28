@@ -76,11 +76,49 @@ namespace OpenGSCore
         /// </summary>
         public string? CarrierId { get; private set; }
 
+        /// <summary>
+        /// Whether a flag is on the ground waiting to be picked up or to go home.
+        /// <para>
+        /// This is what the auto return asks, rather than a flag on the drop time,
+        /// because a flag dropped at the start of a clock is a flag on the ground
+        /// like any other. Treating a timestamp of zero as "not dropped" would
+        /// quietly exempt the first drop of a match from ever coming back.
+        /// </para>
+        /// </summary>
+        private bool waitingOnGround;
+
         public bool IsAtBase => State.IsStable();
 
         public bool IsCarried => State.IsCarried();
 
         public bool IsDropped => State.IsDropped();
+
+        /// <summary>
+        /// How long a dropped flag waits before it goes home on its own.
+        /// <para>
+        /// The client has a timer for this, and the client was the only side that
+        /// had one, which meant a dropped flag came back only if a client lived
+        /// to say so. The server holds the flag, so the server keeps the time.
+        /// </para>
+        /// </summary>
+        public const float DefaultAutoReturnSeconds = 30f;
+
+        private float autoReturnSeconds = DefaultAutoReturnSeconds;
+
+        /// <summary>
+        /// When the flag was dropped, on a clock the client cannot set. Zero
+        /// when it is not lying on the ground.
+        /// </summary>
+        public double DroppedAtSeconds { get; private set; }
+
+        /// <summary>
+        /// How long this flag waits on the ground before it returns by itself.
+        /// </summary>
+        public float AutoReturnSeconds
+        {
+            get => autoReturnSeconds;
+            set => autoReturnSeconds = float.IsFinite(value) ? MathF.Max(0.1f, value) : DefaultAutoReturnSeconds;
+        }
 
         /// <summary>
         /// Puts the flag in a player's hands.
@@ -98,13 +136,19 @@ namespace OpenGSCore
 
             State = EFlagState.FlagCapturedPlayer;
             CarrierId = carrierId;
+            waitingOnGround = false;
+            DroppedAtSeconds = 0.0d;
             return true;
         }
 
         /// <summary>
         /// Takes the flag out of the carrier's hands and leaves it on the ground.
+        /// <para>
+        /// The clock starts here, because a flag on the ground is on a countdown
+        /// whether or not anybody is around to see it go home.
+        /// </para>
         /// </summary>
-        public bool Drop()
+        public bool Drop(double nowSeconds)
         {
             if (!IsCarried)
             {
@@ -113,6 +157,8 @@ namespace OpenGSCore
 
             State = EFlagState.FlagOnGround;
             CarrierId = null;
+            waitingOnGround = true;
+            DroppedAtSeconds = nowSeconds;
             return true;
         }
 
@@ -132,7 +178,24 @@ namespace OpenGSCore
 
             State = EFlagState.FlagOnStand;
             CarrierId = null;
+            waitingOnGround = false;
+            DroppedAtSeconds = 0.0d;
             return true;
+        }
+
+        /// <summary>
+        /// Whether a flag lying on the ground has been there long enough to go
+        /// home by itself.
+        /// <para>
+        /// This is asked rather than done, so the caller decides what a return by
+        /// itself announces. A flag that nobody claims has to come back on its own
+        /// or a team that lost a carrier can never pick their flag up again and is
+        /// out of the match by a rule nobody chose.
+        /// </para>
+        /// </summary>
+        public bool HasTimedOutOnGround(double nowSeconds)
+        {
+            return waitingOnGround && (nowSeconds - DroppedAtSeconds) >= autoReturnSeconds;
         }
     }
 
@@ -235,6 +298,40 @@ namespace OpenGSCore
             {
                 flag?.Return(EFlagReturnReason.AutoReturn);
             }
+        }
+
+        /// <summary>
+        /// Puts a flag that has been lying on the ground long enough back on its
+        /// stand, and says which team it was.
+        /// <para>
+        /// The timer belongs to the server because the server holds the flag. When
+        /// only the client had one, a dropped flag came back if and only if some
+        /// client lived long enough to say so, so a single message that did not
+        /// arrive left a flag on the ground for the rest of the match and a team
+        /// that could never pick it up.
+        /// </para>
+        /// </summary>
+        /// <returns>The team whose flag went home, or NoTeam when nothing did.</returns>
+        public static ETeam ReturnTimedOutFlags(
+            IReadOnlyDictionary<ETeam, TeamFlag> flags,
+            double nowSeconds)
+        {
+            if (flags == null)
+            {
+                return ETeam.NoTeam;
+            }
+
+            foreach (var flag in flags.Values)
+            {
+                if (flag != null &&
+                    flag.HasTimedOutOnGround(nowSeconds) &&
+                    flag.Return(EFlagReturnReason.AutoReturn))
+                {
+                    return flag.Team;
+                }
+            }
+
+            return ETeam.NoTeam;
         }
     }
 }
