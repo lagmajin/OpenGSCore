@@ -165,12 +165,26 @@ namespace OpenGSCore.Tests
             // The rule is given a setting directly elsewhere, and a setting can
             // arrive with no time on it. Taking it as given would build a rule
             // whose clock is zero, which is a match that has already ended.
-            var setting = new SuvMatchSetting(maxPlayer: 4, teamBalance: false) { MatchTimeMSec = 0 };
+            var setting = new SuvMatchSetting(maxPlayer: 4, teamBalance: false) { SurvivalTimeMinutes = 0 };
             var rule = new SuvMatchRule(setting);
 
             Assert.That(
                 rule.MatchTimeMSec(),
                 Is.EqualTo(SuvMatchSetting.DefaultSurvivalTimeMinutes * 60 * 1000));
+        }
+
+        [Test]
+        public void ASurvivalRuleReadsTheMinutesRatherThanASnapshotOfThem()
+        {
+            // The setting wrote its length into MatchTimeMSec once, in its
+            // constructor. A room configured for a different length after that
+            // kept the default, and nothing said so, because the rule was reading
+            // the snapshot. It reads the minutes now, so there is one number and
+            // it is the one that is written.
+            var setting = new SuvMatchSetting(maxPlayer: 4, teamBalance: false) { SurvivalTimeMinutes = 7 };
+            var rule = new SuvMatchRule(setting);
+
+            Assert.That(rule.MatchTimeMSec(), Is.EqualTo(7 * 60 * 1000));
         }
 
         [Test]
