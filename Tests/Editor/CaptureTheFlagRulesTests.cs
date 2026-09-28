@@ -276,10 +276,45 @@ namespace OpenGSCore.Tests
             var flag = new TeamFlag(ETeam.Red);
 
             flag.AutoReturnSeconds = float.NaN;
-            Assert.That(flag.AutoReturnSeconds, Is.EqualTo(TeamFlag.DefaultAutoReturnSeconds));
+            Assert.That(flag.AutoReturnSeconds, Is.EqualTo(CaptureTheFlagRules.DefaultAutoReturnSeconds));
 
             flag.AutoReturnSeconds = -5f;
             Assert.That(flag.AutoReturnSeconds, Is.GreaterThan(0f));
+        }
+
+        [Test]
+        public void TheWaitIsOneNumberTheClientCannotHaveItsOwn()
+        {
+            // The client draws its countdown from here. It used to carry a thirty
+            // second literal of its own next to the server's, so a change to
+            // either one left the two sides waiting different lengths of time:
+            // a client that waited longer destroyed a flag the server had already
+            // put home, and a client that waited less brought one back that the
+            // server still believed was lying on the ground.
+            Assert.That(
+                TeamFlag.DefaultAutoReturnSeconds,
+                Is.EqualTo(CaptureTheFlagRules.DefaultAutoReturnSeconds));
+            Assert.That(
+                new TeamFlag(ETeam.Red).AutoReturnSeconds,
+                Is.EqualTo(CaptureTheFlagRules.DefaultAutoReturnSeconds));
+        }
+
+        [Test]
+        public void ASanitisedWaitIsNeverUnusable()
+        {
+            // A wait of zero is a flag that comes home the instant it is dropped,
+            // and a wait that is not a number never comes home at all. Both are
+            // worse than the default, so both fall back to it.
+            Assert.That(
+                CaptureTheFlagRules.SanitizeAutoReturnSeconds(float.NaN),
+                Is.EqualTo(CaptureTheFlagRules.DefaultAutoReturnSeconds));
+            Assert.That(
+                CaptureTheFlagRules.SanitizeAutoReturnSeconds(float.PositiveInfinity),
+                Is.EqualTo(CaptureTheFlagRules.DefaultAutoReturnSeconds));
+            Assert.That(CaptureTheFlagRules.SanitizeAutoReturnSeconds(0f), Is.GreaterThan(0f));
+            Assert.That(
+                CaptureTheFlagRules.SanitizeAutoReturnSeconds(12f),
+                Is.EqualTo(12f));
         }
 
         [Test]
