@@ -1,3 +1,4 @@
+using System.Linq;
 using NUnit.Framework;
 using OpenGSCore;
 
@@ -182,6 +183,116 @@ namespace OpenGSCore.Tests
             // A client carried its own idea of this before, and the room state had
             // no way to tell it the right one.
             Assert.That(room.ToJSon()["WinConditionKill"]?.ToObject<int>(), Is.EqualTo(5));
+        }
+
+        [Test]
+        public void TheRoomSaysTheHealthMultiplierItIsPlayingAt()
+        {
+            // The client derived this from the mode and hardcoded two, so a room
+            // configured with anything else was played at two health on one side
+            // and its own number on the other, and the two disagreed about how
+            // much health a player had.
+            var setting = new SuvMatchSetting(maxPlayer: 4, teamBalance: false) { HealthMultiplier = 3f };
+            var room = CreateRoom(setting, "one", "two");
+            room.GameStart();
+
+            Assert.That(room.ToJSon()["HealthMultiplier"]?.ToObject<float>(), Is.EqualTo(3f));
+        }
+
+        [Test]
+        public void ATeamSurvivalRoomAlsoSaysItsMultiplier()
+        {
+            var setting = new TeamSurvivalMatchSetting(maxPlayerCapacity: 4) { HealthMultiplier = 1.5f };
+            var room = new MatchRoom(1, "tsuv", "host", setting, new MatchRoomEventBus());
+            room.GameStart();
+
+            Assert.That(room.ToJSon()["HealthMultiplier"]?.ToObject<float>(), Is.EqualTo(1.5f));
+        }
+
+        [Test]
+        public void TheAliveCountFollowsDeaths()
+        {
+            var room = CreateRoom(players: new[] { "one", "two" });
+            room.GameStart();
+
+            Assert.That(room.AliveCount(), Is.EqualTo(2));
+
+            room.TryGetPlayer("two", out var second);
+            second!.Health = 0;
+            room.RecordDeath("two");
+
+            // This is the number the team survival rule ends a match on, so a
+            // death that does not move it is a death the rule cannot see.
+            Assert.That(room.AliveCount(), Is.EqualTo(1));
+        }
+    }
+
+    /// <summary>
+    /// Whether a team survival match is over, and which of the two ways ends it
+    /// a room is configured to be ended.
+    /// </summary>
+    public class TeamSurvivalRuleTests
+    {
+        private static MatchRoom CreateRoom(TeamSurvivalMatchSetting setting, params string[] players)
+        {
+            var room = new MatchRoom(1, "tsuv", "host", setting, new MatchRoomEventBus());
+            foreach (var id in players)
+            {
+                var team = id.StartsWith("blue", System.StringComparison.Ordinal)
+                    ? ETeam.Blue
+                    : ETeam.Red;
+                room.AddNewPlayer(new PlayerInfo(id, id) { Team = team, Health = 100 });
+            }
+
+            return room;
+        }
+
+        [Test]
+        public void AWipedOutTeamEndsAMatchDecidedOnWhoIsLeftStanding()
+        {
+            var setting = new TeamSurvivalMatchSetting { LastTeamStanding = true };
+            var room = CreateRoom(setting, "red-one", "blue-one");
+            room.GameStart();
+
+            // The rule read the alive counts from a situation nothing wrote, so
+            // the wipe could never happen and this mode could only ever end on the
+            // clock.
+            var blue = room.Players.First(p => p.Id == "blue-one");
+            blue.Health = 0;
+            room.RecordDeath("blue-one");
+
+            Assert.That(room.IsMatchFinished(), Is.True);
+        }
+
+        [Test]
+        public void AMatchDecidedOnTheClockIgnoresAWipe()
+        {
+            var setting = new TeamSurvivalMatchSetting { LastTeamStanding = false };
+            var room = CreateRoom(setting, "red-one", "blue-one");
+            room.GameStart();
+
+            var blue = room.Players.First(p => p.Id == "blue-one");
+            blue.Health = 0;
+            room.RecordDeath("blue-one");
+
+            // The setting promised a choice between the two ways of ending the
+            // match and nothing read it, so every team survival match was played
+            // as last team standing whatever it was configured for.
+            Assert.That(
+                room.IsMatchFinished(),
+                Is.False,
+                "a match configured to be decided on the clock ended because a team was wiped out");
+        }
+
+        [Test]
+        public void ATeamSurvivalRuleWithNoTimeFallsBackToADefault()
+        {
+            var setting = new TeamSurvivalMatchSetting { SurvivalTimeMinutes = 0 };
+            var rule = new TSuvMatchRule(setting);
+
+            Assert.That(
+                rule.MatchTimeMSec(),
+                Is.EqualTo(TSuvMatchRule.DefaultSurvivalTimeMinutes * 60 * 1000));
         }
     }
 }
