@@ -150,6 +150,24 @@ namespace OpenGSCore.Tests
         }
 
         [Test]
+        public void ATeamRoomSaysTheScoreItIsActuallyOn()
+        {
+            // A client counts its own kills and sends its own claims, so a score it
+            // worked out for itself is a score of its own making for the whole
+            // match. The room keeps the real one and publishes it, so a client is
+            // showing a number rather than hoping its own is right.
+            var setting = new TDMMatchSetting { WinConditionKill = 25 };
+            var room = CreatePlayedRoom(setting);
+            room.RecordKill("red-one");
+            room.RecordKill("red-one");
+            room.RecordKill("blue-one");
+
+            var state = room.ToJSon();
+            Assert.That(state["RedTeamKills"]?.ToObject<int>(), Is.EqualTo(2));
+            Assert.That(state["BlueTeamKills"]?.ToObject<int>(), Is.EqualTo(1));
+        }
+
+        [Test]
         public void ATeamModeSaysWhichTeamWonByItsOwnScore()
         {
             foreach (var setting in EveryMode().Where(IsTeamMode))
