@@ -133,6 +133,23 @@ namespace OpenGSCore.Tests
         }
 
         [Test]
+        public void ARoomSaysHowLongItRunsAndHowMuchOfItIsLeft()
+        {
+            foreach (var setting in EveryMode())
+            {
+                var room = CreatePlayedRoom(setting);
+
+                var state = room.ToJSon();
+                var length = state["MatchLengthSeconds"]?.ToObject<float>();
+                var left = state["MatchTimeSeconds"]?.ToObject<float>();
+
+                Assert.That(length, Is.GreaterThan(0f), $"{setting.Mode} published no match length");
+                Assert.That(left, Is.GreaterThan(0f), $"{setting.Mode} published no time on its clock");
+                Assert.That(left, Is.LessThanOrEqualTo(length.Value));
+            }
+        }
+
+        [Test]
         public void ATeamModeSaysWhichTeamWonByItsOwnScore()
         {
             foreach (var setting in EveryMode().Where(IsTeamMode))
