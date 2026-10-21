@@ -318,6 +318,68 @@ namespace OpenGSCore.Tests
         }
 
         [Test]
+        public void TheRoomRunsTheClockItsSettingAskedFor()
+        {
+            var setting = new CaptureTheFlagMatchSetting(winCondition: 3, matchTimeMinutes: 7);
+            var rule = MatchRuleFactory.CreateMatchRule(setting);
+
+            // The factory handed the rule only the point limit, so the rule took
+            // its own ten minute default and the setting's length was thrown away.
+            // A room configured for seven minutes was played over ten.
+            Assert.That(rule, Is.Not.Null);
+            Assert.That(rule.MatchTimeMSec(), Is.EqualTo(7 * 60 * 1000));
+        }
+
+        [Test]
+        public void TheClockIsTheSameNumberEveryLayerAgreesOn()
+        {
+            var setting = new CaptureTheFlagMatchSetting(winCondition: 5, matchTimeMinutes: 12);
+            var rule = MatchRuleFactory.CreateMatchRule(setting);
+            var room = new MatchRoom(1, "ctf", "host", setting, new MatchRoomEventBus());
+
+            // The rule ends the match, the room reports what the rule is running,
+            // and the setting says what was asked for. When those three disagree a
+            // client shows a clock the server is not playing to.
+            Assert.That(setting.MatchTimeMinutes, Is.EqualTo(12));
+            Assert.That(rule!.MatchTimeMSec(), Is.EqualTo(setting.MatchTimeMSec));
+            Assert.That(
+                room.ToJSon()["MatchLengthSeconds"]?.ToObject<float>(),
+                Is.EqualTo(setting.MatchTimeMSec / 1000f));
+        }
+
+        [Test]
+        public void TheClockIsTenMinutesUnlessSomebodyAsksForAnother()
+        {
+            var setting = new CaptureTheFlagMatchSetting();
+
+            // The same default the rule itself carried, so the default is one
+            // number rather than two that happen to agree today.
+            Assert.That(setting.MatchTimeMinutes, Is.EqualTo(10));
+            Assert.That(
+                MatchRuleFactory.CreateMatchRule(setting)!.MatchTimeMSec(),
+                Is.EqualTo(new CaptureTheFlagMatchRule().MatchTimeMSec()));
+        }
+
+        [Test]
+        public void AMatchEndsOnTheClockOrThePointScore()
+        {
+            var rule = MatchRuleFactory.CreateMatchRule(
+                new CaptureTheFlagMatchSetting(winCondition: 3, matchTimeMinutes: 10))!;
+            var situation = new CaptureTheFlagMatchSituation { RemainingTimeSec = 600f };
+
+            Assert.That(rule.IsMatchFinished(situation), Is.False);
+
+            // The score.
+            situation.RedTeamFlagCaptures = 3;
+            Assert.That(rule.IsMatchFinished(situation), Is.True);
+
+            // The clock, on a match where nobody reached the score.
+            situation.RedTeamFlagCaptures = 0;
+            situation.RemainingTimeSec = 0f;
+            Assert.That(rule.IsMatchFinished(situation), Is.True);
+        }
+
+        [Test]
         public void TheRoomSaysTheFlagLimitTheServerIsPlayingTo()
         {
             var setting = new CaptureTheFlagMatchSetting(winCondition: 3);
