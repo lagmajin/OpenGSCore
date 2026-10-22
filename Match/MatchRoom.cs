@@ -28,6 +28,7 @@ namespace OpenGSCore
 
         private AbstractMatchSituation? Situation { get; set; } = null;
         private readonly object playerSyncLock = new();
+        private readonly object finishSyncLock = new();
 
         public GameScene GameScene { get; set; } = new();
 
@@ -55,6 +56,7 @@ namespace OpenGSCore
 
         public bool Playing { get; private set; } = false;
         public bool Finished { get; private set; } = false;
+        public bool CanRespawn => rule?.CanReSpawn() ?? false;
 
         private Stopwatch sw = new();
 
@@ -170,6 +172,114 @@ namespace OpenGSCore
             }
         }
 
+        public bool TryApplyPlayerDamage(
+            string attackerId, string targetId, int baseDamage,
+            out int damageApplied, out int remainingHealth, out bool wasKilled)
+        {
+            return TryApplyPlayerDamage(attackerId, targetId, baseDamage, false,
+                out damageApplied, out remainingHealth, out wasKilled);
+        }
+
+        public bool TryApplyPlayerDamage(
+            string attackerId, string targetId, int baseDamage, bool allowDeadAttacker,
+            out int damageApplied, out int remainingHealth, out bool wasKilled)
+        {
+            damageApplied = 0;
+            remainingHealth = 0;
+            wasKilled = false;
+            if (string.IsNullOrWhiteSpace(attackerId) || string.IsNullOrWhiteSpace(targetId) ||
+                attackerId == targetId || baseDamage <= 0 || !Playing || Finished)
+                return false;
+
+            lock (playerSyncLock)
+            {
+                var attacker = Players.FirstOrDefault(player => player.Id == attackerId);
+                var target = Players.FirstOrDefault(player => player.Id == targetId);
+                if (attacker == null || target == null ||
+                    (!allowDeadAttacker && attacker.Health <= 0) || target.Health <= 0)
+                    return false;
+
+                var damageRate = !float.IsNaN(Setting.DamageRate) && !float.IsInfinity(Setting.DamageRate) &&
+                    Setting.DamageRate > 0f
+                    ? Setting.DamageRate : 1f;
+                var scaledDamage = (int)Math.Min(1000d, Math.Max(1d, Math.Ceiling(baseDamage * (double)damageRate)));
+                damageApplied = Math.Min(target.Health, scaledDamage);
+                target.Health = Math.Max(0, target.Health - damageApplied);
+                remainingHealth = target.Health;
+                wasKilled = target.Health == 0;
+
+                if (wasKilled)
+                {
+                    target.Deaths++;
+                    attacker.Kills++;
+                    situation.TotalKill++;
+                    situation.TotalDeath++;
+                    situation.MaxPlayerKillCount = Math.Max(situation.MaxPlayerKillCount, attacker.Kills);
+                    if (situation is AbstractTeamMatchSituation teamSituation)
+                    {
+                        if (attacker.Team == ETeam.Red) teamSituation.RedTeamKill++;
+                        else if (attacker.Team == ETeam.Blue) teamSituation.BlueTeamKill++;
+                    }
+                    if (situation is TeamSurvivalMatchSituation teamSurvival &&
+                        (target.Team == ETeam.Red || target.Team == ETeam.Blue))
+                    {
+                        int aliveCount = Players.Count(player => player.Team == target.Team && player.Health > 0);
+                        teamSurvival.SetAliveCount(target.Team, aliveCount);
+                    }
+                }
+
+                situation.AlivePlayers = Players.Count(player => player.Health > 0);
+                return true;
+            }
+        }
+
+        public bool TryRespawnPlayer(string playerId, out int currentHealth, out int maxHealth)
+        {
+            currentHealth = 0;
+            maxHealth = 0;
+            if (!CanRespawn || !Playing || Finished || string.IsNullOrWhiteSpace(playerId))
+                return false;
+
+            lock (playerSyncLock)
+            {
+                var player = Players.FirstOrDefault(candidate => candidate.Id == playerId);
+                if (player == null || player.Health > 0)
+                    return false;
+
+                maxHealth = Math.Max(player.MaxHealth, 1);
+                player.MaxHealth = maxHealth;
+                player.Health = maxHealth;
+                currentHealth = player.Health;
+                situation.AlivePlayers = Players.Count(candidate => candidate.Health > 0);
+                return true;
+            }
+        }
+
+        public bool TryHealPlayer(
+            string playerId, int requestedHealing,
+            out int restoredHealth, out int currentHealth, out int maxHealth)
+        {
+            restoredHealth = 0;
+            currentHealth = 0;
+            maxHealth = 0;
+            if (!Playing || Finished || string.IsNullOrWhiteSpace(playerId) || requestedHealing <= 0)
+                return false;
+
+            lock (playerSyncLock)
+            {
+                var player = Players.FirstOrDefault(candidate => candidate.Id == playerId);
+                if (player == null || player.Health <= 0) return false;
+                maxHealth = Math.Max(player.MaxHealth, 1);
+                player.MaxHealth = maxHealth;
+                currentHealth = Math.Clamp(player.Health, 0, maxHealth);
+                restoredHealth = Math.Min(requestedHealing, maxHealth - currentHealth);
+                if (restoredHealth <= 0) return false;
+                player.Health = currentHealth + restoredHealth;
+                currentHealth = player.Health;
+                return true;
+            }
+        }
+
         public void AddNewPlayers(List<PlayerInfo> list)
         {
             if (list == null || list.Count == 0)
@@ -276,6 +386,17 @@ namespace OpenGSCore
         {
             sw.Start();
 
+            lock (playerSyncLock)
+            {
+                if (situation is TeamSurvivalMatchSituation teamSurvival)
+                {
+                    teamSurvival.SetAliveCount(ETeam.Red,
+                        Players.Count(player => player.Team == ETeam.Red && player.Health > 0));
+                    teamSurvival.SetAliveCount(ETeam.Blue,
+                        Players.Count(player => player.Team == ETeam.Blue && player.Health > 0));
+                }
+            }
+
             // ステータス更新を開始
             StartStatusUpdates();
 
@@ -285,22 +406,40 @@ namespace OpenGSCore
 
         public void Finish()
         {
-            // ステータス更新を停止
+            lock (finishSyncLock)
+            {
+                if (Finished) return;
+                var evaluator = MatchResultEvaluatorFactory.CreateEvaluator(Setting.Mode);
+                CompleteFinish(evaluator.Evaluate(situation, Players));
+            }
+        }
+
+        public bool TryFinishMission(bool succeeded, string? reason = null)
+        {
+            lock (finishSyncLock)
+            {
+                if (Setting is not MissionMatchSetting || !Playing || Finished)
+                    return false;
+
+                var evaluator = MatchResultEvaluatorFactory.CreateEvaluator(Setting.Mode);
+                var result = evaluator.Evaluate(situation, Players);
+                result["ResultType"] = "Mission";
+                result["Success"] = succeeded;
+                if (!string.IsNullOrWhiteSpace(reason))
+                    result["Reason"] = reason;
+                CompleteFinish(result);
+                return true;
+            }
+        }
+
+        private void CompleteFinish(JObject resultJson)
+        {
             StopStatusUpdates();
-
-            // 勝敗判定ロジックをファクトリから取得して実行
-            var evaluator = MatchResultEvaluatorFactory.CreateEvaluator(Setting.Mode);
-            var resultJson = evaluator.Evaluate(situation, Players);
             resultJson["RoomId"] = Id.ToString();
-
-            // マッチ終了イベントを発行
-            eventBus.PublishGameEnd();
-            eventBus.PublishGameEndWithResult(resultJson);
-
             Playing = false;
             Finished = true;
-
-            // WaitRoomに終了を通知
+            eventBus.PublishGameEnd();
+            eventBus.PublishGameEndWithResult(resultJson);
             if (WaitRoomLink != null)
             {
                 WaitRoomLink.GameIsOver();
