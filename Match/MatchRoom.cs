@@ -52,6 +52,30 @@ namespace OpenGSCore
             } 
         }
 
+        public void AddFlagCapture(ETeam team)
+        {
+            lock (playerSyncLock)
+            {
+                if (situation is not AbstractTeamMatchSituation teamSituation) return;
+                if (team == ETeam.Red) teamSituation.RedTeamFlagCaptures++;
+                else if (team == ETeam.Blue) teamSituation.BlueTeamFlagCaptures++;
+            }
+        }
+
+        public int GetFlagScore(ETeam team)
+        {
+            lock (playerSyncLock)
+            {
+                if (situation is not AbstractTeamMatchSituation teamSituation) return 0;
+                return team switch
+                {
+                    ETeam.Red => teamSituation.RedTeamFlagCaptures,
+                    ETeam.Blue => teamSituation.BlueTeamFlagCaptures,
+                    _ => 0
+                };
+            }
+        }
+
         public int Capacity { get; } = 20;
 
         public bool Playing { get; private set; } = false;

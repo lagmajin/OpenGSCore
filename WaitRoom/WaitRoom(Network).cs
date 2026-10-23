@@ -43,6 +43,7 @@ namespace OpenGSCore
         {
             lock (lockObject)
             {
+                var settingJson = setting?.ToJson();
                 var snapshot = new WaitRoomSnapshot
                 {
                     RoomId = RoomId,
@@ -50,6 +51,8 @@ namespace OpenGSCore
                     Capacity = Capacity,
                     NowPlaying = NowPlaying,
                     GameMode = GameMode.ToString(),
+                    MatchType = settingJson?["MatchType"]?.ToString() ?? string.Empty,
+                    MissionType = settingJson?["MissionType"]?.ToString() ?? string.Empty,
                     Map = Map.ToString(),
                     TeamBalance = setting is AbstractTeamMatchSetting teamSetting && teamSetting.TeamBalance,
                     OwnerId = ""
