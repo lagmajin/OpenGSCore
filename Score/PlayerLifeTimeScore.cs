@@ -28,6 +28,28 @@ namespace OpenGSCore
 
         }
 
+        public PlayerLifeTimeScore(PlayerLifeTimeScore source)
+        {
+            if (source == null) return;
+            TotalMatchCount = source.TotalMatchCount;
+            DeathMatchCount = source.DeathMatchCount;
+            DeathMatchWinCount = source.DeathMatchWinCount;
+            DeathMatchLoseCount = source.DeathMatchLoseCount;
+            TeamDeathMatchWinCount = source.TeamDeathMatchWinCount;
+            TeamDeathMatchLoseCount = source.TeamDeathMatchLoseCount;
+            SurvivalWinCount = source.SurvivalWinCount;
+            SurvivalLoseCount = source.SurvivalLoseCount;
+            TeamSurvivalWinCount = source.TeamSurvivalWinCount;
+            TeamSurvivalLoseCount = source.TeamSurvivalLoseCount;
+            CtfFlagReturn = source.CtfFlagReturn;
+            CtfFlagInterrupt = source.CtfFlagInterrupt;
+            CtfWinCount = source.CtfWinCount;
+            CtfLoseCount = source.CtfLoseCount;
+            MissionCount = source.MissionCount;
+            MissionWinCount = source.MissionWinCount;
+            MissionLoseCount = source.MissionLoseCount;
+        }
+
         public void IncrementTotalMatchCount()
         {
             TotalMatchCount++;
