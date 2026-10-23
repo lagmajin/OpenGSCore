@@ -369,18 +369,31 @@ namespace OpenGSCore
         }
 
         private System.Timers.Timer? statusUpdateTimer;
+        private int statusUpdateCallbacks;
 
         public void StartStatusUpdates()
         {
-            statusUpdateTimer = new System.Timers.Timer(1000); // 1秒ごとに更新
-            statusUpdateTimer.Elapsed += (sender, e) => SendPeriodicStatusUpdate();
-            statusUpdateTimer.Start();
+            lock (playerSyncLock)
+            {
+                if (statusUpdateTimer != null || Finished || _finishing)
+                    return;
+
+                statusUpdateTimer = new System.Timers.Timer(1000) { AutoReset = true };
+                statusUpdateTimer.Elapsed += (sender, e) => SendPeriodicStatusUpdate();
+                statusUpdateTimer.Start();
+            }
         }
 
         public void StopStatusUpdates()
         {
-            statusUpdateTimer?.Stop();
-            statusUpdateTimer?.Dispose();
+            System.Timers.Timer? timer;
+            lock (playerSyncLock)
+            {
+                timer = statusUpdateTimer;
+                statusUpdateTimer = null;
+                timer?.Stop();
+            }
+            timer?.Dispose();
         }
 
         /// <summary>
@@ -824,15 +837,27 @@ namespace OpenGSCore
                 const float deltaTime = 1.0f;
                 situation.UpdateTime(deltaTime);
                 stateChange = itemServiceA.Update(deltaTime, out spawnedItem);
+                statusUpdateCallbacks++;
             }
 
-            if (stateChange == FieldItemService.ESpawnState.Active && spawnedItem.HasValue)
+            try
             {
-                eventBus.PublishItemSpawn(spawnedItem.Value, 0);
+                if (stateChange == FieldItemService.ESpawnState.Active && spawnedItem.HasValue)
+                {
+                    eventBus.PublishItemSpawn(spawnedItem.Value, 0);
+                }
+                else if (stateChange == FieldItemService.ESpawnState.Waiting)
+                {
+                    eventBus.PublishItemDespawn();
+                }
             }
-            else if (stateChange == FieldItemService.ESpawnState.Waiting)
+            finally
             {
-                eventBus.PublishItemDespawn();
+                lock (playerSyncLock)
+                {
+                    statusUpdateCallbacks--;
+                    System.Threading.Monitor.PulseAll(playerSyncLock);
+                }
             }
         }
 
@@ -903,6 +928,12 @@ namespace OpenGSCore
             {
                 // ステータス更新を停止
                 StopStatusUpdates();
+
+                lock (playerSyncLock)
+                {
+                    while (statusUpdateCallbacks > 0)
+                        System.Threading.Monitor.Wait(playerSyncLock);
+                }
 
                 // Win and score data must come from one settled room snapshot.
                 var evaluator = MatchResultEvaluatorFactory.CreateEvaluator(Setting.Mode);
