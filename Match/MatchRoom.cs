@@ -467,22 +467,23 @@ namespace OpenGSCore
         /// </summary>
         public void RecordKill(string killerId)
         {
-            var killer = Players.FirstOrDefault(player =>
-                string.Equals(player.Id, killerId, StringComparison.OrdinalIgnoreCase));
-
-            if (killer == null)
+            lock (playerSyncLock)
             {
-                return;
+                var killer = Players.FirstOrDefault(player =>
+                    string.Equals(player.Id, killerId, StringComparison.OrdinalIgnoreCase));
+
+                if (killer == null)
+                    return;
+
+                killer.Kills++;
+                situation?.RecordKill(killer.Kills);
+
+                // A kill belongs to the team that scored it, and a team death match
+                // is won and ended on the team totals. Nobody was writing them, so
+                // that mode compared two zeroes and reported a draw whatever had
+                // happened in it.
+                (situation as AbstractTeamMatchSituation)?.AddKill(killer.Team);
             }
-
-            killer.Kills++;
-            situation?.RecordKill(killer.Kills);
-
-            // A kill belongs to the team that scored it, and a team death match
-            // is won and ended on the team totals. Nobody was writing them, so
-            // that mode compared two zeroes and reported a draw whatever had
-            // happened in it.
-            (situation as AbstractTeamMatchSituation)?.AddKill(killer.Team);
         }
 
         /// <summary>
@@ -490,18 +491,19 @@ namespace OpenGSCore
         /// </summary>
         public void RecordDeath(string playerId)
         {
-            var player = Players.FirstOrDefault(candidate =>
-                string.Equals(candidate.Id, playerId, StringComparison.OrdinalIgnoreCase));
-
-            if (player == null)
+            lock (playerSyncLock)
             {
-                return;
-            }
+                var player = Players.FirstOrDefault(candidate =>
+                    string.Equals(candidate.Id, playerId, StringComparison.OrdinalIgnoreCase));
 
-            player.Deaths++;
-            situation?.RecordDeath();
-            SpendLife(player);
-            RefreshAliveCounts();
+                if (player == null)
+                    return;
+
+                player.Deaths++;
+                situation?.RecordDeath();
+                SpendLife(player);
+                RefreshAliveCounts();
+            }
         }
 
         /// <summary>
