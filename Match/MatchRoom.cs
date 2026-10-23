@@ -964,26 +964,40 @@ namespace OpenGSCore
                         System.Threading.Monitor.Wait(playerSyncLock);
                 }
 
-                // Win and score data must come from one settled room snapshot.
-                var evaluator = MatchResultEvaluatorFactory.CreateEvaluator(Setting.Mode);
-                JObject resultJson;
-                lock (playerSyncLock)
-                {
-                    resultJson = evaluator.Evaluate(situation, Players);
-                    resultJson["RoomId"] = Id.ToString();
-                }
-
                 var failures = new List<Exception>();
-                // The result goes out first so the manager can store it before
-                // broadcasting the match end. One subscriber cannot prevent
-                // the other end-stage notifications from running.
+                JObject? resultJson = null;
                 try
                 {
-                    eventBus.PublishGameEndWithResult(resultJson);
+                    // Win and score data must come from one settled room snapshot.
+                    var evaluator = MatchResultEvaluatorFactory.CreateEvaluator(Setting.Mode);
+                    lock (playerSyncLock)
+                    {
+                        var evaluatedResult = evaluator.Evaluate(situation, Players);
+                        evaluatedResult["RoomId"] = Id.ToString();
+                        resultJson = evaluatedResult;
+                    }
                 }
                 catch (Exception exception)
                 {
+                    // A result calculation failure must not leave the stopped
+                    // room unfinished. Continue cleanup and report the failure
+                    // after the end notifications and wait-room transition run.
                     failures.Add(exception);
+                }
+
+                // The result goes out first so the manager can store it before
+                // broadcasting the match end. One subscriber cannot prevent
+                // the other end-stage notifications from running.
+                if (resultJson != null)
+                {
+                    try
+                    {
+                        eventBus.PublishGameEndWithResult(resultJson);
+                    }
+                    catch (Exception exception)
+                    {
+                        failures.Add(exception);
+                    }
                 }
 
                 try
@@ -1018,7 +1032,7 @@ namespace OpenGSCore
                     _finishing = false;
 
                 if (failures.Count > 0)
-                    throw new AggregateException("The match ended with notification failures.", failures);
+                    throw new AggregateException("The match ended with finalization failures.", failures);
             }
             catch
             {
