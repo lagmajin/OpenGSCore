@@ -67,8 +67,25 @@ namespace OpenGSCore
         public void PublishGameStart()
         {
             Console.WriteLine("GameStart");
-            OnGameStarted?.Invoke();
+            var handlers = OnGameStarted;
+            if (handlers == null)
+                return;
 
+            List<Exception>? failures = null;
+            foreach (Action handler in handlers.GetInvocationList())
+            {
+                try
+                {
+                    handler();
+                }
+                catch (Exception exception)
+                {
+                    (failures ??= new List<Exception>()).Add(exception);
+                }
+            }
+
+            if (failures != null)
+                throw new AggregateException("One or more match-start handlers failed.", failures);
 
             //Publish("GameStart", null);
         }

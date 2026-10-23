@@ -909,7 +909,17 @@ namespace OpenGSCore
                 _starting = false;
             }
 
-            eventBus.PublishGameStart();
+            try
+            {
+                eventBus.PublishGameStart();
+            }
+            catch (AggregateException exception)
+            {
+                // The match is already playing. A failed notification subscriber
+                // must not make callers treat the completed state transition as
+                // a failed start and skip their remaining initialization.
+                Console.WriteLine($"[Match] One or more game-start handlers failed: {exception}");
+            }
             return true;
         }
 
