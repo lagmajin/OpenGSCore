@@ -944,10 +944,27 @@ namespace OpenGSCore
                     resultJson["RoomId"] = Id.ToString();
                 }
 
+                var failures = new List<Exception>();
                 // The result goes out first so the manager can store it before
-                // broadcasting the match end.
-                eventBus.PublishGameEndWithResult(resultJson);
-                eventBus.PublishGameEnd();
+                // broadcasting the match end. One subscriber cannot prevent
+                // the other end-stage notifications from running.
+                try
+                {
+                    eventBus.PublishGameEndWithResult(resultJson);
+                }
+                catch (Exception exception)
+                {
+                    failures.Add(exception);
+                }
+
+                try
+                {
+                    eventBus.PublishGameEnd();
+                }
+                catch (Exception exception)
+                {
+                    failures.Add(exception);
+                }
 
                 WaitRoom? waitRoom;
                 lock (playerSyncLock)
@@ -956,11 +973,23 @@ namespace OpenGSCore
                     MatchEnd = true;
                     waitRoom = WaitRoomLink;
                     WaitRoomLink = null;
-                    _finishing = false;
                 }
 
                 // WaitRoomに終了を通知
-                waitRoom?.GameIsOver();
+                try
+                {
+                    waitRoom?.GameIsOver();
+                }
+                catch (Exception exception)
+                {
+                    failures.Add(exception);
+                }
+
+                lock (playerSyncLock)
+                    _finishing = false;
+
+                if (failures.Count > 0)
+                    throw new AggregateException("The match ended with notification failures.", failures);
             }
             catch
             {

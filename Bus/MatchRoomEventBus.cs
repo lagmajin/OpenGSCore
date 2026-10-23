@@ -76,12 +76,48 @@ namespace OpenGSCore
         // ゲーム終了イベントを発行
         public void PublishGameEnd()
         {
-            OnGameEnded?.Invoke();
+            var handlers = OnGameEnded;
+            if (handlers == null)
+                return;
+
+            List<Exception>? failures = null;
+            foreach (Action handler in handlers.GetInvocationList())
+            {
+                try
+                {
+                    handler();
+                }
+                catch (Exception exception)
+                {
+                    (failures ??= new List<Exception>()).Add(exception);
+                }
+            }
+
+            if (failures != null)
+                throw new AggregateException("One or more match-end handlers failed.", failures);
         }
 
         public void PublishGameEndWithResult(JObject result)
         {
-            OnGameEndedWithResult?.Invoke(result);
+            var handlers = OnGameEndedWithResult;
+            if (handlers == null)
+                return;
+
+            List<Exception>? failures = null;
+            foreach (Action<JObject> handler in handlers.GetInvocationList())
+            {
+                try
+                {
+                    handler((JObject)result.DeepClone());
+                }
+                catch (Exception exception)
+                {
+                    (failures ??= new List<Exception>()).Add(exception);
+                }
+            }
+
+            if (failures != null)
+                throw new AggregateException("One or more match-result handlers failed.", failures);
         }
 
         /// <summary>
