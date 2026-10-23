@@ -628,15 +628,19 @@ namespace OpenGSCore
         /// </summary>
         public bool SetMissionObjectiveCountBeforeStart(int objectiveCount)
         {
-            if (Playing || Finished || rule is not MissionMatchRule missionRule ||
-                Setting is not MissionMatchSetting missionSetting)
-                return false;
+            lock (playerSyncLock)
+            {
+                if (Playing || Finished || _starting ||
+                    rule is not MissionMatchRule missionRule ||
+                    Setting is not MissionMatchSetting missionSetting)
+                    return false;
 
-            var supportedCount = Math.Max(0, objectiveCount);
-            missionSetting.ObjectiveCount = supportedCount;
-            missionRule.SetObjectiveCount(supportedCount);
-            (situation as MissionMatchSituation)?.AdoptFrom(missionRule);
-            return true;
+                var supportedCount = Math.Max(0, objectiveCount);
+                missionSetting.ObjectiveCount = supportedCount;
+                missionRule.SetObjectiveCount(supportedCount);
+                (situation as MissionMatchSituation)?.AdoptFrom(missionRule);
+                return true;
+            }
         }
 
         /// <summary>
