@@ -39,7 +39,7 @@ namespace OpenGSCore
         }
 
         /// <summary>How much of the objective ends the match.</summary>
-        public int ObjectiveCount { get; }
+        public int ObjectiveCount { get; private set; }
 
         /// <summary>How many times the party may go down.</summary>
         public int LifeCount { get; }
@@ -49,6 +49,13 @@ namespace OpenGSCore
 
         /// <summary>How many goes are left in total across the party.</summary>
         public int LifeRemaining { get; private set; }
+
+        /// <summary>Changes the target before a match starts.</summary>
+        public void SetObjectiveCount(int objectiveCount)
+        {
+            ObjectiveCount = Math.Max(0, objectiveCount);
+            ObjectiveProgress = Math.Min(ObjectiveProgress, ObjectiveCount);
+        }
 
         /// <summary>
         /// Records one step of the objective.

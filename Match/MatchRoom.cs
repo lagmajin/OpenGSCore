@@ -623,6 +623,23 @@ namespace OpenGSCore
         }
 
         /// <summary>
+        /// Reconciles a mission target before play so the setting, rule and
+        /// situation all use the number the server can actually support.
+        /// </summary>
+        public bool SetMissionObjectiveCountBeforeStart(int objectiveCount)
+        {
+            if (Playing || Finished || rule is not MissionMatchRule missionRule ||
+                Setting is not MissionMatchSetting missionSetting)
+                return false;
+
+            var supportedCount = Math.Max(0, objectiveCount);
+            missionSetting.ObjectiveCount = supportedCount;
+            missionRule.SetObjectiveCount(supportedCount);
+            (situation as MissionMatchSituation)?.AdoptFrom(missionRule);
+            return true;
+        }
+
+        /// <summary>
         /// How many players on a team are still in the match.
         /// </summary>
         public int AliveCountOn(ETeam team)
