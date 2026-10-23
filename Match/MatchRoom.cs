@@ -481,26 +481,62 @@ namespace OpenGSCore
         /// </summary>
         public void RecordKill(string killerId)
         {
+            _ = RecordKill(killerId, 0);
+        }
+
+        /// <summary>Records a kill and its score award as one room update.</summary>
+        /// <returns>The killer's updated count, or zero when no kill was recorded.</returns>
+        public int RecordKill(string killerId, int scoreAward)
+        {
             lock (playerSyncLock)
             {
                 if (Finished || _finishing)
-                    return;
+                    return 0;
 
-                var killer = Players.FirstOrDefault(player =>
-                    string.Equals(player.Id, killerId, StringComparison.OrdinalIgnoreCase));
-
-                if (killer == null)
-                    return;
-
-                killer.Kills++;
-                situation?.RecordKill(killer.Kills);
-
-                // A kill belongs to the team that scored it, and a team death match
-                // is won and ended on the team totals. Nobody was writing them, so
-                // that mode compared two zeroes and reported a draw whatever had
-                // happened in it.
-                (situation as AbstractTeamMatchSituation)?.AddKill(killer.Team);
+                return RecordKillLocked(killerId, scoreAward);
             }
+        }
+
+        /// <summary>Records a player elimination and its killer award atomically.</summary>
+        public int RecordPlayerElimination(string victimId, string? killerId, int scoreAward)
+        {
+            lock (playerSyncLock)
+            {
+                if (Finished || _finishing)
+                    return 0;
+
+                var victim = Players.FirstOrDefault(player =>
+                    string.Equals(player.Id, victimId, StringComparison.OrdinalIgnoreCase));
+                if (victim == null)
+                    return 0;
+
+                victim.Deaths++;
+                situation?.RecordDeath();
+                SpendLife(victim);
+                RefreshAliveCounts();
+
+                if (string.IsNullOrWhiteSpace(killerId) ||
+                    string.Equals(killerId, victimId, StringComparison.OrdinalIgnoreCase))
+                    return 0;
+
+                return RecordKillLocked(killerId, scoreAward);
+            }
+        }
+
+        private int RecordKillLocked(string killerId, int scoreAward)
+        {
+            var killer = Players.FirstOrDefault(player =>
+                string.Equals(player.Id, killerId, StringComparison.OrdinalIgnoreCase));
+            if (killer == null)
+                return 0;
+
+            killer.Kills++;
+            situation?.RecordKill(killer.Kills);
+            if (scoreAward > 0)
+                killer.Score += scoreAward;
+
+            (situation as AbstractTeamMatchSituation)?.AddKill(killer.Team);
+            return killer.Kills;
         }
 
         /// <summary>
