@@ -612,14 +612,15 @@ namespace OpenGSCore
         /// <returns>True when this step completed the objective.</returns>
         public bool RecordObjectiveProgress(int steps = 1)
         {
-            if (!(rule is MissionMatchRule missionRule))
+            lock (playerSyncLock)
             {
-                return false;
-            }
+                if (rule is not MissionMatchRule missionRule)
+                    return false;
 
-            var completed = missionRule.RecordObjectiveProgress(steps);
-            (situation as MissionMatchSituation)?.AdoptFrom(missionRule);
-            return completed;
+                var completed = missionRule.RecordObjectiveProgress(steps);
+                (situation as MissionMatchSituation)?.AdoptFrom(missionRule);
+                return completed;
+            }
         }
 
         /// <summary>
