@@ -310,7 +310,11 @@ namespace OpenGSCore
         /// </summary>
         public override void GameUpdate()
         {
-            if (Finished) return;
+            lock (playerSyncLock)
+            {
+                if (Finished || _finishing)
+                    return;
+            }
 
             // 1. バッファに溜まった全入力を処理
             while (_inputBuffer.TryDequeue(out var input))
@@ -633,7 +637,7 @@ namespace OpenGSCore
         {
             lock (playerSyncLock)
             {
-                if (Playing || Finished || _starting ||
+                if (Playing || Finished || _starting || _finishing ||
                     rule is not MissionMatchRule missionRule ||
                     Setting is not MissionMatchSetting missionSetting)
                     return false;
@@ -748,7 +752,7 @@ namespace OpenGSCore
             List<PlayerInfo> players;
             lock (playerSyncLock)
             {
-                if (Playing || Finished || _starting)
+                if (Playing || Finished || _starting || _finishing)
                 {
                     return false;
                 }
@@ -797,31 +801,54 @@ namespace OpenGSCore
 
         public void Finish()
         {
-            // ステータス更新を停止
-            StopStatusUpdates();
-
-            // 勝敗判定ロジックをファクトリから取得して実行
-            var evaluator = MatchResultEvaluatorFactory.CreateEvaluator(Setting.Mode);
-            var resultJson = evaluator.Evaluate(situation, Players);
-            resultJson["RoomId"] = Id.ToString();
-
-            // The result goes out first. The end notification carries the winner
-            // and the score, and it gets them from the room state the result
-            // handler writes, so publishing the end first meant the notification
-            // left with the result of the match before this one. It was sent with
-            // no winner at all, and a client reading it decided the match was a
-            // draw.
-            eventBus.PublishGameEndWithResult(resultJson);
-            eventBus.PublishGameEnd();
-
-            Playing = false;
-            Finished = true;
-
-            // WaitRoomに終了を通知
-            if (WaitRoomLink != null)
+            lock (playerSyncLock)
             {
-                WaitRoomLink.GameIsOver();
-                WaitRoomLink = null;
+                if (Finished || _finishing)
+                    return;
+
+                _finishing = true;
+                Playing = false;
+            }
+
+            try
+            {
+                // ステータス更新を停止
+                StopStatusUpdates();
+
+                // Win and score data must come from one settled room snapshot.
+                var evaluator = MatchResultEvaluatorFactory.CreateEvaluator(Setting.Mode);
+                JObject resultJson;
+                lock (playerSyncLock)
+                {
+                    resultJson = evaluator.Evaluate(situation, Players);
+                    resultJson["RoomId"] = Id.ToString();
+                }
+
+                // The result goes out first so the manager can store it before
+                // broadcasting the match end.
+                eventBus.PublishGameEndWithResult(resultJson);
+                eventBus.PublishGameEnd();
+
+                WaitRoom? waitRoom;
+                lock (playerSyncLock)
+                {
+                    Finished = true;
+                    MatchEnd = true;
+                    waitRoom = WaitRoomLink;
+                    WaitRoomLink = null;
+                    _finishing = false;
+                }
+
+                // WaitRoomに終了を通知
+                waitRoom?.GameIsOver();
+            }
+            catch
+            {
+                lock (playerSyncLock)
+                {
+                    _finishing = false;
+                }
+                throw;
             }
         }
 

@@ -10,12 +10,13 @@ namespace OpenGSCore
         private readonly HashSet<string> _readyPlayers = new();
         private bool _loading;
         private bool _starting;
+        private bool _finishing;
 
         public void StartLoading()
         {
             lock (playerSyncLock)
             {
-                if (_loading || _starting || Playing || Finished)
+                if (_loading || _starting || _finishing || Playing || Finished)
                 {
                     return;
                 }
@@ -32,7 +33,7 @@ namespace OpenGSCore
 
             lock (playerSyncLock)
             {
-                if (!_loading || _starting || Playing || Finished)
+                if (!_loading || _starting || _finishing || Playing || Finished)
                 {
                     return;
                 }
