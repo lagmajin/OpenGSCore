@@ -760,7 +760,14 @@ namespace OpenGSCore
         /// How long the match has left, which is what a client showing a clock
         /// reads.
         /// </summary>
-        public float RemainingTimeSeconds => situation?.RemainingTimeSec ?? 0f;
+        public float RemainingTimeSeconds
+        {
+            get
+            {
+                lock (playerSyncLock)
+                    return situation?.RemainingTimeSec ?? 0f;
+            }
+        }
 
         /// <summary>
         /// How many players have died in the match.
@@ -807,25 +814,25 @@ namespace OpenGSCore
 
         private void SendPeriodicStatusUpdate()
         {
-            if (Playing && !Finished)
+            EFieldItemType? spawnedItem = null;
+            FieldItemService.ESpawnState stateChange;
+            lock (playerSyncLock)
             {
-                float deltaTime = 1.0f; // 1秒周期
+                if (!Playing || Finished || _finishing)
+                    return;
 
-                // マッチ状況の更新
+                const float deltaTime = 1.0f;
                 situation.UpdateTime(deltaTime);
+                stateChange = itemServiceA.Update(deltaTime, out spawnedItem);
+            }
 
-                // アイテムAグループの更新
-                EFieldItemType? spawnedItem;
-                var stateChange = itemServiceA.Update(deltaTime, out spawnedItem);
-
-                if (stateChange == FieldItemService.ESpawnState.Active && spawnedItem.HasValue)
-                {
-                    eventBus.PublishItemSpawn(spawnedItem.Value, 0);
-                }
-                else if (stateChange == FieldItemService.ESpawnState.Waiting)
-                {
-                    eventBus.PublishItemDespawn();
-                }
+            if (stateChange == FieldItemService.ESpawnState.Active && spawnedItem.HasValue)
+            {
+                eventBus.PublishItemSpawn(spawnedItem.Value, 0);
+            }
+            else if (stateChange == FieldItemService.ESpawnState.Waiting)
+            {
+                eventBus.PublishItemDespawn();
             }
         }
 
