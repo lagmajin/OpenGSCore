@@ -52,6 +52,8 @@ namespace OpenGSCore
         private AbstractMatchSituation? Situation { get; set; } = null;
         private readonly object playerSyncLock = new();
         private readonly Dictionary<string, EPlayerPoseState> playerPoseStates = new();
+        private volatile bool _playing;
+        private volatile bool _finished;
 
         public GameScene GameScene { get; set; } = new();
 
@@ -77,8 +79,17 @@ namespace OpenGSCore
 
         public int Capacity { get; } = 20;
 
-        public bool Playing { get; private set; } = false;
-        public bool Finished { get; private set; } = false;
+        public bool Playing
+        {
+            get => _playing;
+            private set => _playing = value;
+        }
+
+        public bool Finished
+        {
+            get => _finished;
+            private set => _finished = value;
+        }
         public bool IsStarting
         {
             get
