@@ -133,6 +133,9 @@ namespace OpenGSCore
         {
             lock (playerSyncLock)
             {
+                if (_finishing)
+                    return;
+
                 var player = Players.FirstOrDefault(p =>
                     IdEquals(p.Id, playerId));
                 if (player == null)
@@ -143,9 +146,8 @@ namespace OpenGSCore
                 Players.Remove(player);
                 playerPoseStates.Remove(player.Id);
                 _readyPlayers.Remove(player.Id);
+                RefreshAliveCounts();
             }
-
-            RefreshAliveCounts();
         }
 
         public MatchRoom(int roomNumber, in string roomName, in string roomOwnerId, AbstractMatchSetting setting, MatchRoomEventBus bus) : base(roomNumber, roomOwnerId)
@@ -204,14 +206,11 @@ namespace OpenGSCore
 
         public void AddNewPlayer(PlayerInfo info)
         {
-            if (Playing)
-            {
-                // 途中参加の処理は要検討
-                return;
-            }
-
             lock (playerSyncLock)
             {
+                if (Playing || Finished || _starting || _finishing)
+                    return;
+
                 if (!Players.Exists(p => IdEquals(p.Id, info.Id)))
                 {
                     Players.Add(info);
@@ -337,7 +336,7 @@ namespace OpenGSCore
             GameScene.UpdateFrame();
 
             // 3. ルールチェック（終了判定など）
-            if (Playing && rule != null && rule.IsMatchFinished(situation))
+            if (Playing && rule != null && IsMatchFinished())
             {
                 Finish();
             }
@@ -401,43 +400,41 @@ namespace OpenGSCore
         /// </param>
         public void AddFlagCapture(ETeam team, string? capturingPlayerId = null)
         {
-            if (situation is CaptureTheFlagMatchSituation ctfSituation)
+            lock (playerSyncLock)
             {
-                ctfSituation.AddFlagCapture(team);
-            }
-            else if (situation is AbstractTeamMatchSituation teamSituation)
-            {
-                switch (team)
+                if (Finished || _finishing)
+                    return;
+
+                if (situation is CaptureTheFlagMatchSituation ctfSituation)
                 {
-                    case ETeam.Red:
-                        teamSituation.RedTeamFlagCaptures++;
-                        break;
-                    case ETeam.Blue:
-                        teamSituation.BlueTeamFlagCaptures++;
-                        break;
+                    ctfSituation.AddFlagCapture(team);
                 }
-            }
-            else
-            {
-                return;
+                else if (situation is AbstractTeamMatchSituation teamSituation)
+                {
+                    switch (team)
+                    {
+                        case ETeam.Red:
+                            teamSituation.RedTeamFlagCaptures++;
+                            break;
+                        case ETeam.Blue:
+                            teamSituation.BlueTeamFlagCaptures++;
+                            break;
+                    }
+                }
+                else
+                {
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(capturingPlayerId))
+                    return;
+
+                var scorer = Players.FirstOrDefault(player =>
+                    string.Equals(player.Id, capturingPlayerId, StringComparison.OrdinalIgnoreCase));
+                if (scorer != null)
+                    scorer.Score += CaptureScore;
             }
 
-            if (string.IsNullOrWhiteSpace(capturingPlayerId))
-            {
-                return;
-            }
-
-            var scorer = Players.FirstOrDefault(player =>
-                string.Equals(player.Id, capturingPlayerId, StringComparison.OrdinalIgnoreCase));
-
-            if (scorer == null)
-            {
-                return;
-            }
-
-            // A kill is worth a hundred, so a capture is worth the same: it is the
-            // same kind of thing, done for a different reason.
-            scorer.Score += CaptureScore;
         }
 
         /// <summary>
@@ -447,9 +444,10 @@ namespace OpenGSCore
 
         public void AddFlagReturn(ETeam team)
         {
-            if (situation is CaptureTheFlagMatchSituation ctfSituation)
+            lock (playerSyncLock)
             {
-                ctfSituation.AddFlagReturn(team);
+                if (!Finished && !_finishing && situation is CaptureTheFlagMatchSituation ctfSituation)
+                    ctfSituation.AddFlagReturn(team);
             }
         }
 
@@ -464,9 +462,10 @@ namespace OpenGSCore
         /// </summary>
         public void ResetCaptureTheFlagState()
         {
-            if (situation is CaptureTheFlagMatchSituation ctfSituation)
+            lock (playerSyncLock)
             {
-                ctfSituation.Reset();
+                if (!Finished && !_finishing && situation is CaptureTheFlagMatchSituation ctfSituation)
+                    ctfSituation.Reset();
             }
         }
 
@@ -484,6 +483,9 @@ namespace OpenGSCore
         {
             lock (playerSyncLock)
             {
+                if (Finished || _finishing)
+                    return;
+
                 var killer = Players.FirstOrDefault(player =>
                     string.Equals(player.Id, killerId, StringComparison.OrdinalIgnoreCase));
 
@@ -508,6 +510,9 @@ namespace OpenGSCore
         {
             lock (playerSyncLock)
             {
+                if (Finished || _finishing)
+                    return;
+
                 var player = Players.FirstOrDefault(candidate =>
                     string.Equals(candidate.Id, playerId, StringComparison.OrdinalIgnoreCase));
 
@@ -569,13 +574,14 @@ namespace OpenGSCore
         /// </summary>
         private void RefreshAliveCounts()
         {
-            if (situation is not TeamSurvivalMatchSituation teamSuv)
+            lock (playerSyncLock)
             {
-                return;
-            }
+                if (situation is not TeamSurvivalMatchSituation teamSuv)
+                    return;
 
-            teamSuv.SetAliveCount(ETeam.Red, Players.Count(p => p.Team == ETeam.Red && p.Health > 0));
-            teamSuv.SetAliveCount(ETeam.Blue, Players.Count(p => p.Team == ETeam.Blue && p.Health > 0));
+                teamSuv.SetAliveCount(ETeam.Red, Players.Count(p => p.Team == ETeam.Red && p.Health > 0));
+                teamSuv.SetAliveCount(ETeam.Blue, Players.Count(p => p.Team == ETeam.Blue && p.Health > 0));
+            }
         }
 
         /// <summary>
@@ -631,6 +637,9 @@ namespace OpenGSCore
         {
             lock (playerSyncLock)
             {
+                if (Finished || _finishing)
+                    return false;
+
                 if (rule is not MissionMatchRule missionRule)
                     return false;
 
@@ -666,7 +675,10 @@ namespace OpenGSCore
         /// </summary>
         public int AliveCountOn(ETeam team)
         {
-            return Players.Count(p => p.Team == team && p.Health > 0);
+            lock (playerSyncLock)
+            {
+                return Players.Count(p => p.Team == team && p.Health > 0);
+            }
         }
 
         /// <summary>
@@ -674,7 +686,10 @@ namespace OpenGSCore
         /// </summary>
         public int AliveCount()
         {
-            return Players.Count(p => p.Health > 0);
+            lock (playerSyncLock)
+            {
+                return Players.Count(p => p.Health > 0);
+            }
         }
 
         /// <summary>
@@ -683,19 +698,27 @@ namespace OpenGSCore
         /// </summary>
         public int TeamKillCount(ETeam team)
         {
-            if (situation is not AbstractTeamMatchSituation teamSituation)
+            lock (playerSyncLock)
             {
-                return 0;
-            }
+                if (situation is not AbstractTeamMatchSituation teamSituation)
+                    return 0;
 
-            return team == ETeam.Red ? teamSituation.RedTeamKill : teamSituation.BlueTeamKill;
+                return team == ETeam.Red ? teamSituation.RedTeamKill : teamSituation.BlueTeamKill;
+            }
         }
 
         /// <summary>
         /// The best single kill count in the match, which is what a kill
         /// condition is judged against.
         /// </summary>
-        public int BestKillCount => situation?.MaxPlayerKillCount ?? 0;
+        public int BestKillCount
+        {
+            get
+            {
+                lock (playerSyncLock)
+                    return situation?.MaxPlayerKillCount ?? 0;
+            }
+        }
 
         /// <summary>
         /// How long the match has left, which is what a client showing a clock
@@ -706,7 +729,14 @@ namespace OpenGSCore
         /// <summary>
         /// How many players have died in the match.
         /// </summary>
-        public int TotalDeathCount => situation?.TotalDeath ?? 0;
+        public int TotalDeathCount
+        {
+            get
+            {
+                lock (playerSyncLock)
+                    return situation?.TotalDeath ?? 0;
+            }
+        }
 
         /// <summary>
         /// Whether the rule considers the match over.
@@ -717,21 +747,26 @@ namespace OpenGSCore
         /// own, which is a different situation from the one the room is playing.
         /// </para>
         /// </summary>
-        public bool IsMatchFinished() => rule?.IsMatchFinished(situation) ?? true;
+        public bool IsMatchFinished()
+        {
+            lock (playerSyncLock)
+            {
+                return rule?.IsMatchFinished(situation) ?? true;
+            }
+        }
 
         public int GetFlagScore(ETeam team)
         {
-            if (situation is CaptureTheFlagMatchSituation ctfSituation)
+            lock (playerSyncLock)
             {
-                return team == ETeam.Red ? ctfSituation.RedTeamFlagCaptures : ctfSituation.BlueTeamFlagCaptures;
-            }
+                if (situation is CaptureTheFlagMatchSituation ctfSituation)
+                    return team == ETeam.Red ? ctfSituation.RedTeamFlagCaptures : ctfSituation.BlueTeamFlagCaptures;
 
-            if (situation is AbstractTeamMatchSituation teamSituation)
-            {
-                return team == ETeam.Red ? teamSituation.RedTeamFlagCaptures : teamSituation.BlueTeamFlagCaptures;
-            }
+                if (situation is AbstractTeamMatchSituation teamSituation)
+                    return team == ETeam.Red ? teamSituation.RedTeamFlagCaptures : teamSituation.BlueTeamFlagCaptures;
 
-            return 0;
+                return 0;
+            }
         }
 
         private void SendPeriodicStatusUpdate()
