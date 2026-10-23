@@ -18,6 +18,9 @@ namespace OpenGSCore
         public int CtfFlagInterrupt { get; set; } = 0;
         public int CtfWinCount { get; set; } = 0;
         public int CtfLoseCount { get; set; } = 0;
+        public int MissionCount { get; private set; } = 0;
+        public int MissionWinCount { get; private set; } = 0;
+        public int MissionLoseCount { get; private set; } = 0;
 
 
         public PlayerLifeTimeScore()
@@ -131,6 +134,24 @@ namespace OpenGSCore
             else
             {
                 CtfLoseCount++;
+            }
+        }
+
+        /// <summary>
+        /// Records a completed mission without folding it into a competitive
+        /// death match record.
+        /// </summary>
+        public void RecordMissionResult(bool won)
+        {
+            IncrementTotalMatchCount();
+            MissionCount++;
+            if (won)
+            {
+                MissionWinCount++;
+            }
+            else
+            {
+                MissionLoseCount++;
             }
         }
 
