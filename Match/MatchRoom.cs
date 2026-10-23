@@ -876,37 +876,53 @@ namespace OpenGSCore
                 players = Players.ToList();
             }
 
-            sw.Start();
-
-            // Everybody starts the match alive. A player who died in the previous
-            // match kept the health they died with, so they came into this one at
-            // zero: the survival rules read "still alive" straight off the health,
-            // so they could count a player who had not taken part at all, and every
-            // rule that ends on the clock had already decided the round was over
-            // before it began.
-            foreach (var player in players)
+            try
             {
-                RestorePlayerForMatchStart(player);
-                GivePlayerItsLives(player);
+                sw.Start();
+
+                // Everybody starts the match alive. A player who died in the previous
+                // match kept the health they died with, so they came into this one at
+                // zero: the survival rules read "still alive" straight off the health,
+                // so they could count a player who had not taken part at all, and every
+                // rule that ends on the clock had already decided the round was over
+                // before it began.
+                foreach (var player in players)
+                {
+                    RestorePlayerForMatchStart(player);
+                    GivePlayerItsLives(player);
+                }
+
+                // The alive counts are read from the moment the match starts, so they
+                // have to be right before it does.
+                RefreshAliveCounts();
+
+                // The rule was built from these settings when the room was made, and
+                // it reads them again to decide the match is over. From here the match
+                // is running on the numbers it was given, so anything that writes to
+                // them afterwards is changing the terms of a match already in play.
+                Setting?.LockSettings();
+
+                // ステータス更新を開始
+                StartStatusUpdates();
+
+                lock (playerSyncLock)
+                {
+                    Playing = true;
+                    _starting = false;
+                    System.Threading.Monitor.PulseAll(playerSyncLock);
+                }
             }
-
-            // The alive counts are read from the moment the match starts, so they
-            // have to be right before it does.
-            RefreshAliveCounts();
-
-            // The rule was built from these settings when the room was made, and
-            // it reads them again to decide the match is over. From here the match
-            // is running on the numbers it was given, so anything that writes to
-            // them afterwards is changing the terms of a match already in play.
-            Setting?.LockSettings();
-
-            // ステータス更新を開始
-            StartStatusUpdates();
-
-            lock (playerSyncLock)
+            catch
             {
-                Playing = true;
-                _starting = false;
+                StopStatusUpdates();
+                lock (playerSyncLock)
+                {
+                    _starting = false;
+                    if (!Playing)
+                        sw.Reset();
+                    System.Threading.Monitor.PulseAll(playerSyncLock);
+                }
+                throw;
             }
 
             try
@@ -927,6 +943,9 @@ namespace OpenGSCore
         {
             lock (playerSyncLock)
             {
+                while (_starting)
+                    System.Threading.Monitor.Wait(playerSyncLock);
+
                 if (Finished || _finishing)
                     return;
 
