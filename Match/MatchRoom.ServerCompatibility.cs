@@ -88,6 +88,25 @@ namespace OpenGSCore
         }
 
         /// <summary>
+        /// Reports whether two current room members are teammates in a mode
+        /// that protects teammates from damage.
+        /// </summary>
+        public bool IsFriendlyDamageBlocked(string attackerId, string targetId)
+        {
+            if (string.IsNullOrWhiteSpace(attackerId) || string.IsNullOrWhiteSpace(targetId))
+                return false;
+
+            lock (playerSyncLock)
+            {
+                var attacker = Players.FirstOrDefault(player =>
+                    string.Equals(player.Id, attackerId, StringComparison.OrdinalIgnoreCase));
+                var target = Players.FirstOrDefault(player =>
+                    string.Equals(player.Id, targetId, StringComparison.OrdinalIgnoreCase));
+                return attacker != null && target != null && BlocksFriendlyDamage(attacker, target);
+            }
+        }
+
+        /// <summary>
         /// Restores a defeated player's health when the active match rule allows
         /// respawning.
         /// </summary>
