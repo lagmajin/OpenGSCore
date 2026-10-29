@@ -56,6 +56,9 @@ namespace OpenGSCore
                     (!allowDeadAttacker && attacker.Health <= 0) || target.Health <= 0)
                     return false;
 
+                if (BlocksFriendlyDamage(attacker, target))
+                    return false;
+
                 var configuredRate = Setting?.DamageRate ?? 1f;
                 var damageRate = !float.IsNaN(configuredRate) && !float.IsInfinity(configuredRate) && configuredRate > 0f
                     ? configuredRate
@@ -73,6 +76,15 @@ namespace OpenGSCore
                 situation.AlivePlayers = Players.Count(player => player.Health > 0);
                 return true;
             }
+        }
+
+        private bool BlocksFriendlyDamage(PlayerInfo attacker, PlayerInfo target)
+        {
+            if (attacker.Team == ETeam.NoTeam || attacker.Team != target.Team)
+                return false;
+
+            return Setting?.Mode is EGameMode.TeamDeathMatch or
+                EGameMode.TeamSurvival or EGameMode.CaptureTheFlag;
         }
 
         /// <summary>
