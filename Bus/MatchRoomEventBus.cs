@@ -31,8 +31,8 @@ namespace OpenGSCore
     {
 
     }
-    
-    
+
+
 
     public class MatchRoomEventBus : AbstractEventBus
     {
@@ -44,7 +44,9 @@ namespace OpenGSCore
         public event Action? OnItemDespawned;
         public event Action? OnGameEnded;
         public event Action<JObject>? OnGameEndedWithResult;
-        
+        public event Action<MatchResult>? OnMatchResult;
+        public event Action<JObject>? OnGameUpdateFromClient;
+
         public MatchRoomEventBus()
         {
             Console.WriteLine("Match RoomEventBus");
@@ -55,20 +57,7 @@ namespace OpenGSCore
         {
             this.room = room;
         }
-        /*
-        public void setMatchRoomManager(MatchRoomManager manager)
-        {
-            this.roomManager = manager;
-        }
 
-        */
-        public void setNetworkManager()
-        {
-            
-        }
-        
-        
-        
         public void PublishLoadingStart()
         {
             Console.WriteLine("LoadingStart");
@@ -78,8 +67,25 @@ namespace OpenGSCore
         public void PublishGameStart()
         {
             Console.WriteLine("GameStart");
-            OnGameStarted?.Invoke();
+            var handlers = OnGameStarted;
+            if (handlers == null)
+                return;
 
+            List<Exception>? failures = null;
+            foreach (Action handler in handlers.GetInvocationList())
+            {
+                try
+                {
+                    handler();
+                }
+                catch (Exception exception)
+                {
+                    (failures ??= new List<Exception>()).Add(exception);
+                }
+            }
+
+            if (failures != null)
+                throw new AggregateException("One or more match-start handlers failed.", failures);
 
             //Publish("GameStart", null);
         }
@@ -87,23 +93,85 @@ namespace OpenGSCore
         // ゲーム終了イベントを発行
         public void PublishGameEnd()
         {
-            OnGameEnded?.Invoke();
+            var handlers = OnGameEnded;
+            if (handlers == null)
+                return;
+
+            List<Exception>? failures = null;
+            foreach (Action handler in handlers.GetInvocationList())
+            {
+                try
+                {
+                    handler();
+                }
+                catch (Exception exception)
+                {
+                    (failures ??= new List<Exception>()).Add(exception);
+                }
+            }
+
+            if (failures != null)
+                throw new AggregateException("One or more match-end handlers failed.", failures);
         }
 
         public void PublishGameEndWithResult(JObject result)
         {
-            OnGameEndedWithResult?.Invoke(result);
+            var handlers = OnGameEndedWithResult;
+            if (handlers == null)
+                return;
+
+            List<Exception>? failures = null;
+            foreach (Action<JObject> handler in handlers.GetInvocationList())
+            {
+                try
+                {
+                    handler((JObject)result.DeepClone());
+                }
+                catch (Exception exception)
+                {
+                    (failures ??= new List<Exception>()).Add(exception);
+                }
+            }
+
+            if (failures != null)
+                throw new AggregateException("One or more match-result handlers failed.", failures);
         }
 
+        /// <summary>
+        /// マッチ結果を発行する。
+        /// <para>
+        /// ここは以前何もしなかったので、結果イベント購読者は永久に呼ばれなかった。
+        /// MatchResult は Status しか持たないので、誰の勝ちかはここには書かない。
+        /// 勝者そのもの（Winner、WinningPlayerId 等）は PublishGameEndWithResult の
+        /// JObject が持っており、勝敗の全体像はそちらが持つ。
+        /// </para>
+        /// </summary>
         public void PublishMatchResult(MatchResult result)
         {
-            
-            
+            if (result == null)
+            {
+                return;
+            }
+
+            OnMatchResult?.Invoke(result);
         }
 
+        /// <summary>
+        /// この部屋の現状スナップショットを購読側に渡す。
+        /// <para>
+        /// ここがネットワークへ送る経路ではないので、購読者がスナップショットを受け取る
+        /// 場所になる。room が設定されていないバスは何もせず、無い状態を null で
+        /// 配り回さない。
+        /// </para>
+        /// </summary>
         public void PublishGameUpdateFromClient()
         {
-            
+            if (room == null)
+            {
+                return;
+            }
+
+            OnGameUpdateFromClient?.Invoke(room.ToJSon());
         }
 
         public void PublishItemSpawn(EFieldItemType type, int spawnPointId)
@@ -115,9 +183,10 @@ namespace OpenGSCore
         {
             OnItemDespawned?.Invoke();
         }
-        
-        
-       
+
+
+
+
     }
 }
 

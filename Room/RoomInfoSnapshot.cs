@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace OpenGSCore
@@ -11,6 +14,7 @@ namespace OpenGSCore
         public string GameMode { get; set; } = EGameMode.DeathMatch.ToString();
         public string Map { get; set; } = string.Empty;
         public bool TeamBalance { get; set; } = true;
+        public List<string> BannedWeapons { get; set; } = new List<string>();
         public int PlayerCount { get; set; } = 0;
 
         public JObject ToJson()
@@ -26,6 +30,7 @@ namespace OpenGSCore
                 ["GameMode"] = GameMode,
                 ["Map"] = Map,
                 ["TeamBalance"] = TeamBalance,
+                ["BannedWeapons"] = new JArray(BannedWeapons ?? new List<string>()),
                 ["PlayerCount"] = PlayerCount
             };
         }
@@ -71,6 +76,9 @@ namespace OpenGSCore
                 GameMode = source.GetStringAny("GameMode") ?? EGameMode.DeathMatch.ToString(),
                 Map = source.GetStringAny("Map") ?? string.Empty,
                 TeamBalance = source.GetBoolAny("TeamBalance") ?? true,
+                BannedWeapons = source["BannedWeapons"] is JArray bannedWeapons
+                    ? bannedWeapons.Values<string>().Where(value => !string.IsNullOrWhiteSpace(value)).Distinct(StringComparer.OrdinalIgnoreCase).ToList()
+                    : new List<string>(),
                 PlayerCount = source.GetIntAny("PlayerCount", "Players", "WaitingPlayerCount") ?? 0
             };
         }

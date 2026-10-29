@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace OpenGSCore
@@ -7,12 +8,21 @@ namespace OpenGSCore
     public partial class MatchRoom
     {
         private readonly HashSet<string> _readyPlayers = new();
+        private bool _loading;
+        private bool _starting;
+        private bool _finishing;
 
         public void StartLoading()
         {
             lock (playerSyncLock)
             {
+                if (_loading || _starting || _finishing || Playing || Finished)
+                {
+                    return;
+                }
+
                 _readyPlayers.Clear();
+                _loading = true;
             }
             eventBus.PublishLoadingStart();
         }
@@ -23,13 +33,20 @@ namespace OpenGSCore
 
             lock (playerSyncLock)
             {
-                if (!Players.Exists(p => p.Id == playerId))
+                if (!_loading || _starting || _finishing || Playing || Finished)
                 {
                     return;
                 }
 
-                _readyPlayers.Add(playerId);
-                shouldStart = _readyPlayers.Count >= Players.Count && Players.Count > 0 && !Playing;
+                if (!Players.Exists(p => string.Equals(p.Id, playerId, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return;
+                }
+
+                var canonicalPlayerId = Players.First(p =>
+                    string.Equals(p.Id, playerId, StringComparison.OrdinalIgnoreCase)).Id;
+                _readyPlayers.Add(canonicalPlayerId);
+                shouldStart = _readyPlayers.Count >= Players.Count && Players.Count > 0;
             }
 
             if (shouldStart)
@@ -37,6 +54,7 @@ namespace OpenGSCore
                 GameStart();
             }
         }
+
     }
 
 

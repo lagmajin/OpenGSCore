@@ -16,12 +16,12 @@ namespace OpenGSCore
         public bool TeamBalance { get; set; } = true;
         public string Map { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
-        public bool HasRoomName { get; private set; }
-        public bool HasCapacity { get; private set; }
-        public bool HasGameMode { get; private set; }
-        public bool HasTeamBalance { get; private set; }
-        public bool HasMap { get; private set; }
-        public bool HasPasswordValue { get; private set; }
+        public bool HasRoomName { get; internal set; }
+        public bool HasCapacity { get; internal set; }
+        public bool HasGameMode { get; internal set; }
+        public bool HasTeamBalance { get; internal set; }
+        public bool HasMap { get; internal set; }
+        public bool HasPasswordValue { get; internal set; }
 
         public int MaxPlayerCount
         {
@@ -77,6 +77,20 @@ namespace OpenGSCore
             if (HasMap && Enum.TryParse<EMap>(Map, true, out var parsedMap))
             {
                 room.Map = parsedMap;
+            }
+            else if (HasGameMode && GameMode != EGameMode.Unknown)
+            {
+                // The request named no map, or named one that does not exist. The
+                // room has to be given a map it can be played on, and which maps
+                // those are is a question about the mode. Without this a room kept
+                // an unknown map and the client fell back to one of its own
+                // choosing, which for capture the flag meant a stage with no flag
+                // stands: a match that could not be won by anybody.
+                var playable = OpenGSCore.GameMode.DefaultMapFor(GameMode);
+                if (playable.HasValue)
+                {
+                    room.Map = playable.Value;
+                }
             }
 
             if (HasPasswordValue)

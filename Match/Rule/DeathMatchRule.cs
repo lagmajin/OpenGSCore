@@ -9,17 +9,40 @@ namespace OpenGSCore
     {
         private int killLimit = 20;
 
-        public DeathMatchRule(int killCondition = 20, int matchTimeMsec = 300000) 
+        /// <summary>
+        /// The length a free for all match runs on when its setting does not say.
+        /// </summary>
+        public const int DefaultMatchTimeMsec = 300000;
+
+        /// <summary>
+        /// The kill limit a free for all match runs on when its setting does not say.
+        /// </summary>
+        public const int DefaultKillLimit = 20;
+
+        public DeathMatchRule(int matchTimeMsec = DefaultMatchTimeMsec, int killCondition = DefaultKillLimit) 
             : base(EGameMode.DeathMatch, matchTimeMsec)
         {
             killLimit = killCondition;
         }
 
-        public DeathMatchRule(in DeathMatchSetting setting) 
-            : base(EGameMode.DeathMatch, setting?.MatchTimeMSec > 0 ? setting.MatchTimeMSec : 300000)
+        public DeathMatchRule(in DeathMatchSetting setting)
+            : base(
+                EGameMode.DeathMatch,
+                // The minutes are read rather than a length written once in the
+                // setting's constructor, because a snapshot is a value later
+                // writes do not change.
+                setting?.MatchTimeMinutes > 0
+                    ? setting.MatchTimeMinutes * 60 * 1000
+                    : DefaultMatchTimeMsec)
         {
-            killLimit = setting?.WinConditionKill ?? 20;
+            killLimit = setting?.WinConditionKill > 0 ? setting.WinConditionKill : DefaultKillLimit;
         }
+
+        /// <summary>
+        /// The number of kills that ends the match, for a client showing the
+        /// scoreboard the server is playing to.
+        /// </summary>
+        public int KillLimit => killLimit;
 
         public override bool IsMatchFinished(AbstractMatchSituation situation)
         {

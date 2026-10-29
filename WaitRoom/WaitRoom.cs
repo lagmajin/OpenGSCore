@@ -98,6 +98,17 @@ namespace OpenGSCore
                 }
 
                 GameMode = setting != null ? setting.Mode : mode;
+
+                // A room that is changing mode cannot keep the map it had: the
+                // old mode's map has whatever the old mode needs in it, and a
+                // capture the flag room pointed at a death match stage has no flag
+                // stands on it. The map is a property of the mode, so it is
+                // chosen from the mode here rather than left to whoever asks.
+                var playable = OpenGSCore.GameMode.DefaultMapFor(GameMode);
+                if (playable.HasValue)
+                {
+                    Map = playable.Value;
+                }
             }
         }
 
@@ -313,6 +324,33 @@ namespace OpenGSCore
         }
 
         /// <summary>
+        /// <summary>
+        /// Releases the wait room when a match never reached the map.
+        /// <para>
+        /// When the S3 loading handshake times out, the MatchRoom that was
+        /// created is discarded, but NowPlaying on the wait room stays true.
+        /// CanStartMatch() then keeps returning false, so the room is stuck and
+        /// can never start again. This releases it so a retry is possible.
+        /// The link is cleared as well, because the MatchRoom on the other side
+        /// is being thrown away; leaving it set would keep the room locked.
+        /// </para>
+        /// </summary>
+        public void CancelPendingMatch()
+        {
+            lock (lockObject)
+            {
+                var pending = MatchRoomLink;
+                MatchRoomLink = null;
+                NowPlaying = false;
+
+                if (pending != null)
+                {
+                    pending.WaitRoomLink = null;
+                }
+            }
+        }
+
+        /// <summary>
         /// ゲーム開始可能かチェック
         /// </summary>
         public bool CanStartMatch()
@@ -363,12 +401,20 @@ namespace OpenGSCore
                 NowPlaying = false;
                 MatchRoomLink = null;
 
-                // Reset player states for the next match
+                // Reset player states for the next match.
+                //
+                // Health belongs here as well as kills and deaths. It used to be
+                // left alone, so a player who died in the last match queued for the
+                // next one still dead, and the room that puts everybody back on
+                // their feet at match start had to be trusted to do it.
                 foreach (var p in Players.Values)
                 {
                     p.IsReady = false;
                     p.Kills = 0;
                     p.Deaths = 0;
+                    p.Score = 0;
+                    p.MaxHealth = p.MaxHealth > 0 ? p.MaxHealth : 100;
+                    p.Health = p.MaxHealth;
                 }
             }
         }

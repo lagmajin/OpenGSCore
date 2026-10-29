@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -17,12 +17,18 @@ namespace OpenGSCore
         SpeedUpItem,        // 移動速度2倍 (30秒)
         StealthItem,        // キャラ半透明化 (30秒)
         GrenadePack,        // ノーマルグレネード満タン補充
-        HealItem            // HP回復
+        HealItem,           // HP回復
+        WeaponItem          // ドロップされた通常武器。効果ではなく装備そのもの
     }
 
-
-
-
-
-
+    /// <summary>
+    /// アイテム効果の既定持続時間（秒）。
+    /// Timed effects used to hard code 30 seconds on the client only, so the
+    /// server had no way to shorten or extend one. Keeping the number in the
+    /// shared package lets both sides apply the same value.
+    /// </summary>
+    public static class FieldItemDefaults
+    {
+        public const float DurationSeconds = 30.0f;
+    }
 }

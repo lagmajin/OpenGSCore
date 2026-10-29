@@ -24,11 +24,36 @@ namespace OpenGSCore
 
         AbstractMatchRule? rule;
 
+        /// <summary>
+        /// The rule this room is playing to, or null before one exists.
+        /// <para>
+        /// Read by anything that has to describe the match: the room state
+        /// publishes the rule's own limits, and a caller asking what the room is
+        /// actually playing is asking this rather than the setting the rule was
+        /// built from, because the two can disagree.
+        /// </para>
+        /// </summary>
+        public AbstractMatchRule? Rule => rule;
+
+        /// <summary>
+        /// The match state the rule is judged by.
+        /// <para>
+        /// It was private with no reader outside this file, so the result of a
+        /// match could only be had by whoever asked the rule. The rule is what ends
+        /// a match and this is what it ends it on, and the two being separately
+        /// reachable is how a result can be read from one and the match run on the
+        /// other.
+        /// </para>
+        /// </summary>
+        public AbstractMatchSituation? CurrentSituation => situation;
+
         public AbstractMatchSetting Setting { get; set; } = null!;
 
         private AbstractMatchSituation? Situation { get; set; } = null;
         private readonly object playerSyncLock = new();
-        private readonly object finishSyncLock = new();
+        private readonly Dictionary<string, EPlayerPoseState> playerPoseStates = new();
+        private volatile bool _playing;
+        private volatile bool _finished;
 
         public GameScene GameScene { get; set; } = new();
 
@@ -52,35 +77,29 @@ namespace OpenGSCore
             } 
         }
 
-        public void AddFlagCapture(ETeam team)
-        {
-            lock (playerSyncLock)
-            {
-                if (situation is not AbstractTeamMatchSituation teamSituation) return;
-                if (team == ETeam.Red) teamSituation.RedTeamFlagCaptures++;
-                else if (team == ETeam.Blue) teamSituation.BlueTeamFlagCaptures++;
-            }
-        }
-
-        public int GetFlagScore(ETeam team)
-        {
-            lock (playerSyncLock)
-            {
-                if (situation is not AbstractTeamMatchSituation teamSituation) return 0;
-                return team switch
-                {
-                    ETeam.Red => teamSituation.RedTeamFlagCaptures,
-                    ETeam.Blue => teamSituation.BlueTeamFlagCaptures,
-                    _ => 0
-                };
-            }
-        }
-
         public int Capacity { get; } = 20;
 
-        public bool Playing { get; private set; } = false;
-        public bool Finished { get; private set; } = false;
-        public bool CanRespawn => rule?.CanReSpawn() ?? false;
+        public bool Playing
+        {
+            get => _playing;
+            private set => _playing = value;
+        }
+
+        public bool Finished
+        {
+            get => _finished;
+            private set => _finished = value;
+        }
+        public bool IsStarting
+        {
+            get
+            {
+                lock (playerSyncLock)
+                {
+                    return _starting;
+                }
+            }
+        }
 
         private Stopwatch sw = new();
 
@@ -100,11 +119,34 @@ namespace OpenGSCore
         /// <summary>
         /// プレイヤーをルームから削除する
         /// </summary>
+        /// <summary>
+        /// Takes a player out of the room and brings the match's view of who is
+        /// still in it up to date.
+        /// <para>
+        /// Removing them and counting them are one thing. A player who has gone
+        /// is not on a team any more, and a room that still counted them would
+        /// keep a team alive that has nobody standing in it, so the wipe that
+        /// ends a team survival match would never arrive.
+        /// </para>
+        /// </summary>
         public void RemovePlayer(string playerId)
         {
             lock (playerSyncLock)
             {
-                Players.RemoveAll(p => p.Id == playerId);
+                if (_finishing)
+                    return;
+
+                var player = Players.FirstOrDefault(p =>
+                    IdEquals(p.Id, playerId));
+                if (player == null)
+                {
+                    return;
+                }
+
+                Players.Remove(player);
+                playerPoseStates.Remove(player.Id);
+                _readyPlayers.Remove(player.Id);
+                RefreshAliveCounts();
             }
         }
 
@@ -124,12 +166,23 @@ namespace OpenGSCore
                 EGameMode.TeamDeathMatch => new AbstractTeamMatchSituation(),
                 EGameMode.CaptureTheFlag => new CaptureTheFlagMatchSituation(),
                 EGameMode.TeamSurvival => new TeamSurvivalMatchSituation(),
+
+                // A mission has its own numbers: an objective and a life count.
+                // It was falling through to the survival situation, which has a
+                // kill count and an alive count, neither of which is what ends a
+                // mission, so the result could not say how far it had got.
+                EGameMode.Mission => new MissionMatchSituation(),
+
                 EGameMode.DeathMatch => new AbstractMatchSituation(),
                 _ => new AbstractMatchSituation()
             };
-            
+
             situation.mode = setting.Mode;
             situation.RemainingTimeSec = (rule != null) ? rule.MatchTimeMSec() / 1000f : 300f;
+
+            // A mission's result is read off its situation, so the situation starts
+            // holding the same numbers the rule is judging by.
+            (situation as MissionMatchSituation)?.AdoptFrom(rule as MissionMatchRule);
         }
 
         public bool ChangeOwnerRandom()
@@ -153,15 +206,12 @@ namespace OpenGSCore
 
         public void AddNewPlayer(PlayerInfo info)
         {
-            if (Playing)
-            {
-                // 途中参加の処理は要検討
-                return;
-            }
-
             lock (playerSyncLock)
             {
-                if (!Players.Exists(p => p.Id == info.Id))
+                if (Playing || Finished || _starting || _finishing)
+                    return;
+
+                if (!Players.Exists(p => IdEquals(p.Id, info.Id)))
                 {
                     Players.Add(info);
                 }
@@ -178,7 +228,7 @@ namespace OpenGSCore
                     return false;
                 }
 
-                player = Players.FirstOrDefault(p => p.Id == playerId);
+                player = Players.FirstOrDefault(p => IdEquals(p.Id, playerId));
                 return player != null;
             }
         }
@@ -192,115 +242,62 @@ namespace OpenGSCore
                     return false;
                 }
 
-                return Players.Any(p => p.Id == playerId);
+                return Players.Any(p => IdEquals(p.Id, playerId));
             }
         }
 
-        public bool TryApplyPlayerDamage(
-            string attackerId, string targetId, int baseDamage,
-            out int damageApplied, out int remainingHealth, out bool wasKilled)
+        /// <summary>
+        /// Compares two player ids.
+        /// <para>
+        /// Player ids are guids produced with the N format, but they also arrive
+        /// from clients, and the casing of a guid is not fixed by the format. The
+        /// lookups here used a plain string equality while RemovePlayer did not,
+        /// so the same player could be found by one call and missed by another,
+        /// and a pose was stored under a key the lookup could never match.
+        /// </para>
+        /// </summary>
+        private static bool IdEquals(string left, string right)
         {
-            return TryApplyPlayerDamage(attackerId, targetId, baseDamage, false,
-                out damageApplied, out remainingHealth, out wasKilled);
+            return string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
         }
 
-        public bool TryApplyPlayerDamage(
-            string attackerId, string targetId, int baseDamage, bool allowDeadAttacker,
-            out int damageApplied, out int remainingHealth, out bool wasKilled)
+        public void SetPlayerPoseState(string playerId, EPlayerPoseState poseState)
         {
-            damageApplied = 0;
-            remainingHealth = 0;
-            wasKilled = false;
-            if (string.IsNullOrWhiteSpace(attackerId) || string.IsNullOrWhiteSpace(targetId) ||
-                attackerId == targetId || baseDamage <= 0 || !Playing || Finished)
-                return false;
-
             lock (playerSyncLock)
             {
-                var attacker = Players.FirstOrDefault(player => player.Id == attackerId);
-                var target = Players.FirstOrDefault(player => player.Id == targetId);
-                if (attacker == null || target == null ||
-                    (!allowDeadAttacker && attacker.Health <= 0) || target.Health <= 0)
-                    return false;
-
-                var damageRate = !float.IsNaN(Setting.DamageRate) && !float.IsInfinity(Setting.DamageRate) &&
-                    Setting.DamageRate > 0f
-                    ? Setting.DamageRate : 1f;
-                var scaledDamage = (int)Math.Min(1000d, Math.Max(1d, Math.Ceiling(baseDamage * (double)damageRate)));
-                damageApplied = Math.Min(target.Health, scaledDamage);
-                target.Health = Math.Max(0, target.Health - damageApplied);
-                remainingHealth = target.Health;
-                wasKilled = target.Health == 0;
-
-                if (wasKilled)
+                if (string.IsNullOrWhiteSpace(playerId))
                 {
-                    target.Deaths++;
-                    attacker.Kills++;
-                    situation.TotalKill++;
-                    situation.TotalDeath++;
-                    situation.MaxPlayerKillCount = Math.Max(situation.MaxPlayerKillCount, attacker.Kills);
-                    if (situation is AbstractTeamMatchSituation teamSituation)
+                    return;
+                }
+
+                // Store under the id the player actually has, not the one the
+                // caller passed, so the state can be found again later.
+                var actual = Players.FirstOrDefault(p => IdEquals(p.Id, playerId))?.Id;
+                if (actual == null)
+                {
+                    return;
+                }
+
+                playerPoseStates[actual] = poseState;
+            }
+        }
+
+        public EPlayerPoseState GetPlayerPoseState(string playerId)
+        {
+            lock (playerSyncLock)
+            {
+                // The dictionary is keyed by the id the player actually has, so
+                // resolve the caller's id against the roster before reading it
+                // rather than looking the key up verbatim.
+                foreach (var entry in playerPoseStates)
+                {
+                    if (IdEquals(entry.Key, playerId))
                     {
-                        if (attacker.Team == ETeam.Red) teamSituation.RedTeamKill++;
-                        else if (attacker.Team == ETeam.Blue) teamSituation.BlueTeamKill++;
-                    }
-                    if (situation is TeamSurvivalMatchSituation teamSurvival &&
-                        (target.Team == ETeam.Red || target.Team == ETeam.Blue))
-                    {
-                        int aliveCount = Players.Count(player => player.Team == target.Team && player.Health > 0);
-                        teamSurvival.SetAliveCount(target.Team, aliveCount);
+                        return entry.Value;
                     }
                 }
 
-                situation.AlivePlayers = Players.Count(player => player.Health > 0);
-                return true;
-            }
-        }
-
-        public bool TryRespawnPlayer(string playerId, out int currentHealth, out int maxHealth)
-        {
-            currentHealth = 0;
-            maxHealth = 0;
-            if (!CanRespawn || !Playing || Finished || string.IsNullOrWhiteSpace(playerId))
-                return false;
-
-            lock (playerSyncLock)
-            {
-                var player = Players.FirstOrDefault(candidate => candidate.Id == playerId);
-                if (player == null || player.Health > 0)
-                    return false;
-
-                maxHealth = Math.Max(player.MaxHealth, 1);
-                player.MaxHealth = maxHealth;
-                player.Health = maxHealth;
-                currentHealth = player.Health;
-                situation.AlivePlayers = Players.Count(candidate => candidate.Health > 0);
-                return true;
-            }
-        }
-
-        public bool TryHealPlayer(
-            string playerId, int requestedHealing,
-            out int restoredHealth, out int currentHealth, out int maxHealth)
-        {
-            restoredHealth = 0;
-            currentHealth = 0;
-            maxHealth = 0;
-            if (!Playing || Finished || string.IsNullOrWhiteSpace(playerId) || requestedHealing <= 0)
-                return false;
-
-            lock (playerSyncLock)
-            {
-                var player = Players.FirstOrDefault(candidate => candidate.Id == playerId);
-                if (player == null || player.Health <= 0) return false;
-                maxHealth = Math.Max(player.MaxHealth, 1);
-                player.MaxHealth = maxHealth;
-                currentHealth = Math.Clamp(player.Health, 0, maxHealth);
-                restoredHealth = Math.Min(requestedHealing, maxHealth - currentHealth);
-                if (restoredHealth <= 0) return false;
-                player.Health = currentHealth + restoredHealth;
-                currentHealth = player.Health;
-                return true;
+                return EPlayerPoseState.Stand;
             }
         }
 
@@ -323,7 +320,11 @@ namespace OpenGSCore
         /// </summary>
         public override void GameUpdate()
         {
-            if (Finished) return;
+            lock (playerSyncLock)
+            {
+                if (Finished || _finishing)
+                    return;
+            }
 
             // 1. バッファに溜まった全入力を処理
             while (_inputBuffer.TryDequeue(out var input))
@@ -335,7 +336,7 @@ namespace OpenGSCore
             GameScene.UpdateFrame();
 
             // 3. ルールチェック（終了判定など）
-            if (Playing && rule != null && rule.IsMatchFinished(situation))
+            if (Playing && rule != null && IsMatchFinished())
             {
                 Finish();
             }
@@ -368,33 +369,479 @@ namespace OpenGSCore
         }
 
         private System.Timers.Timer? statusUpdateTimer;
+        private int statusUpdateCallbacks;
 
         public void StartStatusUpdates()
         {
-            statusUpdateTimer = new System.Timers.Timer(1000); // 1秒ごとに更新
-            statusUpdateTimer.Elapsed += (sender, e) => SendPeriodicStatusUpdate();
-            statusUpdateTimer.Start();
+            lock (playerSyncLock)
+            {
+                if (statusUpdateTimer != null || Finished || _finishing)
+                    return;
+
+                statusUpdateTimer = new System.Timers.Timer(1000) { AutoReset = true };
+                statusUpdateTimer.Elapsed += (sender, e) => SendPeriodicStatusUpdate();
+                statusUpdateTimer.Start();
+            }
         }
 
         public void StopStatusUpdates()
         {
-            statusUpdateTimer?.Stop();
-            statusUpdateTimer?.Dispose();
+            System.Timers.Timer? timer;
+            lock (playerSyncLock)
+            {
+                timer = statusUpdateTimer;
+                statusUpdateTimer = null;
+                timer?.Stop();
+            }
+            timer?.Dispose();
+        }
+
+        /// <summary>
+        /// Records a capture and gives the player who made it something for it.
+        /// <para>
+        /// The score is what a player earns, so a capture that only moved a team's
+        /// tally earned nothing: a match won entirely on captures persisted a score
+        /// of zero, and the experience that comes with it. The score is a room
+        /// state and the tally is the same event seen from the other side, so one
+        /// call now does both and a caller cannot do one without the other.
+        /// </para>
+        /// </summary>
+        /// <param name="team">The team that scored.</param>
+        /// <param name="capturingPlayerId">
+        /// Who carried the flag in, or null when it is not known. A team score is
+        /// not a player's score, so without this nothing is credited to anybody.
+        /// </param>
+        public void AddFlagCapture(ETeam team, string? capturingPlayerId = null)
+        {
+            lock (playerSyncLock)
+            {
+                if (Finished || _finishing)
+                    return;
+
+                if (situation is CaptureTheFlagMatchSituation ctfSituation)
+                {
+                    ctfSituation.AddFlagCapture(team);
+                }
+                else if (situation is AbstractTeamMatchSituation teamSituation)
+                {
+                    switch (team)
+                    {
+                        case ETeam.Red:
+                            teamSituation.RedTeamFlagCaptures++;
+                            break;
+                        case ETeam.Blue:
+                            teamSituation.BlueTeamFlagCaptures++;
+                            break;
+                    }
+                }
+                else
+                {
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(capturingPlayerId))
+                    return;
+
+                var scorer = Players.FirstOrDefault(player =>
+                    string.Equals(player.Id, capturingPlayerId, StringComparison.OrdinalIgnoreCase));
+                if (scorer != null)
+                    scorer.Score += CaptureScore;
+            }
+
+        }
+
+        /// <summary>
+        /// What one capture is worth to the player who made it.
+        /// </summary>
+        public const int CaptureScore = 100;
+
+        public void AddFlagReturn(ETeam team)
+        {
+            lock (playerSyncLock)
+            {
+                if (!Finished && !_finishing && situation is CaptureTheFlagMatchSituation ctfSituation)
+                    ctfSituation.AddFlagReturn(team);
+            }
+        }
+
+        /// <summary>
+        /// Clears the capture the flag state of a room that is playing that mode.
+        /// <para>
+        /// This used to reach for the team scores of any team mode, which meant a
+        /// method named for one mode could clear the kill totals a team death
+        /// match is won and ended on. A room is only reset for the mode it is
+        /// playing, so the other modes' numbers are left alone.
+        /// </para>
+        /// </summary>
+        public void ResetCaptureTheFlagState()
+        {
+            lock (playerSyncLock)
+            {
+                if (!Finished && !_finishing && situation is CaptureTheFlagMatchSituation ctfSituation)
+                    ctfSituation.Reset();
+            }
+        }
+
+        /// <summary>
+        /// Records a kill on both the player and the match.
+        /// <para>
+        /// The rules end a match on the best kill count, and the best kill count
+        /// is state on the match rather than a thing to be recomputed from a
+        /// player list at the moment somebody asks. Nothing used to write it, so
+        /// the kill condition in the death match and survival rules could not
+        /// fire and those matches could only ever end on the clock.
+        /// </para>
+        /// </summary>
+        public void RecordKill(string killerId)
+        {
+            _ = RecordKill(killerId, 0);
+        }
+
+        /// <summary>Records a kill and its score award as one room update.</summary>
+        /// <returns>The killer's updated count, or zero when no kill was recorded.</returns>
+        public int RecordKill(string killerId, int scoreAward)
+        {
+            lock (playerSyncLock)
+            {
+                if (Finished || _finishing)
+                    return 0;
+
+                return RecordKillLocked(killerId, scoreAward);
+            }
+        }
+
+        /// <summary>Records a player elimination and its killer award atomically.</summary>
+        public int RecordPlayerElimination(string victimId, string? killerId, int scoreAward)
+        {
+            lock (playerSyncLock)
+            {
+                if (Finished || _finishing)
+                    return 0;
+
+                var victim = Players.FirstOrDefault(player =>
+                    string.Equals(player.Id, victimId, StringComparison.OrdinalIgnoreCase));
+                if (victim == null)
+                    return 0;
+
+                victim.Deaths++;
+                situation?.RecordDeath();
+                SpendLife(victim);
+                RefreshAliveCounts();
+
+                if (string.IsNullOrWhiteSpace(killerId) ||
+                    string.Equals(killerId, victimId, StringComparison.OrdinalIgnoreCase))
+                    return 0;
+
+                return RecordKillLocked(killerId, scoreAward);
+            }
+        }
+
+        private int RecordKillLocked(string killerId, int scoreAward)
+        {
+            var killer = Players.FirstOrDefault(player =>
+                string.Equals(player.Id, killerId, StringComparison.OrdinalIgnoreCase));
+            if (killer == null)
+                return 0;
+
+            killer.Kills++;
+            situation?.RecordKill(killer.Kills);
+            if (scoreAward > 0)
+                killer.Score += scoreAward;
+
+            (situation as AbstractTeamMatchSituation)?.AddKill(killer.Team);
+            return killer.Kills;
+        }
+
+        /// <summary>
+        /// Records a death on both the player and the match.
+        /// </summary>
+        public void RecordDeath(string playerId)
+        {
+            lock (playerSyncLock)
+            {
+                if (Finished || _finishing)
+                    return;
+
+                var player = Players.FirstOrDefault(candidate =>
+                    string.Equals(candidate.Id, playerId, StringComparison.OrdinalIgnoreCase));
+
+                if (player == null)
+                    return;
+
+                player.Deaths++;
+                situation?.RecordDeath();
+                SpendLife(player);
+                RefreshAliveCounts();
+            }
+        }
+
+        /// <summary>
+        /// Spends one of a player's goes, on a mode that has them.
+        /// <para>
+        /// The life count was declared on the player as a number of three and
+        /// nothing ever wrote to it, so a mission asked how many goes the party had
+        /// left and was always told three, whatever had happened. A mission ends on
+        /// running out, so the count has to come down here or it never will.
+        /// </para>
+        /// <para>
+        /// It is this player's own count that goes down, by one. Setting it back
+        /// to the mission's count less one would refill them on their second death,
+        /// so a player with three lives would be back to two for ever.
+        /// </para>
+        /// </summary>
+        private void SpendLife(PlayerInfo player)
+        {
+            if (player == null || !(rule is MissionMatchRule missionRule))
+            {
+                return;
+            }
+
+            player.LifeCount = Math.Max(0, player.LifeCount - 1);
+
+            var lifeRemaining = Players
+                .Where(candidate => candidate != null)
+                .Sum(candidate => Math.Max(0, candidate.LifeCount));
+
+            missionRule.RecordLifeLost(lifeRemaining);
+
+            if (situation is MissionMatchSituation missionSituation)
+            {
+                missionSituation.LifeRemaining = lifeRemaining;
+                missionSituation.AdoptFrom(missionRule);
+            }
+        }
+
+        /// <summary>
+        /// Brings the per team alive counts up to date with who is in the room.
+        /// <para>
+        /// The team survival rule ends a match when one side is wiped, and it read
+        /// these counts from a situation that nothing ever wrote, so the wipe could
+        /// never happen and that mode could only ever end on the clock. The counts
+        /// are derived from the players rather than kept beside them, because a
+        /// second copy of who is alive is a thing that can disagree with who is.
+        /// </para>
+        /// </summary>
+        private void RefreshAliveCounts()
+        {
+            lock (playerSyncLock)
+            {
+                if (situation is not TeamSurvivalMatchSituation teamSuv)
+                    return;
+
+                teamSuv.SetAliveCount(ETeam.Red, Players.Count(p => p.Team == ETeam.Red && p.Health > 0));
+                teamSuv.SetAliveCount(ETeam.Blue, Players.Count(p => p.Team == ETeam.Blue && p.Health > 0));
+            }
+        }
+
+        /// <summary>
+        /// Puts a player into the match alive and at full health.
+        /// <para>
+        /// Restoring here rather than in each caller's own preparation is what
+        /// makes "a match starts with everybody alive" a property of starting a
+        /// match instead of something each of the several places that prepare a
+        /// player has to remember.
+        /// </para>
+        /// </summary>
+        private static void RestorePlayerForMatchStart(PlayerInfo player)
+        {
+            if (player == null)
+            {
+                return;
+            }
+
+            player.MaxHealth = player.MaxHealth > 0 ? player.MaxHealth : 100;
+            player.Health = player.MaxHealth;
+        }
+
+        /// <summary>
+        /// Gives a player the mission's lives, on a mode that has them.
+        /// <para>
+        /// A mission's result is read off the life count, and the count was never
+        /// written for a match, so it kept whatever the player last had. Restoring
+        /// it here is what makes a mission start on the number of goes it was
+        /// configured with rather than on the number from the last attempt.
+        /// </para>
+        /// </summary>
+        private void GivePlayerItsLives(PlayerInfo player)
+        {
+            if (player == null || !(rule is MissionMatchRule missionRule))
+            {
+                return;
+            }
+
+            player.LifeCount = Math.Max(0, missionRule.LifeCount);
+        }
+
+        /// <summary>
+        /// Records one step of a mission's objective.
+        /// <para>
+        /// The objective has to be writable from the thing that achieves it, and
+        /// it has to reach the rule and the situation that the result is read out
+        /// of. Doing it in one place is what stops the rule and the result
+        /// disagreeing about how far the mission got.
+        /// </para>
+        /// </summary>
+        /// <returns>True when this step completed the objective.</returns>
+        public bool RecordObjectiveProgress(int steps = 1)
+        {
+            lock (playerSyncLock)
+            {
+                if (Finished || _finishing)
+                    return false;
+
+                if (rule is not MissionMatchRule missionRule)
+                    return false;
+
+                var completed = missionRule.RecordObjectiveProgress(steps);
+                (situation as MissionMatchSituation)?.AdoptFrom(missionRule);
+                return completed;
+            }
+        }
+
+        /// <summary>
+        /// Reconciles a mission target before play so the setting, rule and
+        /// situation all use the number the server can actually support.
+        /// </summary>
+        public bool SetMissionObjectiveCountBeforeStart(int objectiveCount)
+        {
+            lock (playerSyncLock)
+            {
+                if (Playing || Finished || _starting || _finishing ||
+                    rule is not MissionMatchRule missionRule ||
+                    Setting is not MissionMatchSetting missionSetting)
+                    return false;
+
+                var supportedCount = Math.Max(0, objectiveCount);
+                missionSetting.ObjectiveCount = supportedCount;
+                missionRule.SetObjectiveCount(supportedCount);
+                (situation as MissionMatchSituation)?.AdoptFrom(missionRule);
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// How many players on a team are still in the match.
+        /// </summary>
+        public int AliveCountOn(ETeam team)
+        {
+            lock (playerSyncLock)
+            {
+                return Players.Count(p => p.Team == team && p.Health > 0);
+            }
+        }
+
+        /// <summary>
+        /// How many players are still in the match, on any team.
+        /// </summary>
+        public int AliveCount()
+        {
+            lock (playerSyncLock)
+            {
+                return Players.Count(p => p.Health > 0);
+            }
+        }
+
+        /// <summary>
+        /// How many kills a team has scored, which is how a team death match is
+        /// won and how its kill limit is reached.
+        /// </summary>
+        public int TeamKillCount(ETeam team)
+        {
+            lock (playerSyncLock)
+            {
+                if (situation is not AbstractTeamMatchSituation teamSituation)
+                    return 0;
+
+                return team == ETeam.Red ? teamSituation.RedTeamKill : teamSituation.BlueTeamKill;
+            }
+        }
+
+        /// <summary>
+        /// The best single kill count in the match, which is what a kill
+        /// condition is judged against.
+        /// </summary>
+        public int BestKillCount
+        {
+            get
+            {
+                lock (playerSyncLock)
+                    return situation?.MaxPlayerKillCount ?? 0;
+            }
+        }
+
+        /// <summary>
+        /// How long the match has left, which is what a client showing a clock
+        /// reads.
+        /// </summary>
+        public float RemainingTimeSeconds
+        {
+            get
+            {
+                lock (playerSyncLock)
+                    return situation?.RemainingTimeSec ?? 0f;
+            }
+        }
+
+        /// <summary>
+        /// How many players have died in the match.
+        /// </summary>
+        public int TotalDeathCount
+        {
+            get
+            {
+                lock (playerSyncLock)
+                    return situation?.TotalDeath ?? 0;
+            }
+        }
+
+        /// <summary>
+        /// Whether the rule considers the match over.
+        /// <para>
+        /// The room owns the rule and the situation it is playing, and the two
+        /// together are the only thing that can answer this. A caller that
+        /// wanted to know used to have to take the rule and a situation of its
+        /// own, which is a different situation from the one the room is playing.
+        /// </para>
+        /// </summary>
+        public bool IsMatchFinished()
+        {
+            lock (playerSyncLock)
+            {
+                return rule?.IsMatchFinished(situation) ?? true;
+            }
+        }
+
+        public int GetFlagScore(ETeam team)
+        {
+            lock (playerSyncLock)
+            {
+                if (situation is CaptureTheFlagMatchSituation ctfSituation)
+                    return team == ETeam.Red ? ctfSituation.RedTeamFlagCaptures : ctfSituation.BlueTeamFlagCaptures;
+
+                if (situation is AbstractTeamMatchSituation teamSituation)
+                    return team == ETeam.Red ? teamSituation.RedTeamFlagCaptures : teamSituation.BlueTeamFlagCaptures;
+
+                return 0;
+            }
         }
 
         private void SendPeriodicStatusUpdate()
         {
-            if (Playing && !Finished)
+            EFieldItemType? spawnedItem = null;
+            FieldItemService.ESpawnState stateChange;
+            lock (playerSyncLock)
             {
-                float deltaTime = 1.0f; // 1秒周期
+                if (!Playing || Finished || _finishing)
+                    return;
 
-                // マッチ状況の更新
+                const float deltaTime = 1.0f;
                 situation.UpdateTime(deltaTime);
+                stateChange = itemServiceA.Update(deltaTime, out spawnedItem);
+                statusUpdateCallbacks++;
+            }
 
-                // アイテムAグループの更新
-                EFieldItemType? spawnedItem;
-                var stateChange = itemServiceA.Update(deltaTime, out spawnedItem);
-
+            try
+            {
                 if (stateChange == FieldItemService.ESpawnState.Active && spawnedItem.HasValue)
                 {
                     eventBus.PublishItemSpawn(spawnedItem.Value, 0);
@@ -404,74 +851,280 @@ namespace OpenGSCore
                     eventBus.PublishItemDespawn();
                 }
             }
-        }
-
-        public void GameStart()
-        {
-            sw.Start();
-
-            lock (playerSyncLock)
+            finally
             {
-                if (situation is TeamSurvivalMatchSituation teamSurvival)
+                lock (playerSyncLock)
                 {
-                    teamSurvival.SetAliveCount(ETeam.Red,
-                        Players.Count(player => player.Team == ETeam.Red && player.Health > 0));
-                    teamSurvival.SetAliveCount(ETeam.Blue,
-                        Players.Count(player => player.Team == ETeam.Blue && player.Health > 0));
+                    statusUpdateCallbacks--;
+                    System.Threading.Monitor.PulseAll(playerSyncLock);
                 }
             }
+        }
 
-            // ステータス更新を開始
-            StartStatusUpdates();
+        public bool GameStart()
+        {
+            List<PlayerInfo> players;
+            lock (playerSyncLock)
+            {
+                if (Playing || Finished || _starting || _finishing)
+                {
+                    return false;
+                }
 
-            Playing = true;
-            eventBus.PublishGameStart();
+                _starting = true;
+                _loading = false;
+                players = Players.ToList();
+            }
+
+            try
+            {
+                sw.Start();
+
+                // Everybody starts the match alive. A player who died in the previous
+                // match kept the health they died with, so they came into this one at
+                // zero: the survival rules read "still alive" straight off the health,
+                // so they could count a player who had not taken part at all, and every
+                // rule that ends on the clock had already decided the round was over
+                // before it began.
+                foreach (var player in players)
+                {
+                    RestorePlayerForMatchStart(player);
+                    GivePlayerItsLives(player);
+                }
+
+                // The alive counts are read from the moment the match starts, so they
+                // have to be right before it does.
+                RefreshAliveCounts();
+
+                // The rule was built from these settings when the room was made, and
+                // it reads them again to decide the match is over. From here the match
+                // is running on the numbers it was given, so anything that writes to
+                // them afterwards is changing the terms of a match already in play.
+                Setting?.LockSettings();
+
+                // ステータス更新を開始
+                StartStatusUpdates();
+
+                lock (playerSyncLock)
+                {
+                    Playing = true;
+                    _starting = false;
+                    System.Threading.Monitor.PulseAll(playerSyncLock);
+                }
+            }
+            catch
+            {
+                StopStatusUpdates();
+                lock (playerSyncLock)
+                {
+                    _starting = false;
+                    if (!Playing)
+                        sw.Reset();
+                    System.Threading.Monitor.PulseAll(playerSyncLock);
+                }
+                throw;
+            }
+
+            try
+            {
+                eventBus.PublishGameStart();
+            }
+            catch (AggregateException exception)
+            {
+                // The match is already playing. A failed notification subscriber
+                // must not make callers treat the completed state transition as
+                // a failed start and skip their remaining initialization.
+                Console.WriteLine($"[Match] One or more game-start handlers failed: {exception}");
+            }
+            return true;
         }
 
         public void Finish()
         {
-            lock (finishSyncLock)
-            {
-                if (Finished) return;
-                var evaluator = MatchResultEvaluatorFactory.CreateEvaluator(Setting.Mode);
-                CompleteFinish(evaluator.Evaluate(situation, Players));
-            }
+            if (!TryBeginFinish(requireMission: false)) return;
+            CompleteFinish(missionSuccess: null, reason: null);
         }
 
+        /// <summary>
+        /// Completes the current mission from the server's explicit outcome.
+        /// </summary>
         public bool TryFinishMission(bool succeeded, string? reason = null)
         {
-            lock (finishSyncLock)
+            if (!TryBeginFinish(requireMission: true)) return false;
+            CompleteFinish(succeeded, reason);
+            return true;
+        }
+
+        private bool TryBeginFinish(bool requireMission)
+        {
+            lock (playerSyncLock)
             {
-                if (Setting is not MissionMatchSetting || !Playing || Finished)
+                while (_starting)
+                    System.Threading.Monitor.Wait(playerSyncLock);
+
+                if (Finished || _finishing ||
+                    (requireMission && (Setting is not MissionMatchSetting || !Playing)))
                     return false;
 
-                var evaluator = MatchResultEvaluatorFactory.CreateEvaluator(Setting.Mode);
-                var result = evaluator.Evaluate(situation, Players);
-                result["ResultType"] = "Mission";
-                result["Success"] = succeeded;
-                if (!string.IsNullOrWhiteSpace(reason))
-                    result["Reason"] = reason;
-                CompleteFinish(result);
+                _finishing = true;
+                Playing = false;
                 return true;
             }
         }
 
-        private void CompleteFinish(JObject resultJson)
+        private void CompleteFinish(bool? missionSuccess, string? reason)
         {
-            StopStatusUpdates();
-            resultJson["RoomId"] = Id.ToString();
-            Playing = false;
-            Finished = true;
-            eventBus.PublishGameEnd();
-            eventBus.PublishGameEndWithResult(resultJson);
-            if (WaitRoomLink != null)
+            try
             {
-                WaitRoomLink.GameIsOver();
-                WaitRoomLink = null;
+                // ステータス更新を停止
+                StopStatusUpdates();
+
+                lock (playerSyncLock)
+                {
+                    while (statusUpdateCallbacks > 0)
+                        System.Threading.Monitor.Wait(playerSyncLock);
+                }
+
+                var failures = new List<Exception>();
+                JObject? resultJson = null;
+                try
+                {
+                    // Win and score data must come from one settled room snapshot.
+                    var evaluator = MatchResultEvaluatorFactory.CreateEvaluator(Setting.Mode);
+                    lock (playerSyncLock)
+                    {
+                        var evaluatedResult = evaluator.Evaluate(situation, Players);
+                        if (missionSuccess.HasValue)
+                        {
+                            evaluatedResult["ResultType"] = "Mission";
+                            evaluatedResult["Success"] = missionSuccess.Value;
+                            evaluatedResult["Result"] = missionSuccess.Value ? "Clear" : "Fail";
+                            if (!string.IsNullOrWhiteSpace(reason))
+                                evaluatedResult["Reason"] = reason;
+                        }
+                        evaluatedResult["RoomId"] = Id.ToString();
+                        resultJson = evaluatedResult;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    // A result calculation failure must not leave the stopped
+                    // room unfinished. Continue cleanup and report the failure
+                    // after the end notifications and wait-room transition run.
+                    failures.Add(exception);
+                }
+
+                // The result goes out first so the manager can store it before
+                // broadcasting the match end. One subscriber cannot prevent
+                // the other end-stage notifications from running.
+                if (resultJson != null)
+                {
+                    try
+                    {
+                        eventBus.PublishGameEndWithResult(resultJson);
+                    }
+                    catch (Exception exception)
+                    {
+                        failures.Add(exception);
+                    }
+                }
+
+                try
+                {
+                    eventBus.PublishGameEnd();
+                }
+                catch (Exception exception)
+                {
+                    failures.Add(exception);
+                }
+
+                WaitRoom? waitRoom;
+                lock (playerSyncLock)
+                {
+                    Finished = true;
+                    MatchEnd = true;
+                    waitRoom = WaitRoomLink;
+                    WaitRoomLink = null;
+                }
+
+                // WaitRoomに終了を通知
+                try
+                {
+                    waitRoom?.GameIsOver();
+                }
+                catch (Exception exception)
+                {
+                    failures.Add(exception);
+                }
+
+                lock (playerSyncLock)
+                    _finishing = false;
+
+                if (failures.Count > 0)
+                    throw new AggregateException("The match ended with finalization failures.", failures);
+            }
+            catch
+            {
+                lock (playerSyncLock)
+                {
+                    _finishing = false;
+                }
+                throw;
             }
         }
 
         #region ISyncable Implementation
+
+        /// <summary>
+        /// Puts the settings this room's rule is actually running from into the
+        /// room state.
+        /// <para>
+        /// A client used to carry its own idea of these, so a scoreboard could
+        /// say the match is first to five while the server ends it at three. The
+        /// rule ends the match, so the rule's numbers are the ones worth sending,
+        /// and a client showing a rule the server is not running is showing
+        /// something that is not the match it is in.
+        /// </para>
+        /// </summary>
+        private void AddRuleSettings(JObject json)
+        {
+            // The multiplier is not a rule setting, but it is a thing the two
+            // sides have to agree on and it lives on the setting, so it is
+            // published with the rest of them. A client that derived it from
+            // the mode instead would be applying its own guess while the server
+            // applies the configured one, and the two players would disagree
+            // about how much health anybody has.
+            if (Setting is SuvMatchSetting suv)
+            {
+                json["HealthMultiplier"] = suv.HealthMultiplier;
+            }
+            else if (Setting is TeamSurvivalMatchSetting teamSuv)
+            {
+                json["HealthMultiplier"] = teamSuv.HealthMultiplier;
+            }
+
+            switch (rule)
+            {
+                case CaptureTheFlagMatchRule ctf:
+                    json["WinConditionPoint"] = ctf.FlagLimit;
+                    break;
+                case DeathMatchRule death:
+                    json["KillLimit"] = death.KillLimit;
+                    break;
+                case SuvMatchRule suvRule:
+                    json["WinConditionKill"] = suvRule.WinConditionKill;
+                    break;
+                case TDMMatchRule tdm:
+                    json["TeamKillLimit"] = tdm.TeamKillLimit;
+                    break;
+                case MissionMatchRule mission:
+                    // The same numbers the rule ends the match on, so a client
+                    // showing an objective is showing this match's objective.
+                    json["ObjectiveCount"] = mission.ObjectiveCount;
+                    json["LifeCount"] = mission.LifeCount;
+                    break;
+            }
+        }
 
         private JObject _lastSyncState = new();
 
@@ -483,7 +1136,40 @@ namespace OpenGSCore
             json["PlayerCount"] = PlayerCount;
             json["IsPlaying"] = Playing;
             json["IsFinished"] = Finished;
-            
+            json["MatchTimeSeconds"] = situation.RemainingTimeSec;
+
+            // The time left and the length of the match are different numbers and
+            // a client needs both: it counts down the first and shows the second.
+            // Only the first was published, so a client that joined late was told
+            // three minutes and read that as the whole match.
+            json["MatchLengthSeconds"] = rule?.MatchTimeMSec() / 1000f;
+            // The running team totals, so a client is not left counting kills
+            // itself and hoping. It already sends its own kill claims, so a
+            // client that was never told the real totals would be showing a
+            // score of its own making for the whole match, and the two sides
+            // would disagree about it.
+            if (situation is AbstractTeamMatchSituation teamSituation)
+            {
+                json["RedTeamKills"] = teamSituation.RedTeamKill;
+                json["BlueTeamKills"] = teamSituation.BlueTeamKill;
+            }
+
+            // A mission publishes its own numbers, so a client is not left
+            // inventing an objective out of a kill count and a life bar out of
+            // whatever it last had. The rule ends the match, so these are the
+            // rule's numbers.
+            if (rule is MissionMatchRule missionRule)
+            {
+                json["MissionType"] = (Setting as MissionMatchSetting)?.MissionType ?? string.Empty;
+                json["ObjectiveCount"] = missionRule.ObjectiveCount;
+                json["ObjectiveProgress"] = missionRule.ObjectiveProgress;
+                json["LifeCount"] = missionRule.LifeCount;
+                json["LifeRemaining"] = missionRule.LifeRemaining;
+                json["AllowRespawn"] = missionRule.CanReSpawn();
+            }
+
+            AddRuleSettings(json);
+
             // GameSceneのスナップショットを追加
             json["Snapshot"] = GameScene.GetSnapshot();
             
