@@ -26,15 +26,8 @@ namespace OpenGSCore
                 {
                     winningTeam = "Blue";
                 }
-                // フラグ数が同じならキル数で判定（タイブレーカー）
-                else if (teamSituation.RedTeamKill > teamSituation.BlueTeamKill)
-                {
-                    winningTeam = "Red";
-                }
-                else if (teamSituation.BlueTeamKill > teamSituation.RedTeamKill)
-                {
-                    winningTeam = "Blue";
-                }
+                // CTF is decided by captures. Kills remain in the result for
+                // the scoreboard, but a tied flag score is a draw.
 
                 resultJson["RedTeamScore"] = teamSituation.RedTeamFlagCaptures;
                 resultJson["BlueTeamScore"] = teamSituation.BlueTeamFlagCaptures;
