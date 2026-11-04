@@ -359,6 +359,7 @@ namespace OpenGSCore
             {
                 if (NowPlaying) return false;
                 if (Players == null || Players.Count == 0) return false;
+                if ((setting?.Mode ?? GameMode) == EGameMode.CaptureTheFlag && Players.Count < 2) return false;
                 return true;
             }
         }
